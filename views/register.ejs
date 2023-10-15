@@ -1,0 +1,102 @@
+<%- include('layouts/outerheader'); -%>
+
+  <body>
+    <fieldset class="registerfieldset">
+      <h3 class="modal-title" id="registryTitle">Create Account</h3>
+
+      <form name="myform" method="post" action="/register">
+        <div class="registerfromgrind">
+          <div class="Registerfield">
+            <label>Username</label><br>
+            <input id="userName" placeholder="Username" type="text" name="userName"
+              value="<%= typeof userName !== 'undefined' ? userName : '' %>">
+          </div>
+          <!-- <div class="Registerfield">
+            <label>First Name</label><br>
+            <input id="fname" placeholder="First Name" type="text" name="fname"
+              value="<%= typeof fname !== 'undefined' ? fname : '' %>">
+          </div> -->
+          <!-- <div class="Registerfield">
+            <label>Last Name</label><br>
+            <input id="lname" placeholder="Last Name" type="text" name="lname">
+          </div> -->
+          <!-- <div class="Registerfield">
+            <label>Date of Birth</label><br>
+            <input id="dob" placeholder="dob" type="date" name="dob">
+          </div> -->
+
+          <!-- <div class="Registerfield">
+            <label>Province</label><br>
+            <input id="Province" placeholder="Province" type="Province" name="Province">
+          </div> -->
+
+          <div class="Registerfield">
+            <label>Email</label><br>
+            <input id="email" placeholder="Email" type="email" name="email">
+          </div>
+
+          <div class="Registerfield">
+            <label>Confirm email</label><br>
+            <input id="confirmemail" placeholder="Confirm email" type="email" name="confirmemail">
+          </div>
+          <div class="Registerfield">
+            <label>Security Question</label><br>
+            <input id="securityQuestion" placeholder="Security Question" type="text" name="securityQuestion"
+              value="<%= typeof securityQuestion !== 'undefined' ? securityQuestion : '' %>">
+          </div>
+          <div class="Registerfield">
+            <label>Security Answer</label><br>
+            <input id="securityAnswer" placeholder="Security Answer" type="text" name="securityAnswer"
+              value="<%= typeof securityAnswer !== 'undefined' ? securityAnswer : '' %>">
+          </div>
+          <div class="Registerfield">
+            <label>Password</label><br>
+            <input id="password" placeholder="Password" type="password" name="password">
+          </div>
+
+          <div class="Registerfield">
+            <label>Confirm Password</label><br>
+            <input id="confirmpassword" placeholder="Confirm Password" type="password" name="confirmpassword">
+          </div>
+        </div>
+
+        <!-- <div class="registercheckbox">
+          <input type="checkbox" name="notifications" value="notifications"> Receive ended auctions notifications by
+          email
+          </input> <br />
+          <input type="checkbox" name="bids" value="bids"> Receive my outdated bids by SMS </input> </br>
+          <input type="checkbox" name="subscription" value="subscription"> Subscribe Newsletter </input> <br /><br />
+          <input type="checkbox" name="terms" value="terms" required> I agree to the <a href="#">privacy policy</a>, <a
+            href="#">Terms & Conditions</a> and <a href="#">cookie policy</a> </input> <br /><br /><br />
+        </div> -->
+        <button class="register" type="register">Create Account</button>
+
+        <!-- Common error message for missing fields -->
+        <!-- Error message for common error -->
+        <% if (submitted && commonError) { %>
+          <div class="error-text">
+            <p>
+              <%= commonError %>
+            </p>
+          </div>
+          <% } %>
+
+            <!-- Error message for Password and Confirm Password mismatch -->
+            <% if (submitted && errors.length> 0) { %>
+              <div class="error-text">
+                <% errors.forEach(error=> { %>
+                  <% if (error.param !=='confirmpassword' ) { %>
+                    <p>
+                      <%= error.msg %>
+                    </p>
+                    <% } %>
+                      <% }); %>
+              </div>
+              <% } %>
+
+
+      </form>
+    </fieldset>
+  </body>
+
+  <%- include('layouts/footer'); -%>

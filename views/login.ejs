@@ -1,0 +1,66 @@
+<%- include('layouts/outerheader'); -%>
+
+  <body>
+    <div class="grid-container">
+      <!--   <div class="grid-item image">
+        <img src="images/girl-2696947_640.jpg" alt="innerImage">
+      </div> -->
+
+      <div class="grid-item login">
+        <form name="myform" method="post" action="/login">
+          <fieldset class="loginfieldset">
+            <div class="logincontent">
+              <div class="loginform">
+                <div class="loginfield">
+                  <label>Username</label>
+                  <input id="email" placeholder="Username" type="text" name="userName"
+                    value="<%= typeof userName !== 'undefined' ? userName : '' %>">
+                </div>
+
+                <div class="loginfield">
+                  <label>Password</label>
+                  <input id="password" placeholder="Password" type="password" name="password">
+                </div>
+
+
+                <!-- Error messages -->
+
+                <% if (errors && errors.length> 0) { %>
+                  <div class="error-message">
+                    <% for (let i=0; i < errors.length; i++) { %>
+                      <p class="error-text">
+                        <%= errors[i].msg %>
+                      </p>
+                      <% } %>
+                  </div>
+                  <% } %>
+
+
+
+                    <button class="login" type="login">Login</button>
+                    <br /><br>
+
+                    <div class="forgotpasswordlink">
+                      <a href="/forgotpassword" data-toggle="modal" data-dismiss="modal"
+                        class="close-modal pointer-class" data-modalid="forgotModal"> Forgot your password?</a>
+                      <br /><br />
+                    </div>
+
+                    <div class="registeruserlink">
+                      <span>No account? <a href="/register" data-dismiss="modal" class="close-modal"
+                          data-modalid="registerModal"> Register here</a></span>
+                    </div>
+              </div>
+
+          </fieldset>
+          <!--   <div class="welcomepara">
+            <p>"Unleash Your Inner Collector! Dive into the world of art and culture, where every bid is a chance to own
+              a masterpiece. Start your art journey today and bid your way to breathtaking beauty."</p>
+          </div> -->
+      </div>
+      </form>
+    </div>
+    </div>
+  </body>
+
+  <%- include('layouts/footer'); -%>
