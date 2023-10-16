@@ -1,65 +1,58 @@
 <%- include('layouts/outerheader'); -%>
 
   <body>
-    <div class="grid-container">
-      <!--   <div class="grid-item image">
-        <img src="images/girl-2696947_640.jpg" alt="innerImage">
-      </div> -->
+    <div class="main-div"> 
+        <div class="logo">
 
-      <div class="grid-item login">
-        <form name="myform" method="post" action="/login">
-          <fieldset class="loginfieldset">
-            <div class="logincontent">
-              <div class="loginform">
-                <div class="loginfield">
-                  <label>Username</label>
-                  <input id="email" placeholder="Username" type="text" name="userName"
+        </div>
+       
+        <form method="post" action="/login" class="login-form">
+            <div class="login-box">
+                <% if (errors && errors.length> 0) { %>
+                    <div class="error-message">
+                      <% for (let i=0; i < errors.length; i++) { %>
+                        <p class="error-text">
+                          <%= errors[i].msg %>
+                        </p>
+                        <% } %>
+                    </div>
+                    <% } %>
+                <p class="title">Login</p>
+                <div class="name-field">
+                    <label for="user-field">
+                        <p>
+                            User Name : 
+                        </p>
+                    </label>
+                    <input id="email" placeholder="Username" type="text" name="userName"
                     value="<%= typeof userName !== 'undefined' ? userName : '' %>">
                 </div>
+                <div class="password-field">
+                    <label for="pass-field">
+                        <p>
+                            Password : 
+                        </p>
+                    </label>
+                    <input id="pass-field" placeholder="Password" type="password" name="password">
 
-                <div class="loginfield">
-                  <label>Password</label>
-                  <input id="password" placeholder="Password" type="password" name="password">
                 </div>
-
-
-                <!-- Error messages -->
-
-                <% if (errors && errors.length> 0) { %>
-                  <div class="error-message">
-                    <% for (let i=0; i < errors.length; i++) { %>
-                      <p class="error-text">
-                        <%= errors[i].msg %>
-                      </p>
-                      <% } %>
+                <div class="forgotpasswordlink">
+                    <a href="/forgotpassword" data-toggle="modal" data-dismiss="modal"
+                      class="close-modal pointer-class" data-modalid="forgotModal"> Forgot your password?</a>
+                    <br /><br />
                   </div>
-                  <% } %>
-
-
-
-                    <button class="login" type="login">Login</button>
-                    <br /><br>
-
-                    <div class="forgotpasswordlink">
-                      <a href="/forgotpassword" data-toggle="modal" data-dismiss="modal"
-                        class="close-modal pointer-class" data-modalid="forgotModal"> Forgot your password?</a>
-                      <br /><br />
-                    </div>
-
-                    <div class="registeruserlink">
-                      <span>No account? <a href="/register" data-dismiss="modal" class="close-modal"
-                          data-modalid="registerModal"> Register here</a></span>
-                    </div>
-              </div>
-
-          </fieldset>
-          <!--   <div class="welcomepara">
-            <p>"Unleash Your Inner Collector! Dive into the world of art and culture, where every bid is a chance to own
-              a masterpiece. Start your art journey today and bid your way to breathtaking beauty."</p>
-          </div> -->
-      </div>
-      </form>
-    </div>
+                <div class="register-field">
+                    <a href="register">
+                        <p>
+                            New user? Register here
+                        </p>
+                    </a>
+                </div>
+                <div class="login-btn-field">
+                    <input type="submit" value="Login" class="login-btn">
+                </div>
+            </div>
+        </form>
     </div>
   </body>
 

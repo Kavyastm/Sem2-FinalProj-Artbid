@@ -12,7 +12,7 @@ myApp.use(express.json()); // Parse JSON request bodies
 myApp.set('views', path.join(__dirname, 'views')); // Set the views directory for EJS templates
 myApp.use(express.static(path.join(__dirname, 'public'))); // Serve static files from the 'public' directory
 myApp.set('view engine', 'ejs'); // Set the view engine to EJS for rendering templates
-mongoose.connect('mongodb://127.0.0.1:27017/capstone'); // Connect to the MongoDB database at the specified URI
+mongoose.connect('mongodb://127.0.0.1:27017/artbid'); // Connect to the MongoDB database at the specified URI
 
 // Define a MongoDB model for user registration
 const userSchema = new mongoose.Schema({
@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 myApp.get('/', (req, res) => {
+  res.render('login', { errors: [] });
+});
+
+myApp.get('/login', (req, res) => {
   res.render('login', { errors: [] });
 });
 
