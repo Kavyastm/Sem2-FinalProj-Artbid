@@ -706,7 +706,15 @@ p {
     .sidenav {padding-top: 15px;}
     .sidenav a {font-size: 18px;}
   }
+  .welcomeMessage {
+    position: absolute;
+    bottom: 0px;
+    text-align: center;
+}
 
+.welcomeMessage h3{
+    margin-inline-start: 383px;
+}
 
 
 

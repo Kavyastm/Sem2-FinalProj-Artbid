@@ -315,6 +315,6 @@ myApp.get('/logout', async (req, res) => {
     return res.redirect('/login');
   })  
 });
-myApp.listen(8080, () => {
-  console.log('Application is running on port 8080');
+myApp.listen(8081, () => {
+  console.log('Application is running on port 8081');
 });
