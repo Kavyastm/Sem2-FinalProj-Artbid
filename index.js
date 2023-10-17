@@ -24,6 +24,8 @@ const userSchema = new mongoose.Schema({
   password: String,
   securityQuestion: String,
   securityAnswer: String,
+  profile_image: String,
+  about: String,
 });
 const User = mongoose.model('User', userSchema);
 
@@ -268,14 +270,45 @@ myApp.get('/welcome', (req, res) => {
 });
 myApp.get('/profile', async (req, res) => {
   const user = await User.findOne({ _id: req.session.user_id}).exec();
+  console.log(user,'user',req.session.user_id,req.session)
     if (!user) {
-      return res.render('profile', { errors: [{ msg: 'User not found.' }],user:[] });
+      return res.redirect('/login');
     }else{
-      return res.render('profile', { errors:[],user: [{user: user}] });
+      return res.render('profile', { errors:[],success: [],user: [{user: user}] });
     }
 });
 
+myApp.post('/update-profile', async (req, res, next) =>{
+console.log(req.body)
+const user = await User.findOne({ _id: req.session.user_id}).exec();
+  // User.findOne({id:req.body.id}, function (err, user) {
+      if (!user) {
+        return res.redirect('/login');
+        // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+      }
 
+      var email = req.body.email.trim();
+      var name = req.body.name.trim();
+      // var firstname = req.body.firstname.trim();
+      var profile_image = req.body.profile_image.trim();
+      var about = req.body.about.trim();
+
+      // validate 
+      if (!email || !about || !profile_image || !name) { // simplified: '' is a falsey
+          return res.render('profile', { errors: [{ msg: 'One or more fields are empty.' }],success: [],user: [{user: user}] });
+      }
+
+      user.email = email;
+      user.profile_image = profile_image;
+      user.about = about;
+      user.name = name;
+      await user.save();
+      return res.render('profile', { success: [{ msg: 'Profile updated successfully.' }],errors: [],user: [{user: user}] });
+
+
+      
+  // });
+});
 myApp.get('/logout', async (req, res) => {
   req.session.destroy(function(error){ 
     console.log("Session Destroyed");
