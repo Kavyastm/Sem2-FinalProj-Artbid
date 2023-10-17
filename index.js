@@ -276,6 +276,7 @@ myApp.get('/profile', async (req, res) => {
     }
 });
 
+
 myApp.get('/logout', async (req, res) => {
   req.session.destroy(function(error){ 
     console.log("Session Destroyed");
