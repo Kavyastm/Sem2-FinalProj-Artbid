@@ -6,8 +6,8 @@
 
         </div>
        
-        <form method="post" action="/update-profile" class="login-form">
-            <div class="login-box">
+        <form method="post" action="/update-profile" enctype="multipart/form-data" class="login-form">
+            <div class="">
                 <% if (errors && errors.length> 0) { %>
                     <div class="error-message">
                       <% for (let i=0; i < errors.length; i++) { %>
@@ -51,8 +51,10 @@
                             Profile Image : 
                         </p>
                     </label>
-                    <input id="profile_image" placeholder="" type="profile_image" name="profile_image"
-                    value="<%= typeof user[0].user.profile_image !== 'undefined' ?  user[0].user.profile_image : '' %>">
+                    <!-- <input id="profile_image" placeholder="" type="profile_image" name="profile_image" -->
+
+                    <input type="file" name="profile_image">
+                    <!-- value="<%= typeof user[0].user.profile_image !== 'undefined' ?  user[0].user.profile_image : '' %>"> -->
                 </div>
                 <div class="about-field">
                     <label for="about-field">
