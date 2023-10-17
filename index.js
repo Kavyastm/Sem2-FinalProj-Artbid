@@ -3,11 +3,14 @@ const express = require('express'); // Import the Express.js framework
 const path = require('path'); // Import the 'path' module for working with file paths
 const mongoose = require('mongoose'); // Import Mongoose for MongoDB interactions
 const { check, validationResult } = require('express-validator'); // Import validation utilities from Express
-const fileUpload = require('express-fileupload'); // Import middleware for handling file uploads
+// const fileUpload = require('express-fileupload'); // Import middleware for handling file uploads
 const session = require('express-session') 
-
+const multer  = require('multer')
 const myApp = express(); // Create an Express application instance
-myApp.use(fileUpload()); // Use the fileUpload middleware to handle file uploads
+// const upload = multer({ dest: 'uploads/' });
+var fs = require("fs");
+const upload = require('./upload');
+// myApp.use(fileUpload()); // Use the fileUpload middleware to handle file uploads
 myApp.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
 myApp.use(express.json()); // Parse JSON request bodies
 myApp.set('views', path.join(__dirname, 'views')); // Set the views directory for EJS templates
@@ -60,6 +63,7 @@ myApp.get('/login', (req, res) => {
 });
 
 const bcrypt = require('bcrypt');
+const e = require('express');
 
 myApp.post('/login', [
   check('userName').notEmpty().withMessage('Username is required.'),
@@ -269,8 +273,11 @@ myApp.get('/welcome', (req, res) => {
   }
 });
 myApp.get('/profile', async (req, res) => {
+  req.session.user_id = '652e8eea63799921917f0a0f';
+  req.session.userName = 'ss';
+
   const user = await User.findOne({ _id: req.session.user_id}).exec();
-  console.log(user,'user',req.session.user_id,req.session)
+  // console.log(user,'user',req.session.user_id,req.session)
     if (!user) {
       return res.redirect('/login');
     }else{
@@ -278,34 +285,31 @@ myApp.get('/profile', async (req, res) => {
     }
 });
 
-myApp.post('/update-profile', async (req, res, next) =>{
-console.log(req.body)
-const user = await User.findOne({ _id: req.session.user_id}).exec();
-  // User.findOne({id:req.body.id}, function (err, user) {
-      if (!user) {
-        return res.redirect('/login');
-        // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
-      }
+myApp.post('/update-profile',upload.single('profile_image'),async (req, res, next) =>{
+  console.log(req.body)
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!req.body.email || !req.body.about || !req.body.name) {
+    var msg = !req.body.email ? 'Email' : !req.body.about ? 'About' : !req.body.name ? 'Name' : ''
+    return res.render('profile', { errors: [{ msg: msg+' is reqired.' }],success: [],user: [{user: user}] });
+  }else{
+    // User.findOne({id:req.body.id}, function (err, user) {
+        if (!user) {
+          return res.redirect('/login');
+          // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+        }
 
-      var email = req.body.email.trim();
-      var name = req.body.name.trim();
-      // var firstname = req.body.firstname.trim();
-      var profile_image = req.body.profile_image.trim();
-      var about = req.body.about.trim();
+        var email = req.body.email.trim();
+        var name = req.body.name.trim();
+        var about = req.body.about.trim();
 
-      // validate 
-      if (!email || !about || !profile_image || !name) { // simplified: '' is a falsey
-          return res.render('profile', { errors: [{ msg: 'One or more fields are empty.' }],success: [],user: [{user: user}] });
-      }
-
-      user.email = email;
-      user.profile_image = profile_image;
-      user.about = about;
-      user.name = name;
-      await user.save();
-      return res.render('profile', { success: [{ msg: 'Profile updated successfully.' }],errors: [],user: [{user: user}] });
-
-
+        
+        user.email = email;
+        user.profile_image = req.file ? req.file.filename : user.profile_image;
+        user.about = about;
+        user.name = name;
+        await user.save();
+        return res.render('profile', { success: [{ msg: 'Profile updated successfully.' }],errors: [],user: [{user: user}] });
+  }
       
   // });
 });
