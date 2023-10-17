@@ -275,6 +275,7 @@ myApp.get('/profile', async (req, res) => {
       return res.render('profile', { errors:[],user: [{user: user}] });
     }
 });
+
 myApp.get('/logout', async (req, res) => {
   req.session.destroy(function(error){ 
     console.log("Session Destroyed");
