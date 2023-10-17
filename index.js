@@ -4,6 +4,7 @@ const path = require('path'); // Import the 'path' module for working with file 
 const mongoose = require('mongoose'); // Import Mongoose for MongoDB interactions
 const { check, validationResult } = require('express-validator'); // Import validation utilities from Express
 const fileUpload = require('express-fileupload'); // Import middleware for handling file uploads
+const session = require('express-session') 
 
 const myApp = express(); // Create an Express application instance
 myApp.use(fileUpload()); // Use the fileUpload middleware to handle file uploads
@@ -16,8 +17,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/artbid'); // Connect to the MongoDB 
 
 // Define a MongoDB model for user registration
 const userSchema = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
+  name: String,
   userName: String,
   dob: Date,
   email: String,
@@ -27,12 +27,34 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
+myApp.use(session({ 
+  
+  // It holds the secret key for session 
+  secret: 'Your_Secret_Key', 
+
+  // Forces the session to be saved 
+  // back to the session store 
+  resave: true, 
+
+  // Forces a session that is "uninitialized" 
+  // to be saved to the store 
+  saveUninitialized: true
+})) 
 myApp.get('/', (req, res) => {
-  res.render('login', { errors: [] });
+  if(req.session.user_id){
+    return res.redirect('/welcome');
+
+  }else{
+    res.render('login', { errors: [] });
+  }
 });
 
 myApp.get('/login', (req, res) => {
-  res.render('login', { errors: [] });
+  if(req.session.user_id){
+   return res.redirect('/welcome');
+  }else{
+    res.render('login', { errors: [] });
+  }
 });
 
 const bcrypt = require('bcrypt');
@@ -41,6 +63,7 @@ myApp.post('/login', [
   check('userName').notEmpty().withMessage('Username is required.'),
   check('password').notEmpty().withMessage('Password is required.'),
 ], async (req, res) => {
+  
   const errors = validationResult(req).array();
 
   if (errors.length > 0) {
@@ -64,6 +87,9 @@ myApp.post('/login', [
       if (!passwordMatch) {
         return res.render('login', { errors: [{ msg: 'Incorrect password. Please try again.' }] });
       }
+      console.log(user,'user')
+      req.session.user_id = user._id;
+      req.session.userName = user.userName;
 
       // User exists and password matches, you can consider the user authenticated
       return res.redirect('/welcome');
@@ -235,9 +261,26 @@ myApp.get('/password-reset-success', (req, res) => {
 
 
 myApp.get('/welcome', (req, res) => {
-  return res.render('welcome');
+  if(req.session.user_id){
+    return res.render('welcome');
+  }else{
+    return res.redirect('/login');
+  }
 });
-
+myApp.get('/profile', async (req, res) => {
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+    if (!user) {
+      return res.render('profile', { errors: [{ msg: 'User not found.' }],user:[] });
+    }else{
+      return res.render('profile', { errors:[],user: [{user: user}] });
+    }
+});
+myApp.get('/logout', async (req, res) => {
+  req.session.destroy(function(error){ 
+    console.log("Session Destroyed");
+    return res.redirect('/login');
+  })  
+});
 myApp.listen(8080, () => {
   console.log('Application is running on port 8080');
 });
