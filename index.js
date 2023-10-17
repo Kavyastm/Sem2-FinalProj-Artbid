@@ -87,7 +87,6 @@ myApp.post('/login', [
       if (!passwordMatch) {
         return res.render('login', { errors: [{ msg: 'Incorrect password. Please try again.' }] });
       }
-      console.log(user,'user')
       req.session.user_id = user._id;
       req.session.userName = user.userName;
 
