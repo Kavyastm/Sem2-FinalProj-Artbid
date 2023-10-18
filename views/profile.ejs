@@ -10,20 +10,16 @@
             <div class="">
                 <% if (errors && errors.length> 0) { %>
                     <div class="error-message">
-                      <% for (let i=0; i < errors.length; i++) { %>
                         <p class="error-text">
-                          <%= errors[i].msg %>
+                          <%= errors[0].msg %>
                         </p>
-                        <% } %>
                     </div>
                     <% } %>
                     <% if (success && success.length> 0) { %>
                         <div class="success-message">
-                          <% for (let i=0; i < success.length; i++) { %>
                             <p class="success-text">
-                              <%= success[i].msg %>
+                              <%= success[0].msg %>
                             </p>
-                            <% } %>
                         </div>
                         <% } %>
                 <p class="title">Profile</p>
@@ -53,6 +49,8 @@
                     </label>
                     <!-- <input id="profile_image" placeholder="" type="profile_image" name="profile_image" -->
 
+ 
+                    <img class="logo" src="uploads/"<%= user[0].user.profile_image %> alt="My_Logo">
                     <input type="file" name="profile_image">
                     <!-- value="<%= typeof user[0].user.profile_image !== 'undefined' ?  user[0].user.profile_image : '' %>"> -->
                 </div>
