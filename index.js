@@ -286,8 +286,8 @@ myApp.get('/welcome', (req, res) => {
   }
 });
 myApp.get('/profile', async (req, res) => {
-  req.session.user_id = '652e8eea63799921917f0a0f';
-  req.session.userName = 'ss';
+  // req.session.user_id = '652e8eea63799921917f0a0f';
+  // req.session.userName = 'ss';
 
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   console.log(user,'user',req.session.user_id,req.session)
@@ -312,17 +312,19 @@ myApp.get('/uploadart', async (req, res) => {
 });
 
 myApp.post('/update-profile',upload.single('profile_image'),async (req, res, next) =>{
-  console.log(req.body)
+  // console.log(req.body)
   const user = await User.findOne({ _id: req.session.user_id}).exec();
-  if (!req.body.email || !req.body.about || !req.body.name) {
-    var msg = !req.body.email ? 'Email' : !req.body.about ? 'About' : !req.body.name ? 'Name' : ''
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  if (!req.body.email || !req.body.about || !req.body.name || (!user.profile_image && !req.file)) {
+    var msg = !req.body.email ? 'Email' : !req.body.about ? 'About' : !req.body.name ? 'Name' : (!user.profile_image && !req.file) ? 'Profile Image' : '';
+    // return next(msg);
     return res.render('profile', { errors: [{ msg: msg+' is reqired.' }],success: [],user: [{user: user}] });
   }else{
     // User.findOne({id:req.body.id}, function (err, user) {
-        if (!user) {
-          return res.redirect('/login');
-          // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
-        }
+        
 
         var email = req.body.email.trim();
         var name = req.body.name.trim();
