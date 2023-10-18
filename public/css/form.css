@@ -738,7 +738,20 @@ p {
     color: rgb(218, 23, 23) !important;
     text-align: center;
 }
-
+.requiredError {
+    display: none;
+    font-size: 0.8em;
+    color: white;
+  }
+  
+  .requiredError.visible {
+    display: block;
+  }
+  
+  input.invalid {
+    border-color: red;
+    
+  }
 
 
 

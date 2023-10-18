@@ -82,7 +82,7 @@ myApp.post('/login', [
   check('userName').notEmpty().withMessage('Username is required.'),
   check('password').notEmpty().withMessage('Password is required.'),
 ], async (req, res) => {
-  
+  console.log("dd",req.body)
   const errors = validationResult(req).array();
 
   if (errors.length > 0) {
@@ -153,30 +153,36 @@ myApp.post('/register', [
 
   if (errors.length === 0) {
     try {
+      
       if (password !== confirmpassword) {
         // Password and confirm password do not match
         return res.render('register', { errors: [{ msg: 'Password and Confirm Password do not match.' }], submitted: true });
       }
 
+
       // Hash the password before saving it
       const hashedPassword = await bcrypt.hash(password, 10);
-
+      User.findOne({userName: userName}).then(function(result){
+        if(result!=null){
+          return res.render('register', { errors: [{ msg: 'Username already exist.' }], submitted: true });
+        }
       // Create a new user
-      const newUser = new User({
-        userName: userName,
-        securityQuestion: securityQuestion,
-        securityAnswer: securityAnswer,
-        // lastName: lname,
-        // dob: new Date(dob),
-        email: email,
-        password: hashedPassword,
-      });
+        const newUser = new User({
+          userName: userName,
+          securityQuestion: securityQuestion,
+          securityAnswer: securityAnswer,
+          // lastName: lname,
+          // dob: new Date(dob),
+          email: email,
+          password: hashedPassword,
+        });
 
-      newUser.save().then(() => {
-        return res.redirect('/registration-success');
-      }).catch((err) => {
-        console.error('Error saving user:', err);
-        return res.render('register', { commonError: 'User registration failed' }); // Pass commonError here
+          newUser.save().then(() => {
+            return res.redirect('/registration-success');
+        }).catch((err) => {
+          console.error('Error saving user:', err);
+          return res.render('register', { commonError: 'User registration failed' }); // Pass commonError here
+        });
       });
     } catch (err) {
       console.error('Error hashing password:', err);
@@ -312,7 +318,7 @@ myApp.get('/uploadart', async (req, res) => {
 });
 
 myApp.post('/update-profile',upload.single('profile_image'),async (req, res, next) =>{
-  console.log(req.body,req.file.filename)
+  // console.log(req.body,req.file.filename)
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!user) {
     return res.redirect('/login');

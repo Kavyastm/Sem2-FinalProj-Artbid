@@ -1,12 +1,11 @@
 <%- include('layouts/outerheader'); -%>
-
   <body>
     <div class="main-div"> 
         <div class="logo">
 
         </div>
        
-        <form method="post" action="/login" class="login-form">
+        <form method="post" action="/login" id="submitFormValidate"  class="login-form">
             <div class="login-box">
                 <% if (errors && errors.length> 0) { %>
                     <div class="error-message">
@@ -24,20 +23,26 @@
                             User Name : 
                         </p>
                     </label>
-                    <input id="email" placeholder="Username" type="text" name="userName"
+                    <input id="userName" class="inputError" placeholder="Username" type="text" name="userName" required maxlength="45"
                     value="<%= typeof userName !== 'undefined' ? userName : '' %>">
                 </div>
+                <span role="alert" class="requiredError" aria-hidden="true">
+                    Please enter First Name
+                  </span>
                 <div class="password-field">
                     <label for="pass-field">
                         <p>
                             Password : 
                         </p>
                     </label>
-                    <input id="pass-field" placeholder="Password" type="password" name="password">
+                    <input id="pass-field" class="inputError" placeholder="Password" type="password" name="password">
 
                 </div>
+                <span role="alert" class="requiredError" aria-hidden="true">
+                    Please enter Password
+                  </span>
                 <div class="login-btn-field">
-                    <input type="submit" value="Login" class="login-btn">
+                    <input id="submitId" value="Login" class="login-btn" onclick="validateForm(event)">
                 </div><br>
                 <div class="forgotpasswordlink">
                     <a href="/forgotpassword" data-toggle="modal" data-dismiss="modal"
@@ -55,5 +60,39 @@
         </form>
     </div>
   </body>
+<script>
+// const submit1 = document.getElementById("submitId");
+// submit1.addEventListener("click", validate);
+function validateForm(e) {
+    const form = document.getElementById('submitFormValidate')
+    e.preventDefault();
+    const userNameField = document.getElementsByClassName("inputError");
+    let vaClass = true;
+        for (var i = 0; i < userNameField.length; i++) {
+            if (!userNameField[i].value) {
+                vaClass = false;
+                const showRequiredErr = document.getElementsByClassName("requiredError");
+                console.log(showRequiredErr)
+                showRequiredErr[i].classList.add("visible");
+                userNameField[i].classList.add("invalid");
+                showRequiredErr[i].setAttribute("aria-hidden", false);
+                showRequiredErr[i].setAttribute("aria-invalid", true);
+            }else{
+                console.log('dfd')
+                const showRequiredErr = document.getElementsByClassName("requiredError");
+                showRequiredErr[i].classList.remove("visible");
+                userNameField[i].classList.remove("invalid");
+                showRequiredErr[i].setAttribute("aria-hidden", true);
+                showRequiredErr[i].setAttribute("aria-invalid", false);
 
+            }
+        }
+    if(vaClass){
+        form.submit();
+    }else{
+        return false;
+    }
+}
+
+</script>
   <%- include('layouts/footer'); -%>
