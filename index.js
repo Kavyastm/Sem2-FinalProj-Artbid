@@ -67,6 +67,15 @@ myApp.get('/', (req, res) => {
   }
 });
 
+myApp.get('/art-list', (req, res) => {
+  if(req.session.user_id){
+    return res.render('arts');
+
+  }else{
+    res.render('login', { errors: [] });
+  }
+});
+
 myApp.get('/login', (req, res) => {
   if(req.session.user_id){
    return res.redirect('/welcome');
