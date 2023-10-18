@@ -733,6 +733,13 @@ p {
     margin-inline-start: 383px;
 }
 
+.title-heading{
+    font-weight: bold;
+    color: rgb(218, 23, 23) !important;
+    text-align: center;
+}
+
+
 
 
 
