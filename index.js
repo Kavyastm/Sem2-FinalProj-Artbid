@@ -30,7 +30,20 @@ const userSchema = new mongoose.Schema({
   profile_image: String,
   about: String,
 });
+
+const artSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  image: Date,
+  min_bid: String,
+  start_date: String,
+  end_date: String,
+  user_id: String,
+  buyer_id: String,
+});
 const User = mongoose.model('User', userSchema);
+const Art = mongoose.model('Art', artSchema);
+
 
 myApp.use(session({ 
   
@@ -277,12 +290,25 @@ myApp.get('/profile', async (req, res) => {
   req.session.userName = 'ss';
 
   const user = await User.findOne({ _id: req.session.user_id}).exec();
-  // console.log(user,'user',req.session.user_id,req.session)
+  console.log(user,'user',req.session.user_id,req.session)
     if (!user) {
       return res.redirect('/login');
     }else{
       return res.render('profile', { errors:[],success: [],user: [{user: user}] });
     }
+});
+
+myApp.get('/uploadart', async (req, res) => {
+  // req.session.user_id = '652e8eea63799921917f0a0f';
+  // req.session.userName = 'ss';
+
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+  // console.log(user,'user',req.session.user_id,req.session)
+    // if (!user) {
+    //   return res.redirect('/login');
+    // }else{
+      return res.render('uploadArt');
+    // }
 });
 
 myApp.post('/update-profile',upload.single('profile_image'),async (req, res, next) =>{
@@ -310,6 +336,39 @@ myApp.post('/update-profile',upload.single('profile_image'),async (req, res, nex
         await user.save();
         return res.render('profile', { success: [{ msg: 'Profile updated successfully.' }],errors: [],user: [{user: user}] });
   }
+      
+  // });
+});
+
+myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
+  console.log(req.file)
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!req.body.title || !req.body.description || !req.body.min_bid) {
+    var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : ''
+    return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
+  }else{
+    // User.findOne({id:req.body.id}, function (err, user) {
+        // if (!user) {
+        //   return res.redirect('/login');
+        //   // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+        // }
+
+        const newArt = new Art({
+          title: req.body.title,
+          description: req.body.description,
+          image:  req.file ? req.file.filename : '',
+          min_bid: req.body.min_bid,
+        
+        });
+  
+        newArt.save().then(() => {
+          return res.render('uploadart', { success: [{ msg: 'Art Added successfully.' }],errors: [] });
+        }).catch((err) => {
+          console.error('Error saving user:', err);
+          return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
+        });
+
+      }
       
   // });
 });

@@ -1,0 +1,59 @@
+<%- include('layouts/innerheader'); -%>
+
+  <body >
+    <div class="main-div" style="background-image: url('images/bg1.jpeg');"> 
+        <div class="logo">
+
+        </div>
+       <div class="col-xl-6">
+        <form method="post" action="/add-art" enctype="multipart/form-data" >
+            <div class="">
+            
+                   
+                <p class="title">Upload Art</p>
+                <div class="name-field">
+                    <label for="name-field">
+                        <p>
+                            Title : 
+                        </p>
+                    </label>
+                    <input id="name" placeholder="Title" type="text" name="title">
+                </div>
+                <div class="email-field">
+                    <label for="email-field">
+                        <p>
+                            Description : 
+                        </p>
+                    </label>
+                    <textarea id="email" placeholder="Description" type="text" name="description"></textarea>
+                </div>
+                <div class="image-field">
+                    <label for="image-field">
+                        <p>
+                            Art Image : 
+                        </p>
+                    </label>
+                    <!-- <input id="profile_image" placeholder="" type="profile_image" name="profile_image" -->
+
+                    <input type="file" name="profile_image">
+                </div>
+                <div class="about-field">
+                    <label for="about-field">
+                        <p>
+                            Min Bid : 
+                        </p>
+                    </label>
+                    <input id="about-field" placeholder="Min Bid" type="text" name="min_bid">
+
+                </div>
+                <div class="login-btn-field">
+                    <input type="submit" value="Update" class="login-btn">
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    </div>
+  </body>
+
+  <%- include('layouts/footer'); -%>
