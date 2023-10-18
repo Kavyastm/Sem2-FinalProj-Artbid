@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
 const artSchema = new mongoose.Schema({
   title: String,
   description: String,
-  image: Date,
+  image: String,
   min_bid: String,
   start_date: String,
   end_date: String,
