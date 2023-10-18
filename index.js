@@ -312,7 +312,7 @@ myApp.get('/uploadart', async (req, res) => {
 });
 
 myApp.post('/update-profile',upload.single('profile_image'),async (req, res, next) =>{
-  // console.log(req.body)
+  console.log(req.body,req.file.filename)
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!user) {
     return res.redirect('/login');
@@ -332,7 +332,7 @@ myApp.post('/update-profile',upload.single('profile_image'),async (req, res, nex
 
         
         user.email = email;
-        user.profile_image = req.file ? req.file.filename : user.profile_image;
+        user.profile_image = req.file ? 'uploads/'+req.file.filename : user.profile_image;
         user.about = about;
         user.name = name;
         await user.save();

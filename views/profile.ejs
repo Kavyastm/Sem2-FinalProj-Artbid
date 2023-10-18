@@ -47,12 +47,9 @@
                             Profile Image : 
                         </p>
                     </label>
-                    <!-- <input id="profile_image" placeholder="" type="profile_image" name="profile_image" -->
-
- 
-                    <img class="logo" src="uploads/"<%= user[0].user.profile_image %> alt="My_Logo">
-                    <input type="file" name="profile_image">
-                    <!-- value="<%= typeof user[0].user.profile_image !== 'undefined' ?  user[0].user.profile_image : '' %>"> -->
+                    <img class="logo" src="<%= user[0].user.profile_image %>" alt="My_Logo" style="width: 200px; height: 200px;" type="file" name="profile_image">
+                    <input type="file" id="fileinput" name ="profile_image" multiple="multiple" accept="image/*" />
+                   
                 </div>
                 <div class="about-field">
                     <label for="about-field">
@@ -71,5 +68,4 @@
         </form>
     </div>
   </body>
-
   <%- include('layouts/footer'); -%>
