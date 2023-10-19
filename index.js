@@ -67,6 +67,19 @@ myApp.get('/', (req, res) => {
   }
 });
 
+myApp.get('/art-list', async (req, res) => {
+  const art = await Art.find({ user_id: req.session.user_id}).exec();
+
+  console.log(art,req.session.user_id);
+
+  if(req.session.user_id){
+    return res.render('arts', { errors:[],success: [],art: [{art: art}] });
+
+  }else{
+    res.render('login', { errors: [] });
+  }
+});
+
 myApp.get('/login', (req, res) => {
   if(req.session.user_id){
    return res.redirect('/welcome');
@@ -305,6 +318,12 @@ myApp.get('/profile', async (req, res) => {
 });
 
 myApp.get('/uploadart', async (req, res) => {
+
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
   // req.session.user_id = '652e8eea63799921917f0a0f';
   // req.session.userName = 'ss';
 
@@ -313,7 +332,7 @@ myApp.get('/uploadart', async (req, res) => {
     // if (!user) {
     //   return res.redirect('/login');
     // }else{
-      return res.render('uploadArt');
+      return res.render('uploadArt' , { errors:[],success: [] });
     // }
 });
 
@@ -349,7 +368,11 @@ myApp.post('/update-profile',upload.single('profile_image'),async (req, res, nex
 });
 
 myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
-  console.log(req.file)
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!req.body.title || !req.body.description || !req.body.min_bid) {
     var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : ''
@@ -364,9 +387,9 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
         const newArt = new Art({
           title: req.body.title,
           description: req.body.description,
-          image:  req.file ? req.file.filename : '',
+          image:  req.file ? 'uploads/'+req.file.filename : '',
           min_bid: req.body.min_bid,
-        
+          user_id: req.session.user_id,
         });
   
         newArt.save().then(() => {

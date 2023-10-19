@@ -398,8 +398,9 @@ nav ul li a:hover {
 }
 
 .menubar {
-    margin-top: -20px;
-    /* width: 1420px; */
+    /* margin-top: -20px; */
+    width: 100%;
+    position: absolute;
 }
 
 .image-container {
@@ -543,10 +544,10 @@ html, body {
 
 .main-div {
     height: 100vh;
-    display: flex;
+    /* display: flex; */
     /* justify-content: space-evenly; */
     align-items: center;
-     padding: 2rem 0; 
+     padding: 6rem 0; 
 }
 
 .logo img {
@@ -569,11 +570,11 @@ html, body {
     
 }
 
-.main-div form {
+/* .main-div form {
     margin-left: 100px;
     
     
-}
+} */
 
 
 
@@ -638,10 +639,11 @@ textarea[type='text'] {
     border-radius: 10px;
     border-color: transparent;
     margin-top: 2rem;
-    background: #bc13fe;
+    background: #93213d;
     font-family: var(--txt-style);
     font-size: 1rem;
     font-weight: bold;
+    color: white;
 }
 
 .login-btn:hover {
@@ -738,6 +740,9 @@ p {
     color: rgb(218, 23, 23) !important;
     text-align: center;
 }
+
+@media (max-width: 767.98px) { .border-sm-start-none { border-left: none !important; } }
+
 .requiredError {
     display: none;
     font-size: 0.8em;
@@ -752,7 +757,18 @@ p {
     border-color: red;
     
   }
+ .form-data{
+  position: absolute;
+}
+ .success-text {
 
+    color:black;
+    background-color: green;
+ }
+ .image-show {
+    height: 240px;
+    width: 240px;
+ }
 
 
 

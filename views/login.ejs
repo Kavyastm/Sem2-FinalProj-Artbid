@@ -7,15 +7,7 @@
        
         <form method="post" action="/login" id="submitFormValidate"  class="login-form">
             <div class="login-box">
-                <% if (errors && errors.length> 0) { %>
-                    <div class="error-message">
-                      <% for (let i=0; i < errors.length; i++) { %>
-                        <p class="error-text">
-                          <%= errors[i].msg %>
-                        </p>
-                        <% } %>
-                    </div>
-                    <% } %>
+                
                     <h3 class="title-heading">Login</h3>
                 <div class="name-field">
                     <label for="user-field">
@@ -41,8 +33,18 @@
                 <span role="alert" class="requiredError" aria-hidden="true">
                     Please enter Password
                   </span>
+
+                  <% if (errors && errors.length> 0) { %>
+                    <div class="error-message">
+                      <% for (let i=0; i < errors.length; i++) { %>
+                        <p class="error-text">
+                          <%= errors[i].msg %>
+                        </p>
+                        <% } %>
+                    </div>
+                    <% } %>
                 <div class="login-btn-field">
-                    <input id="submitId" value="Login" class="login-btn" onclick="validateForm(event)">
+                    <input id="submitId" value="Login" type="submit" class="login-btn" onclick="validateForm(event)">
                 </div><br>
                 <div class="forgotpasswordlink">
                     <a href="/forgotpassword" data-toggle="modal" data-dismiss="modal"
