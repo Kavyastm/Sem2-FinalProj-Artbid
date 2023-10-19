@@ -4,53 +4,71 @@
     <div style="height: 50px;">
        
     </div>
-    <div>
-        <h4 class="mt-4 mb-5"><strong> My Arts</strong></h4>
-    <section >
-        <div class="text-center container py-5">            
-          <div class="row">
-            
-            <% art[0].art.forEach(product => { %>
-            <div class="col-lg-4 col-md-12 mb-4" style="background-color: #eee;display: inline-flex;">
-              <div class="card">
-                <div class="bg-image hover-zoom ripple" data-mdb-ripple-color="light">
-                  <img src="<%= product.image %>"
-                    class="image-show" />
-                  <a href="#!">
-                    <div class="mask">
-                      <div class="d-flex justify-content-start align-items-end h-100">
-                        
-                      </div>
-                    </div>
-                    <div class="hover-overlay">
-                      <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-                    </div>
-                  </a>
-                </div>
-                <div class="card-body">
-                  <a href="" class="text-reset">
-                    <h5 class="card-title mb-3"><%= product.title %></h5>
-                  </a>
-                
-                  <h6 class="mb-3">
-                    <strong class="ms-2 text-danger"><%= product.description %></strong>
-                  </h6>
+    
+        <h4 class="mt-4 mb-5" style="
+        text-align: center;
+        font-size: 88px;
+    "><strong> My Arts</strong></h4>
 
-                  <h6 class="mb-3">
-                    <strong class="ms-2 text-danger"><%= product.min_bid %></strong>
-                  </h6>
-                </div>
-              </div>
-            </div><br><br>
-            <% }) %>
-
-
-      
+        <div class="col-9"> 
            
-          </div>
-        </div>
-      </section>
-      </div>
+            
+        <!-- Code for viewing the Post -->
+        <% art[0].art.forEach(product => { %>
+
+            <div class="card" style="
+            margin-left: 28%;
+        "> 
+                <div class="top"> 
+                    <div class="userDetails"> 
+                        <div class="profilepic"> 
+                            <div class="profile_img"> 
+                                <div class="image"> 
+                                    <img src= 
+"https://media.geeksforgeeks.org/wp-content/uploads/20220609093229/g-200x200.png"
+                                        alt="img8"> 
+                                </div> 
+                            </div> 
+                        </div> 
+                        <h3>Ayush Agarwal 
+                            <br> 
+                            <span>Mumbai, India</span> 
+                    </h3> 
+                    </div> 
+                    <div> 
+                        <span class="dot"> 
+                            <i class="fas fa-ellipsis-h"></i> 
+                        </span> 
+                    </div> 
+                </div> 
+                <div class="imgBx"> 
+                    <img src="<%= product.image %>"
+                    class="cover" />
+                </div> 
+                <div class="bottom"> 
+                    
+                   
+                    <a href="#"> 
+                        <p class="message"> 
+                        <b><%= product.title %>i</b> 
+                        </p> 
+
+                    </a> 
+
+                    <span href="#"> 
+                        <p class="message"> 
+                        <b><%= product.description %>i</b> 
+                        </p> 
+
+                    </span> 
+                  
+                </div> 
+            </div> <br><br>
+
+            <% }) %>
+            
+        </div> 
+
 </body>
 
 <%- include('layouts/footer'); -%>
