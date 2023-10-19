@@ -67,9 +67,13 @@ myApp.get('/', (req, res) => {
   }
 });
 
-myApp.get('/art-list', (req, res) => {
+myApp.get('/art-list', async (req, res) => {
+  const art = await Art.find({ user_id: req.session.user_id}).exec();
+
+  console.log(art,req.session.user_id);
+
   if(req.session.user_id){
-    return res.render('arts');
+    return res.render('arts', { errors:[],success: [],art: [{art: art}] });
 
   }else{
     res.render('login', { errors: [] });
@@ -91,7 +95,7 @@ myApp.post('/login', [
   check('userName').notEmpty().withMessage('Username is required.'),
   check('password').notEmpty().withMessage('Password is required.'),
 ], async (req, res) => {
-  
+  console.log("dd",req.body)
   const errors = validationResult(req).array();
 
   if (errors.length > 0) {
@@ -162,30 +166,36 @@ myApp.post('/register', [
 
   if (errors.length === 0) {
     try {
+      
       if (password !== confirmpassword) {
         // Password and confirm password do not match
         return res.render('register', { errors: [{ msg: 'Password and Confirm Password do not match.' }], submitted: true });
       }
 
+
       // Hash the password before saving it
       const hashedPassword = await bcrypt.hash(password, 10);
-
+      User.findOne({userName: userName}).then(function(result){
+        if(result!=null){
+          return res.render('register', { errors: [{ msg: 'Username already exist.' }], submitted: true });
+        }
       // Create a new user
-      const newUser = new User({
-        userName: userName,
-        securityQuestion: securityQuestion,
-        securityAnswer: securityAnswer,
-        // lastName: lname,
-        // dob: new Date(dob),
-        email: email,
-        password: hashedPassword,
-      });
+        const newUser = new User({
+          userName: userName,
+          securityQuestion: securityQuestion,
+          securityAnswer: securityAnswer,
+          // lastName: lname,
+          // dob: new Date(dob),
+          email: email,
+          password: hashedPassword,
+        });
 
-      newUser.save().then(() => {
-        return res.redirect('/registration-success');
-      }).catch((err) => {
-        console.error('Error saving user:', err);
-        return res.render('register', { commonError: 'User registration failed' }); // Pass commonError here
+          newUser.save().then(() => {
+            return res.redirect('/registration-success');
+        }).catch((err) => {
+          console.error('Error saving user:', err);
+          return res.render('register', { commonError: 'User registration failed' }); // Pass commonError here
+        });
       });
     } catch (err) {
       console.error('Error hashing password:', err);
@@ -308,6 +318,12 @@ myApp.get('/profile', async (req, res) => {
 });
 
 myApp.get('/uploadart', async (req, res) => {
+
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
   // req.session.user_id = '652e8eea63799921917f0a0f';
   // req.session.userName = 'ss';
 
@@ -316,12 +332,12 @@ myApp.get('/uploadart', async (req, res) => {
     // if (!user) {
     //   return res.redirect('/login');
     // }else{
-      return res.render('uploadArt');
+      return res.render('uploadArt' , { errors:[],success: [] });
     // }
 });
 
 myApp.post('/update-profile',upload.single('profile_image'),async (req, res, next) =>{
-  console.log(req.body,req.file.filename)
+  // console.log(req.body,req.file.filename)
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!user) {
     return res.redirect('/login');
@@ -352,7 +368,11 @@ myApp.post('/update-profile',upload.single('profile_image'),async (req, res, nex
 });
 
 myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
-  console.log(req.file)
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!req.body.title || !req.body.description || !req.body.min_bid) {
     var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : ''
@@ -367,9 +387,9 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
         const newArt = new Art({
           title: req.body.title,
           description: req.body.description,
-          image:  req.file ? req.file.filename : '',
+          image:  req.file ? 'uploads/'+req.file.filename : '',
           min_bid: req.body.min_bid,
-        
+          user_id: req.session.user_id,
         });
   
         newArt.save().then(() => {
