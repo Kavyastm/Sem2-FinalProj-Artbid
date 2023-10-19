@@ -743,6 +743,15 @@ p {
 
 @media (max-width: 767.98px) { .border-sm-start-none { border-left: none !important; } }
 
+.requiredErrorSecurityCheck {
+    display: none;
+    font-size: 0.8em;
+    color: white;
+  }
+  
+.requiredErrorSecurityCheck.visible {
+display: block;
+}
 .requiredError {
     display: none;
     font-size: 0.8em;
