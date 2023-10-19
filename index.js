@@ -8,6 +8,8 @@ const session = require('express-session')
 const multer  = require('multer')
 const myApp = express(); // Create an Express application instance
 // const upload = multer({ dest: 'uploads/' });
+var moment = require('moment-timezone');
+
 var fs = require("fs");
 const upload = require('./upload');
 // myApp.use(fileUpload()); // Use the fileUpload middleware to handle file uploads
@@ -38,11 +40,43 @@ const artSchema = new mongoose.Schema({
   min_bid: String,
   start_date: String,
   end_date: String,
-  user_id: String,
+  user_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : true, 
+		ref: 'users',
+	},
   buyer_id: String,
+  start_time :{
+		type: String, 
+		default:'00:00'
+	},
+	end_time :{
+		type: String, 
+		default:'00:00'
+	},
+  status: {
+		type: String,
+		enum: ["active","completed","expired"],
+		default: "active"
+	},
+});
+const commentSchema = new mongoose.Schema({
+  comment: String,
+  user_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : true, 
+		ref: 'users',
+	},
+  art_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : true, 
+		ref: 'arts',
+	},
 });
 const User = mongoose.model('User', userSchema);
 const Art = mongoose.model('Art', artSchema);
+const Comment = mongoose.model('Comment', commentSchema);
+
 
 
 myApp.use(session({ 
@@ -80,6 +114,68 @@ myApp.get('/art-list', async (req, res) => {
   }
 });
 
+myApp.get('/welcome', async (req, res) => {
+  req.session.user_id = '652e8eea63799921917f0a0f';
+  req.session.userName = 'ss';
+  var where = [
+    {status:'active'},
+    {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+    {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+
+  // console.log('art',art,req.session.user_id);
+  
+  if(req.session.user_id){
+    return res.render('home', { errors:[],success: [],art: [{art: art}] });
+
+  }else{
+    res.render('login', { errors: [] });
+  }
+});
+myApp.post('/post-comment', async (req, res) => {
+  console.log(req.body)
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  if (!req.body.comment) {
+    return next(msg);
+    // return res.render('profile', { errors: [{ msg: 'Comment is reqired.' }],success: [],user: [{user: user}] });
+  }else{
+    const newComment = new Comment({
+      comment: req.body.comment,
+      art_id: req.body.id,
+      user_id: req.session.user_id,
+    });
+    console.log(newComment,req.body,'dgf')
+    newComment.save().then(() => {
+      return res.redirect('/welcome');
+    }).catch((err) => {
+      console.error('Error saving user:', err);
+      return res.redirect('/welcome');
+    });
+  }
+  
+});
 myApp.get('/login', (req, res) => {
   if(req.session.user_id){
    return res.redirect('/welcome');
@@ -374,8 +470,8 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
-  if (!req.body.title || !req.body.description || !req.body.min_bid) {
-    var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : ''
+  if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time) {
+    var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
     return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
   }else{
     // User.findOne({id:req.body.id}, function (err, user) {
@@ -390,8 +486,18 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
           image:  req.file ? 'uploads/'+req.file.filename : '',
           min_bid: req.body.min_bid,
           user_id: req.session.user_id,
+          // start_date: '2023-10-18',
+          // end_date: '2023-10-19',
+          // start_time: '10:00',
+          // end_time: '23:05',
+          start_date: moment(new Date(req.body.start_date)).format('YYYY-MM-DD'),
+          end_date: moment(new Date(req.body.end_date)).format('YYYY-MM-DD'),
+          start_time: req.body.start_time,
+          end_time: req.body.end_time,
+          status: 'active',
+          
         });
-  
+        console.log(newArt,req.body)
         newArt.save().then(() => {
           return res.render('uploadart', { success: [{ msg: 'Art Added successfully.' }],errors: [] });
         }).catch((err) => {

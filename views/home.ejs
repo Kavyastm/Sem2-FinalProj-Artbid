@@ -1,0 +1,149 @@
+<%- include('layouts/innerheader'); -%>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<body>
+    <div style="height: 50px;">
+       
+    </div>
+    
+        <h4 class="mt-4 mb-5" style="
+        text-align: center;
+        font-size: 88px;
+    "><strong> My Arts</strong></h4>
+
+        <div class="col-9"> 
+           
+            
+        <!-- Code for viewing the Post -->
+        <% art[0].art.forEach(product => { %>
+
+            <div class="card" style="
+            margin-left: 28%;
+        "> 
+                <div class="top"> 
+                    <div class="userDetails"> 
+                        <div class="profilepic"> 
+                            <div class="profile_img"> 
+                                <div class="image"> 
+                                    <img src= 
+"<%= product.userData[0].profile_image %>"
+                                        alt="img8"> 
+                                </div> 
+                            </div> 
+                        </div> 
+                        <h3><%= product.userData[0].userName %> 
+                            <br> 
+                            <span><%= product.userData[0].about %></span> 
+                    </h3> 
+                    </div> 
+                    <div> 
+                        <span class="dot"> 
+                            <i class="fas fa-ellipsis-h"></i> 
+                        </span> 
+                    </div> 
+                </div> 
+                <div class="imgBx"> 
+                    <img src="<%= product.image %>"
+                    class="cover" />
+                </div> 
+                <div class="bottom"> 
+                    <div class="actionBtns"> 
+                        <div class="left"> 
+                            <svg aria-label="Comment"
+                                class="_8-yf5 "
+                                color="#262626"
+                                fill="#262626"
+                                height="24"
+                                role="img"
+                                viewBox="0 0 48 48"
+                                width="24"> 
+                                
+                        <!-- Coordinate path -->
+                                <path clip-rule="evenodd"
+                                    d="M47.5 46.1l-2.8-11c1.8-3.3 2.8-7.1 2.8-11.1C47.5 
+                                    11 37 .5 24 .5S.5 11 .5 24 11 47.5 24 47.5c4 0 
+                                    7.8-1 11.1-2.8l11 2.8c.8.2 1.6-.6 1.4-1.4zm-3-22.1c0 
+                                    4-1 7-2.6 10-.2.4-.3.9-.2 1.4l2.1 
+                                    8.4-8.3-2.1c-.5-.1-1-.1-1.4.2-1.8 1-5.2 2.6-10 
+                                    2.6-11.4 0-20.6-9.2-20.6-20.5S12.7 3.5 24 3.5 
+                                    44.5 12.7 44.5 24z" 
+                                    fill-rule="evenodd"> 
+                            </path> 
+                            </svg> 
+                        </div> 
+                    </div> 
+                    <a href="#"> 
+                        <p class="message"> 
+                        <b><%= product.title %>i</b> 
+                        </p> 
+
+                    </a> 
+
+                    <span href="#"> 
+                        <p class="message"> 
+                        <b><%= product.description %></b> 
+                        </p> 
+
+                    </span> 
+                    <span href="#"> 
+                        <p class="message"> 
+                        <b>$<%= product.min_bid %></b> 
+                        </p> 
+
+                    </span> 
+                    <a href="#"> 
+                        <h4 class="comments">View all 32 comments</h4> 
+                    </a> 
+                    <a href="#"> 
+                        <h5 class="postTime">2 hours ago</h5> 
+                    </a> 
+                    <div class="addComments"> 
+                        <div class="reaction"> 
+                            <h3> 
+                            <i class="far fa-smile"></i> 
+                            </h3> 
+                        </div> 
+                        <input type="hidden"
+                            class="text" id="productId"
+                           value="<%= product._id %>">
+                        <input type="text"
+                            class="text" id="commentId"
+                            placeholder="Add a comment..."> 
+                        <button onclick="postComment(event)">Post</a> 
+                    </div> 
+                </div>  
+            </div> <br><br>
+
+            <% }) %>
+            
+        </div> 
+
+</body>
+<script>
+    function postComment(e,id) {
+        // $("#idForm").submit(function(e) {
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+        const comment = document.getElementById('commentId').value;
+        const product_id = document.getElementById('productId').value;
+
+        console.log(comment,product_id)
+        var form = $(this);
+        // var actionUrl = form.attr('action');
+
+        $.ajax({
+            type: "POST",
+            url: 'http://localhost:8081/post-comment',
+            data : {
+                id : product_id,
+                comment : comment // will be accessible in $_POST['data1']
+            },
+            success: function(data)
+            {
+                document.getElementById('commentId').value = "";
+            }
+        });
+
+}
+</script>
+
+<%- include('layouts/footer'); -%>
