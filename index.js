@@ -115,14 +115,14 @@ myApp.get('/art-list', async (req, res) => {
 });
 
 myApp.get('/welcome', async (req, res) => {
-  req.session.user_id = '652e8eea63799921917f0a0f';
-  req.session.userName = 'ss';
+  // req.session.user_id = req.session.user_id;
+  // req.session.userName = 'ss';
   var where = [
     {status:'active'},
     {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
     {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
-    {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
-    {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
 ]
   const aggregatorOpts = [
     {
@@ -141,7 +141,7 @@ myApp.get('/welcome', async (req, res) => {
 
   var art = await Art.aggregate(aggregatorOpts).exec();
 
-  // console.log('art',art,req.session.user_id);
+  console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
     return res.render('home', { errors:[],success: [],art: [{art: art}] });
@@ -217,6 +217,8 @@ myApp.post('/login', [
       }
       req.session.user_id = user._id;
       req.session.userName = user.userName;
+
+      console.log(user);
 
       // User exists and password matches, you can consider the user authenticated
       return res.redirect('/welcome');

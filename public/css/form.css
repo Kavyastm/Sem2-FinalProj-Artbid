@@ -369,7 +369,7 @@ li {
 }
 
 nav ul {
-    background-color: #93213d;
+    background-color: #f39c12;
     display: flex;
 }
 
@@ -506,7 +506,7 @@ body {
   }
   
   input[type="password"] {
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
@@ -746,7 +746,7 @@ p {
 .requiredErrorSecurityCheck {
     display: none;
     font-size: 0.8em;
-    color: white;
+    color: rgb(240, 9, 9);
   }
   
 .requiredErrorSecurityCheck.visible {
@@ -755,7 +755,7 @@ display: block;
 .requiredError {
     display: none;
     font-size: 0.8em;
-    color: white;
+    color: rgb(243, 8, 8);
   }
   
   .requiredError.visible {

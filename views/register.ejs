@@ -1,115 +1,101 @@
 <%- include('layouts/outerheader'); -%>
-<body onload="document.getElementById('registerForm').reset()">
-  <div style="height: 100px;">
-  </div>
-  <div class="main-div">
-      <div class="logo">
-      </div>
-      <form method="post" action="/register" class="login-form" id="submitFormValidate">
-        <div class="login-box">
-            <h3 class="title-heading">Register</h3>
-            <div class="name-field">
-                <label for="user-field">
-                    <p>
-                        Username : 
-                    </p>
-                </label>
-                <input id="email" placeholder="Username" type="text" name="userName" class="inputError"
-                value="<%= typeof userName !== 'undefined' ? userName : '' %>">
-            </div>
-            <span role="alert" class="requiredError" aria-hidden="true">
-              Please enter Username
-            </span>
-            <div class="name-field">
-              <label for="user-field">
-                  <p>
-                     Email : 
-                  </p>
-              </label>
-              <input id="pass-field" placeholder="Email" type="text" name="email" class="inputError">
+<body>
+	<div class="container h-100">
+		<div class="d-flex justify-content-center h-100">
+			<div class="user_card_signup">
+				<div class="d-flex justify-content-center">
+					<div class="brand_logo_container">
+						<img src="images/logo.png" class="brand_logo" alt="Logo">
+					</div>
+				</div>
+				<div class="d-flex justify-content-center form_container">
+					<form method="post" action="/register" id="submitFormValidate">
+                        <div><br>
+                            <div class="name-field" >
+                                
+                              <input id="email" placeholder="Username" type="text" name="userName" class="inputError"
+                              value="<%= typeof userName !== 'undefined' ? userName : '' %>">
+                            </div>
+                            <span role="alert" class="requiredError" aria-hidden="true">
+                                Please enter Username
+                            </span>
+                            <div class="name-field">
+                                
+                              <input id="pass-field" placeholder="Email" type="text" name="email" class="inputError">
+                            </div>
+                            <span role="alert" class="requiredError" aria-hidden="true">
+                                Please enter Email
+                              </span>
 
-            </div>
-            <span role="alert" class="requiredError" aria-hidden="true">
-              Please enter Email
-            </span>
-            <div class="name-field">
-              <label for="user-field">
-                  <p>
-                    Confirm Email : 
-                  </p>
-              </label>
-              <input id="confirmemail" placeholder="Confirm Email" type="text" name="confirmemail" class="inputError">
-            </div>
-            <span role="alert" class="requiredError" aria-hidden="true">
-              Please enter Confirm Email
-            </span>
-            <div class="name-field">
-              <label for="user-field">
-                  <p>
-                      Password : 
-                  </p>
-              </label>
-              <input id="pass-field" placeholder="Password" type="password" name="password" class="inputError"
-              value="<%= typeof userName !== 'undefined' ? userName : '' %>">
-            </div>
-            <span role="alert" class="requiredError" aria-hidden="true">
-              Please enter Password
-            </span>
-            <div class="name-field">
-              <label for="user-field">
-                  <p>
-                      Confirm Password : 
-                  </p>
-              </label>
-              <input id="pass-field" placeholder="Confirm password" type="password" name="confirmpassword" class="inputError"
+                              <div class="name-field">
+                                
+                                <input id="confirmemail" placeholder="Confirm Email" type="text" name="confirmemail" class="inputError">
+                             </div>
+                             <span role="alert" class="requiredError" aria-hidden="true">
+                                Please enter Confirm Email
+                             </span>
+
+                              <div class="name-field">
+                                
+                                <input id="pass-field" placeholder="Password" type="password" name="password" class="inputError"
+                                  value="<%= typeof userName !== 'undefined' ? userName : '' %>">
+                               </div>
+                               <span role="alert" class="requiredError" aria-hidden="true">
+                                 Please enter Password
+                               
+                                </span>
+                                <div class="name-field">
+                                
+                                  <input id="pass-field" placeholder="Confirm password" type="password" name="confirmpassword" class="inputError"
               value="<%= typeof confirmpassword !== 'undefined' ? confirmpassword : '' %>">
             </div>
             <span role="alert" class="requiredError" aria-hidden="true">
               Please enter Confirm Password
             </span>
-            <div class="name-field">
-              <label for="user-field">
-                  <p>
-                      Security Question : 
-                  </p>
-              </label>
-              <input id="securityQuestion" placeholder="Security Question" type="text" name="securityQuestion" class="inputError"
-                    value="<%= typeof securityQuestion !== 'undefined' ? securityQuestion : '' %>">
-            </div>
-            <span role="alert" class="requiredError" aria-hidden="true">
-              Please enter Security Question
-            </span>
-            <div class="name-field">
-              <label for="user-field">
-                  <p>
-                    Security Answer : 
-                  </p>
-              </label>
-              <input id="securityAnswer" placeholder="Security Answer" type="text" name="securityAnswer" class="inputError"
-                      value="<%= typeof securityAnswer !== 'undefined' ? securityAnswer : '' %>">
-            </div>
-              <span role="alert" class="requiredError" aria-hidden="true">
-                Please enter security Answer
-            </span>
-            <br>
-            <% if (errors && errors.length> 0) { %>
-              <div class="error-message">
-                <% for (let i=0; i < errors.length; i++) { %>
-                  <p class="error-text">
-                    <%= errors[i].msg %>
-                  </p>
-                  <% } %>
-              </div>
-            <% } %>
-            <div class="login-btn-field">
-              <input id="submitId" value="Create Account" type="submit" class="login-btn" onclick="validateForm(event)">
-              <!-- <button class="register" type="register">Create Account</button> -->
-            </div>
-        </div>
-    </form>
-  </div>
-  <div style="height: 100px;">
-  </div>
+                                  <div class="name-field">
+                                
+                                    <input id="securityQuestion" placeholder="Security Question" type="text" name="securityQuestion" class="inputError"
+                                    value="<%= typeof securityQuestion !== 'undefined' ? securityQuestion : '' %>">
+                            </div>
+                            <span role="alert" class="requiredError" aria-hidden="true">
+                              Please enter Security Question
+                            </span>
+                                    <div class="name-field">
+                                
+                                      <input id="securityAnswer" placeholder="Security Answer" type="text" name="securityAnswer" class="inputError"
+                                      value="<%= typeof securityAnswer !== 'undefined' ? securityAnswer : '' %>">
+                            </div>
+                              <span role="alert" class="requiredError" aria-hidden="true">
+                                Please enter security Answer
+                            </span>
+                                      
+                            <% if (errors && errors.length> 0) { %>
+                                <div class="error-message">
+                                  <% for (let i=0; i < errors.length; i++) { %>
+                                    <p class="error-text">
+                                      <%= errors[i].msg %>
+                                    </p>
+                                    <% } %>
+                                </div>
+                            <% } %>
+                            <div class="d-flex justify-content-center mt-3 login_container">
+                                <input id="submitId" value="Login" type="submit" class="btn login_btn" onclick="validateForm(event)">
+                            </div><br>
+                            
+                            <div class="register-field">
+                                <a href="login">
+                                    <p>
+                                        Already Have Account? Login Here
+                                    </p>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+				</div>
+
+			</div>
+		</div>
+	</div>
 </body>
 <script>
   function validateForm(e) {
