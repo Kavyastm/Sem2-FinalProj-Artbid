@@ -158,8 +158,8 @@ myApp.post('/post-comment', async (req, res) => {
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
   if (!req.body.comment) {
-    return next(msg);
-    // return res.render('profile', { errors: [{ msg: 'Comment is reqired.' }],success: [],user: [{user: user}] });
+    // return next(msg);
+    return res.render('profile', { errors: [{ msg: 'Comment is reqired.' }],success: [],user: [{user: user}] });
   }else{
     const newComment = new Comment({
       comment: req.body.comment,
@@ -395,13 +395,7 @@ myApp.get('/password-reset-success', (req, res) => {
 });
 
 
-myApp.get('/welcome', (req, res) => {
-  if(req.session.user_id){
-    return res.render('welcome');
-  }else{
-    return res.redirect('/login');
-  }
-});
+
 myApp.get('/profile', async (req, res) => {
   // req.session.user_id = '652e8eea63799921917f0a0f';
   // req.session.userName = 'ss';

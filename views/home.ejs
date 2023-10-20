@@ -83,7 +83,10 @@
                            value="<%= product._id %>">
                         <input type="text"
                             class="text" id="commentId"
-                            placeholder="Add a comment..."> 
+                            placeholder="Add a comment..." class="inputError"> 
+                            <span role="alert" class="requiredError" aria-hidden="true">
+                                Please enter Comment
+                            </span><br>
                         <button onclick="postComment(event)">Post</a> 
                     </div> 
                 </div>  
@@ -104,19 +107,29 @@
         console.log(comment,product_id)
         var form = $(this);
         // var actionUrl = form.attr('action');
-
-        $.ajax({
-            type: "POST",
-            url: 'http://localhost:8081/post-comment',
-            data : {
-                id : product_id,
-                comment : comment // will be accessible in $_POST['data1']
-            },
-            success: function(data)
-            {
-                document.getElementById('commentId').value = "";
-            }
-        });
+        if(comment){
+            $.ajax({
+                type: "POST",
+                url: 'http://localhost:8081/post-comment',
+                data : {
+                    id : product_id,
+                    comment : comment // will be accessible in $_POST['data1']
+                },
+                success: function(data)
+                {
+                    document.getElementById('commentId').value = "";
+                }
+            });
+        }else{
+            const userNameField = document.getElementsByClassName("inputError");
+            const showRequiredErr = document.getElementsByClassName("requiredError");
+            console.log(showRequiredErr)
+            showRequiredErr[0].classList.add("visible");
+            userNameField[0].classList.add("invalid");
+            showRequiredErr[0].setAttribute("aria-hidden", false);
+            showRequiredErr[0].setAttribute("aria-invalid", true);
+        }
+       
 
 }
 </script>

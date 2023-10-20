@@ -667,7 +667,7 @@ p {
 .register-field a p {
     padding: 1rem;
     text-align: center;
-    color: rgba(255, 255, 255, .7);
+    color: black;
     font-size: .9rem;
 }
 
