@@ -1,0 +1,124 @@
+<%- include('layouts/innerheader'); -%>
+
+  <body >
+    <div class="main-div"> 
+        <div class="logo">
+
+        </div>
+       <div class="col-xl-6 form-data" style="
+       justify-content: center;
+       text-align: center;
+       left: 40%;
+   ">
+        <form method="post" action="/update-art" enctype="multipart/form-data" >
+            <div class="">
+                <% if (errors && errors.length> 0) { %>
+                    <div class="error-message">
+                        <p class="error-text">
+                          <%= errors[0].msg %>
+                        </p>
+                    </div>
+                    <% } %>
+                    <% if (success && success.length> 0) { %>
+                        <div class="success-message">
+                            <p class="success-text">
+                              <%= success[0].msg %>
+                            </p>
+                        </div>
+                        <% } %>
+            
+                   
+                <p class="title">Upload Art</p>
+                <div class="name-field">
+                    <label for="name-field">
+                        <p>
+                            Title : 
+                        </p>
+                    </label>
+                    <input id="name" placeholder="Title" type="hidden" value="<%= typeof art[0].art._id !== 'undefined' ?  art[0].art._id : '' %>" name="art_id">
+
+                    <input id="name" placeholder="Title" type="text" name="title" value="<%= typeof art[0].art.title !== 'undefined' ?  art[0].art.title : '' %>" name="art_id">
+                </div>
+                <div class="email-field">
+                    <label for="email-field">
+                        <p>
+                            Description : 
+                        </p>
+                    </label>
+                    <textarea id="email" placeholder="Description" value="<%= typeof art[0].art.description !== 'undefined' ?  art[0].art.description : '' %>" type="text" name="description"><%= typeof art[0].art.description !== 'undefined' ?  art[0].art.description : '' %></textarea>
+                </div>
+                <br>
+                <div class="image-field">
+                    <label for="image-field">
+                        <p>
+                            Art Image : 
+                        </p>
+                    </label>
+
+                    <% if (art[0].art.image) { %>
+                        <img class="logo" src="/<%= art[0].art.image %>" alt="My_Logo" style="width: 200px; height: 200px;" type="file" name="profile_image">
+                        <input type="file" id="fileinput" name ="profile_image" multiple="multiple" accept="image/*" />
+                    <% } else {%>
+                        <input type="file" id="fileinput" class="inputError" name ="profile_image" multiple="multiple" accept="image/*" />
+                        <span role="alert" class="requiredError" aria-hidden="true">
+                            Please upload Image
+                        </span>
+                    <% } %>
+                    <!-- <input id="profile_image" placeholder="" type="profile_image" name="profile_image" -->
+                </div>
+                <div class="about-field">
+                    <label for="about-field">
+                        <p>
+                            Min Bid : 
+                        </p>
+                    </label>
+                    <input id="about-field" placeholder="Min Bid" type="text" name="min_bid" value="<%= typeof art[0].art.min_bid !== 'undefined' ?  art[0].art.min_bid : '' %>">
+
+                </div>
+                <div class="date-field">
+                    <label for="date-field">
+                        <p>
+                            Start Date : 
+                        </p>
+                    </label>
+                    <input id="date-field" placeholder="Start Date" type="date" name="start_date" value="<%= typeof art[0].art.start_date !== 'undefined' ?  art[0].art.start_date : '' %>">
+
+                </div>
+                <div class="date-field">
+                    <label for="date-field">
+                        <p>
+                            End Date : 
+                        </p>
+                    </label>
+                    <input id="date-field" placeholder="End Date" type="date" name="end_date" value="<%= typeof art[0].art.end_date !== 'undefined' ?  art[0].art.end_date : '' %>">
+
+                </div>
+                <div class="time-field">
+                    <label for="time-field">
+                        <p>
+                            Start Time : 
+                        </p>
+                    </label>
+                    <input id="time-field" placeholder="Start Time" type="time" name="start_time" value="<%= typeof art[0].art.start_time !== 'undefined' ?  art[0].art.start_time : '' %>">
+
+                </div>
+                <div class="time-field">
+                    <label for="time-field">
+                        <p>
+                            End Time : 
+                        </p>
+                    </label>
+                    <input id="time-field" placeholder="End Time" type="time" name="end_time" value="<%= typeof art[0].art.end_time !== 'undefined' ?  art[0].art.end_time : '' %>">
+
+                </div>
+                <div class="login-btn-field">
+                    <input type="submit" value="Update" class="login-btn">
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    </div>
+  </body>
+
+  <%- include('layouts/footer'); -%>

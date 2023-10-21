@@ -4,11 +4,20 @@
     <div style="height: 50px;">
        
     </div>
-    
+    <div>
         <h4 class="mt-4 mb-5" style="
         text-align: center;
-        font-size: 88px;
+        font-size: 58px;
     "><strong> My Arts</strong></h4>
+    </div>
+<div><a class="btn btn-primary" href="uploadart" role="button" style="
+    float: right;
+    margin-top: -103px;
+    margin-right: 116px;
+    /* margin: -100px; */
+">Add Art</a></div>
+     
+
 
         <div class="col-9"> 
            
@@ -25,22 +34,37 @@
                             <div class="profile_img"> 
                                 <div class="image"> 
                                     <img src= 
-"https://media.geeksforgeeks.org/wp-content/uploads/20220609093229/g-200x200.png"
+                                    "<%= product.userData[0].profile_image %>"
                                         alt="img8"> 
+                                    
                                 </div> 
                             </div> 
                         </div> 
-                        <h3>Ayush Agarwal 
+                        <h3><%= product.userData[0].userName %> 
                             <br> 
-                            <span>Mumbai, India</span> 
+                            <span><%= product.userData[0].about %></span> 
                     </h3> 
                     </div> 
-                    <div> 
-                        <span class="dot"> 
-                            <i class="fas fa-ellipsis-h"></i> 
-                        </span> 
-                    </div> 
+
+                    <a class="btn btn-primary" href="edit-art/<%= product._id %>" role="button">Edit</a>&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-primary" href="delete-art/<%= product._id %>" role="button">Delete</a>
+
+
+                    
+                    <!-- <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-mdb-toggle="dropdown-menu" aria-expanded="false">
+                          Action
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="#">Action</a></li>
+                          <li><a class="dropdown-item" href="#">Another action</a></li>
+                          <li><a class="dropdown-item" href="#">Something else here</a></li>
+                          <li><hr class="dropdown-divider" /></li>
+                          <li><a class="dropdown-item" href="#">Separated link</a></li>
+                        </ul>
+                      </div> -->
                 </div> 
+
                 <div class="imgBx"> 
                     <img src="<%= product.image %>"
                     class="cover" />

@@ -1,0 +1,151 @@
+<%- include('layouts/innerheader'); -%>
+
+<body onload = "dateCheck()">
+    <div style="height: 50px;">
+       
+    </div>
+    <div>
+        <h4 class="mt-4 mb-5" style="
+        text-align: center;
+        font-size: 58px;
+    "><strong>Details</strong></h4>
+    </div>
+     
+     <section class="py-5">
+        <div class="container">
+          <div class="row gx-5">
+            <aside class="col-lg-6">
+              <div class="border rounded-4 mb-3 d-flex justify-content-center"> 
+                <a data-fslightbox="mygalley" class="rounded-4" target="_blank" data-type="image" href="/<%= art[0].art[0].image %>">
+                  <img style="max-width: 100%; max-height: 200vh; margin: auto;" class="rounded-4 fit" src="/<%= art[0].art[0].image %>" />
+                </a>
+              </div>
+              
+              <!-- thumbs-wrap.// -->
+              <!-- gallery-wrap .end// -->
+            </aside>
+            <main class="col-lg-6">
+              <div class="ps-lg-3">
+                <h4 class="title text-dark">
+                    <b><%= art[0].art[0].title %></b>
+                </h4>
+                
+      
+                <div class="mb-3">
+                  <span class="h5">Base value: $<%= art[0].art[0].min_bid %></span>
+                  <span class="text-muted"></span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="h5">Last Bid Amount: $<%= art[0].art[0].min_bid %></span>
+                    <span class="text-muted"></span>
+                  </div>
+      
+                <p class="desc">
+                    <%= art[0].art[0].description %>
+                </p>
+      
+                <div class="row">
+                  <dt class="col-3">Start Date:</dt>
+                  <dd class="col-9"><%= art[0].art[0].start_date %></dd>
+      
+                  <dt class="col-3">End Date</dt>
+                  <dd class="col-9"><%= art[0].art[0].end_date %></dd>
+      
+                  <dt class="col-3">Posted By</dt>
+                  <dd class="col-9"><%= art[0].art[0].userData[0].userName %></dd>
+      
+                </div>
+      
+                <hr />
+            
+                <% if (logged_in_id != art[0].art[0].user_id) { %>
+              <div class="col-md-12">
+                <input id="bid_amount" placeholder="Bid Amount" type="number" name="bid_amount" onkeyup="success()" value = "" style="width: 60%;"">
+                <h4 id="bidend" style="color:red;display: none;">Bidding Finished</h4>
+                <input type="hidden" name="art_id" id="art_id" value="<%= art[0].art[0]._id %>" />
+                <input type="hidden" name="last_bid" id="last_bid" value="<%= art[0].art[0].last_bid %>" />
+
+                <input type="hidden" name="StartDate" id="userdate" value="<%= art[0].art[0].end_date %> <%= art[0].art[0].end_time %>:00" />
+
+              </div><br>
+
+              <a  href="javascript:submitBid()" id="submitBid" class="btn btn-primary shadow-0 submitBid" style="pointer-events: none;margin-left:100px;"> Submit Bid </a>
+
+              <% } %>
+
+
+              <% if (logged_in_id == art[0].art[0].user_id) { %>
+                <a href="#" class="btn btn-warning shadow-0"> Bidding History </a>
+              <% } %>
+
+                <!-- <a href="#" class="btn btn-warning shadow-0"> Buy now </a>
+                <a href="#" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
+                <a href="#" class="btn btn-light border border-secondary py-2 icon-hover px-3"> <i class="me-1 fa fa-heart fa-lg"></i> Save </a> -->
+              </div>
+            </main>
+          </div>
+        </div>
+      </section>
+
+      <script type="text/javascript">
+        function dateCheck() {
+            var ToDate = new Date();
+            var UserDate = document.getElementById("userdate").value;
+
+            if (new Date(UserDate).getTime() <= ToDate.getTime()) {
+                document.getElementById('bid_amount').style.display = "none"
+                document.getElementById('submitBid').style.display = "none"
+                document.getElementById('bidend').style.display = "block"
+            }
+            
+        }
+
+        function success() {
+	 if(document.getElementById("bid_amount").value =="") { 
+            document.getElementById('submitBid').style.pointerEvents = 'none'; 
+        } else { 
+            document.getElementById('submitBid').style.pointerEvents = '';
+        }
+    }
+
+    function submitBid(e) {
+
+        const bid_amount = parseInt(document.getElementById('bid_amount').value);
+        const last_bid = parseInt(document.getElementById('last_bid').value);
+
+        const product_id = document.getElementById('art_id').value;
+
+        if(bid_amount < last_bid){
+
+           alert('Please enter bid amount greater than previous bid'); 
+            
+        }else{
+
+            var form = $(this);
+        // var actionUrl = form.attr('action');
+
+        $.ajax({
+            type: "POST",
+            url: 'http://localhost:8081/submit-bid',
+            data : {
+                id : product_id,
+                bid_amount : bid_amount,
+                last_bid : last_bid // will be accessible in $_POST['data1']
+            },
+            success: function(data)
+            {
+              alert('Bid Submitted successfully.'); 
+
+                document.getElementById('bid_amount').value = "";
+            }
+        });
+
+        }
+       
+}
+
+     </script>
+</body>
+
+<%- include('layouts/footer'); -%>

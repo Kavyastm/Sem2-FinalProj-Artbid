@@ -11,6 +11,8 @@ const myApp = express(); // Create an Express application instance
 var moment = require('moment-timezone');
 
 var fs = require("fs");
+const ObjectId = mongoose.Types.ObjectId;
+
 const upload = require('./upload');
 // myApp.use(fileUpload()); // Use the fileUpload middleware to handle file uploads
 myApp.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
@@ -56,7 +58,7 @@ const artSchema = new mongoose.Schema({
 	},
   status: {
 		type: String,
-		enum: ["active","completed","expired"],
+		enum: ["active","completed","expired","deleted"],
 		default: "active"
 	},
 });
@@ -73,9 +75,26 @@ const commentSchema = new mongoose.Schema({
 		ref: 'arts',
 	},
 });
+
+const bidHistorySchema = new mongoose.Schema({
+  bid_amount: String,
+  user_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : true, 
+		ref: 'users',
+	},
+  art_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : true, 
+		ref: 'arts',
+	},
+},
+{timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }});
 const User = mongoose.model('User', userSchema);
 const Art = mongoose.model('Art', artSchema);
 const Comment = mongoose.model('Comment', commentSchema);
+const BiddingHistory = mongoose.model('BiddingHistory', bidHistorySchema);
+
 
 
 
@@ -102,9 +121,32 @@ myApp.get('/', (req, res) => {
 });
 
 myApp.get('/art-list', async (req, res) => {
-  const art = await Art.find({ user_id: req.session.user_id}).exec();
 
-  console.log(art,req.session.user_id);
+  var where = [
+    {status:'active'},
+    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+  // const art = await Art.find({ user_id: req.session.user_id}).exec();
 
   if(req.session.user_id){
     return res.render('arts', { errors:[],success: [],art: [{art: art}] });
@@ -141,7 +183,7 @@ myApp.get('/welcome', async (req, res) => {
 
   var art = await Art.aggregate(aggregatorOpts).exec();
 
-  console.log('art',art,req.session.user_id);
+  // console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
     return res.render('home', { errors:[],success: [],art: [{art: art}] });
@@ -150,8 +192,44 @@ myApp.get('/welcome', async (req, res) => {
     res.render('login', { errors: [] });
   }
 });
+
+myApp.get('/art-detail/:art_id', async (req, res) => {
+  // req.session.user_id = req.session.user_id;
+  // req.session.userName = 'ss';
+  var where = [
+    {_id : new mongoose.Types.ObjectId(req.params.art_id)},
+    
+]
+
+
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+
+  console.log('art',art,req.params.art_id);
+  
+  if(req.session.user_id){
+    return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id ,art: [{art: art}] });
+
+  }else{
+    res.render('login', { errors: [] });
+  }
+});
 myApp.post('/post-comment', async (req, res) => {
-  console.log(req.body)
+  // console.log(req.body)
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!user) {
     return res.redirect('/login');
@@ -166,12 +244,39 @@ myApp.post('/post-comment', async (req, res) => {
       art_id: req.body.id,
       user_id: req.session.user_id,
     });
-    console.log(newComment,req.body,'dgf')
+    // console.log(newComment,req.body,'dgf')
     newComment.save().then(() => {
       return res.redirect('/welcome');
     }).catch((err) => {
       console.error('Error saving user:', err);
       return res.redirect('/welcome');
+    });
+  }
+  
+});
+
+myApp.post('/submit-bid', async (req, res) => {
+  // console.log(req.body)
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  if (req.body.bid_amount <= req.body.last_bid) {
+    alert('Please enter bid amount greater than previous bid');
+    // return res.render('profile', { errors: [{ msg: 'Comment is reqired.' }],success: [],user: [{user: user}] });
+  }else{
+    const newComment = new BiddingHistory({
+      bid_amount: req.body.bid_amount,
+      art_id: req.body.id,
+      user_id: req.session.user_id,
+    });
+    // console.log(newComment,req.body,'dgf')
+    newComment.save().then(() => {
+      return res.redirect('/art-detail/'+req.body.id);
+    }).catch((err) => {
+      console.error('Error saving user:', err);
+      return res.redirect('/art-detail/'+req.body.id);
     });
   }
   
@@ -191,7 +296,7 @@ myApp.post('/login', [
   check('userName').notEmpty().withMessage('Username is required.'),
   check('password').notEmpty().withMessage('Password is required.'),
 ], async (req, res) => {
-  console.log("dd",req.body)
+  // console.log("dd",req.body)
   const errors = validationResult(req).array();
 
   if (errors.length > 0) {
@@ -218,7 +323,7 @@ myApp.post('/login', [
       req.session.user_id = user._id;
       req.session.userName = user.userName;
 
-      console.log(user);
+      // console.log(user);
 
       // User exists and password matches, you can consider the user authenticated
       return res.redirect('/welcome');
@@ -394,7 +499,6 @@ myApp.get('/password-reset-success', (req, res) => {
   return res.render('password-reset-success');
 });
 
-
 myApp.get('/welcome', (req, res) => {
   if(req.session.user_id){
     return res.render('welcome');
@@ -407,11 +511,26 @@ myApp.get('/profile', async (req, res) => {
   // req.session.userName = 'ss';
 
   const user = await User.findOne({ _id: req.session.user_id}).exec();
-  console.log(user,'user',req.session.user_id,req.session)
+  // console.log(user,'user',req.session.user_id,req.session)
     if (!user) {
       return res.redirect('/login');
     }else{
       return res.render('profile', { errors:[],success: [],user: [{user: user}] });
+    }
+});
+
+myApp.get('/edit-art/:art_id', async (req, res) => {
+  // req.session.user_id = '652e8eea63799921917f0a0f';
+  // req.session.userName = 'ss';
+
+  console.log(req.params.art_id,req.session.user_id)
+
+  const art = await Art.findOne({ _id: req.params.art_id}).exec();
+    if (req.session.user_id) {
+  console.log(';llll')
+          return res.render('edit-art', { errors:[],success: [],art: [{art: art}] });
+    }else{
+       return res.redirect('/login');
     }
 });
 
@@ -499,7 +618,7 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
           status: 'active',
           
         });
-        console.log(newArt,req.body)
+        // console.log(newArt,req.body)
         newArt.save().then(() => {
           return res.render('uploadart', { success: [{ msg: 'Art Added successfully.' }],errors: [] });
         }).catch((err) => {
@@ -508,6 +627,71 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
         });
 
       }
+      
+  // });
+});
+
+myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =>{
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time) {
+    var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
+    return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
+  }else{
+
+    const user = await Art.findOne({ _id: req.body.art_id}).exec();
+
+    var title = req.body.title.trim();
+    var description = req.body.description.trim();
+    var min_bid = req.body.min_bid.trim();
+    user.title = title;
+    user.image = req.file ? 'uploads/'+req.file.filename : user.image;
+    user.description = description;
+    user.min_bid = min_bid;
+    user.start_time = req.body.start_time;
+    user.end_time = req.body.end_time;
+    user.start_date = moment(new Date(req.body.start_date)).format('YYYY-MM-DD');
+    user.end_date = moment(new Date(req.body.end_date)).format('YYYY-MM-DD');
+
+    await user.save().then(() => {
+          return res.render('art-list', { success: [{ msg: 'Art Updated successfully.' }],errors: [] });
+        }).catch((err) => {
+          console.error('Error saving user:', err);
+          return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
+        });
+
+      }
+      
+  // });
+});
+
+myApp.get('/delete-art/:art_id',upload.single('profile_image'),async (req, res, next) =>{
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+  console.log(req.params.art_id);
+
+    const art = await Art.findOne({ _id: req.params.art_id}).exec();
+
+   
+    art.status = 'deleted';
+    
+
+    await art.save().then(() => {
+      return res.redirect('/art-list');
+    }).catch((err) => {
+          console.error('Error saving user:', err);
+          return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
+        });
+
+      
       
   // });
 });
