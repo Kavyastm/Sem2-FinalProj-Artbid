@@ -69,6 +69,8 @@
                 <input type="hidden" name="logged_in" id="logged_in" value="<%= logged_in_id %>" />
 
                 <input type="hidden" name="last_bid" id="last_bid" value="<%= art[0].art[0].last_bid %>" />
+                <input type="hidden" name="cartData" id="cart" value="<%= cart.length %>" />
+
 
                 <input type="hidden" name="StartDate" id="userdate" value="<%= art[0].art[0].end_date %> <%= art[0].art[0].end_time %>:00" />
 
@@ -88,6 +90,9 @@
 
                 <a href="#" id="buy" class="btn btn-warning shadow-0" style="display: none;"> Buy now </a>
                 <a id="addcart" href="javascript:addToCart()" class="btn btn-primary shadow-0" style="display: none;"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
+
+                <div id="alreadyadded" style="display: none;"><h4>Already added to card </h4><a  href="/cart" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i>Go To Cart </a></div>
+
               </div>
             </main>
           </div>
@@ -139,6 +144,8 @@
             var UserDate = document.getElementById("userdate").value;
             var logged_in = document.getElementById("logged_in").value;
             var bidder = document.getElementById("bidder").value;
+            var cart = document.getElementById("cart").value;
+
 
             console.log(bidder , logged_in)
 
@@ -149,8 +156,14 @@
                 document.getElementById('bidend').style.display = "block"
                 if(bidder == logged_in){
 
-                document.getElementById('addcart').style.display = "block"
-                document.getElementById('buy').style.display = "block"
+                    if(cart == 0){
+                      document.getElementById('addcart').style.display = "block"
+                      document.getElementById('buy').style.display = "block"
+                    }else{
+
+                        document.getElementById('alreadyadded').style.display = "block"
+
+                    }
 
                 }
 

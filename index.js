@@ -228,6 +228,13 @@ var where1 = [
   
 ]
 
+var where3 = [
+  {user_id : new mongoose.Types.ObjectId(req.session.user_id)},
+  {art_id : new mongoose.Types.ObjectId(req.params.art_id)},
+
+  
+]
+
 
   const aggregatorOpts = [
     {
@@ -270,15 +277,43 @@ const aggregatorOpts1 = [
   }
 ]
 
+const aggregatorOpts2 = [
+  {
+    $match : { $and : where3 }
+  },
+  {
+    $lookup:
+      {
+        from: 'users',
+        localField: 'user_id',
+        foreignField: '_id',
+        as: 'userData'
+      }
+      
+  },
+  {
+    $lookup:
+      {
+        from: 'arts',
+        localField: 'art_id',
+        foreignField: '_id',
+        as: 'artData'
+      },
+      
+  }
+]
+
   var art = await Art.aggregate(aggregatorOpts).exec();
 
 
   var biddingHistory = await BiddingHistory.aggregate(aggregatorOpts1).exec();
 
-  console.log(biddingHistory);
+  var cart = await Cart.aggregate(aggregatorOpts2).sort({ _id: -1 }).limit(1).exec();
+
+  console.log(cart);
   
   if(req.session.user_id){
-    return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
+    return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
 
   }else{
     res.render('login', { errors: [] });
