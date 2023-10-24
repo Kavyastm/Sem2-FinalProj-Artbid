@@ -10,6 +10,9 @@ const myApp = express(); // Create an Express application instance
 // const upload = multer({ dest: 'uploads/' });
 var moment = require('moment-timezone');
 
+var cron = require('node-cron');
+
+
 var fs = require("fs");
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -985,6 +988,46 @@ myApp.post('/add-cart',async (req, res, next) =>{
         });
       
   // });
+});
+
+cron.schedule('* * * * *', async () => {
+
+  var where = [
+    {status:"active"},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+
+  art.forEach(async(element) => {
+
+    if((element.end_date + " " + element.end_time) < moment(new Date()).format('YYYY-MM-DD HH:mm:ss') ){
+
+      console.log('running a task every minute', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
+
+      const art =  await Art.findOne({ _id: element._id}).exec();
+      art.status = 'completed';
+      await art.save();
+    }
+  
+  });
 });
 
 myApp.listen(8081, () => {
