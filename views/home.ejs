@@ -12,7 +12,7 @@
            
             
         <!-- Code for viewing the Post -->
-        <% art[0].art.forEach(product => { %>
+        <% art[0].art.forEach((product,key) => { %>
 
             <div class="card" style="
             margin-left: 28%;
@@ -23,12 +23,6 @@
                             <div class="profile_img"> 
                                 <div class="image"> 
                                     <img src= 
-
-                                    
-
-
-
-                                    
                                         alt="img8"> 
                                 </div> 
                             </div> 
@@ -56,26 +50,31 @@
                              
                         </div> 
                     </div> 
-                    <a href="#"> 
+                    <a href="/art-detail/<%= product._id %>"> 
                         <p class="message"> 
-                        <b><%= product.title %>i</b> 
+                        <b><%= product.title %></b> 
                         </p> 
 
                     </a> 
 
-                    <span href="#"> 
+                    <span> 
                         <p class="message"> 
                         <b><%= product.description %></b> 
                         </p> 
 
                     </span> 
-                    <span href="#"> 
+                    <span> 
                         <p class="message"> 
                         <b>$<%= product.min_bid %></b> 
                         </p> 
-
+                        
                     </span> 
-                    <a href="#"> 
+                <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" onclick="openModel()">View all comments</button> -->
+                    
+                    
+
+                    <a href="#" data-toggle="modal" data-target="#myModal" > 
+                        
                         <h4 class="comments">View all comments</h4> 
                     </a> 
                    
@@ -86,15 +85,15 @@
                             </h3> 
                         </div> 
                         <input type="hidden"
-                            class="text" id="productId"
+                            class="text productId" id="productId"
                            value="<%= product._id %>">
                         <input type="text"
-                            class="text" id="commentId"
-                            placeholder="Add a comment..." class="inputError"> 
+                            class="text commentId inputError" id="commentId"
+                            placeholder="Add a comment..."> 
                             <span role="alert" class="requiredError" aria-hidden="true">
                                 Please enter Comment
                             </span><br>
-                        <button onclick="postComment(event)">Post</a> 
+                        <button onclick="postComment(event,'<%= key %>')">Post</a> 
                     </div> 
                 </div>  
             </div> <br><br>
@@ -102,16 +101,59 @@
             <% }) %>
             
         </div> 
-
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalScrollableTitle">All Comments</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                
+                    <div>
+                        
+                    
+    
+                        
+                            <div "<% art[0].art[0].commentData.forEach((comments,key1) => { %>">
+                              <span><%= comments.comment %></span>
+                            </div>
+                            
+                          
+    
+                    <% }) %>   
+                    
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
 </body>
 <script>
-    function postComment(e,id) {
+     function openModel() {
+        $('#myModal').modal('show');
+        $.ajax({
+            type: "POST",
+            url: 'http://localhost:8081/forgotpassword',
+            data : {
+                // will be accessible in $_POST['data1']
+            },
+            success: function(data)
+            {
+              console.log(data)
+            }
+        });
+    }
+    function postComment(e,key) {
         // $("#idForm").submit(function(e) {
         e.preventDefault(); // avoid to execute the actual submit of the form.
-        const comment = document.getElementById('commentId').value;
-        const product_id = document.getElementById('productId').value;
-
-        console.log(comment,product_id)
+        // const comment = document.getElementById('commentId').value;
+        const comment = document.getElementsByClassName("commentId")[key].value;
+        const product_id = document.getElementsByClassName("productId")[key].value;
+        console.log(comment,product_id,e,key)
         var form = $(this);
         // var actionUrl = form.attr('action');
         if(comment){
@@ -124,17 +166,23 @@
                 },
                 success: function(data)
                 {
-                    document.getElementById('commentId').value = "";
+                    document.getElementsByClassName("commentId")[key].value = "";
                 }
             });
         }else{
             const userNameField = document.getElementsByClassName("inputError");
             const showRequiredErr = document.getElementsByClassName("requiredError");
-            console.log(showRequiredErr)
-            showRequiredErr[0].classList.add("visible");
-            userNameField[0].classList.add("invalid");
-            showRequiredErr[0].setAttribute("aria-hidden", false);
-            showRequiredErr[0].setAttribute("aria-invalid", true);
+            console.log(showRequiredErr,!userNameField[key],key)
+            showRequiredErr[key].classList.add("visible");
+            userNameField[key].classList.add("invalid");
+            showRequiredErr[key].setAttribute("aria-hidden", false);
+            showRequiredErr[key].setAttribute("aria-invalid", true);
+            setTimeout(() => {
+                showRequiredErr[key].classList.remove("visible");
+                userNameField[key].classList.remove("invalid");
+                showRequiredErr[key].setAttribute("aria-hidden", true);
+                showRequiredErr[key].setAttribute("aria-invalid", false);
+            }, "2000");
         }
        
 
