@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <span class="h5">Last Bid Amount: $<%= art[0].art[0].min_bid %></span>
+                    <span class="h5">Last Bid Amount: $<%= art[0].art[0].last_bid %></span>
                     <span class="text-muted"></span>
                   </div>
       
@@ -63,7 +63,11 @@
               <div class="col-md-12">
                 <input id="bid_amount" placeholder="Bid Amount" type="number" name="bid_amount" onkeyup="success()" value = "" style="width: 60%;"">
                 <h4 id="bidend" style="color:red;display: none;">Bidding Finished</h4>
+                <input type="hidden" name="bidder" id="bidder" value="<%= art[0].art[0].last_bidder_id %>" />
                 <input type="hidden" name="art_id" id="art_id" value="<%= art[0].art[0]._id %>" />
+
+                <input type="hidden" name="logged_in" id="logged_in" value="<%= logged_in_id %>" />
+
                 <input type="hidden" name="last_bid" id="last_bid" value="<%= art[0].art[0].last_bid %>" />
 
                 <input type="hidden" name="StartDate" id="userdate" value="<%= art[0].art[0].end_date %> <%= art[0].art[0].end_time %>:00" />
@@ -76,27 +80,81 @@
 
 
               <% if (logged_in_id == art[0].art[0].user_id) { %>
-                <a href="#" class="btn btn-warning shadow-0"> Bidding History </a>
+                <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Bid History</button>
+
+                <!-- <a href="#" class="btn btn-warning shadow-0" data-toggle="modal" data-target="#myModal"> Bidding History </a> -->
+                
               <% } %>
 
-                <!-- <a href="#" class="btn btn-warning shadow-0"> Buy now </a>
-                <a href="#" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
-                <a href="#" class="btn btn-light border border-secondary py-2 icon-hover px-3"> <i class="me-1 fa fa-heart fa-lg"></i> Save </a> -->
+                <a href="#" id="buy" class="btn btn-warning shadow-0" style="display: none;"> Buy now </a>
+                <a id="addcart" href="javascript:addToCart()" class="btn btn-primary shadow-0" style="display: none;"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
               </div>
             </main>
           </div>
         </div>
       </section>
 
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalScrollableTitle">Bid History</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+                <table>
+                    <tr>
+                      <th>User Name</th>
+                      <th>Bid Amount</th>
+                    </tr>
+                <% biddingHistory[0].biddingHistory.forEach(history => { %>
+
+                    
+                        <tr>
+                          <td><%= history.userData[0].userName %></td>
+                          <td><%= history.bid_amount %></td>
+                         
+                        </tr>
+                        
+                      
+
+                <% }) %>   
+                
+            </table>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <script type="text/javascript">
         function dateCheck() {
             var ToDate = new Date();
             var UserDate = document.getElementById("userdate").value;
+            var logged_in = document.getElementById("logged_in").value;
+            var bidder = document.getElementById("bidder").value;
+
+            console.log(bidder , logged_in)
+
 
             if (new Date(UserDate).getTime() <= ToDate.getTime()) {
                 document.getElementById('bid_amount').style.display = "none"
                 document.getElementById('submitBid').style.display = "none"
                 document.getElementById('bidend').style.display = "block"
+                if(bidder == logged_in){
+
+                document.getElementById('addcart').style.display = "block"
+                document.getElementById('buy').style.display = "block"
+
+                }
+
+
             }
             
         }
@@ -115,8 +173,16 @@
         const last_bid = parseInt(document.getElementById('last_bid').value);
 
         const product_id = document.getElementById('art_id').value;
+        var ToDate = new Date();
 
-        if(bid_amount < last_bid){
+
+        var UserDate = document.getElementById("userdate").value;
+
+        if (new Date(UserDate).getTime() <= ToDate.getTime()) {
+            alert('Bid duration is over. Please check other art works.');
+        }
+
+        else if(bid_amount <= last_bid){
 
            alert('Please enter bid amount greater than previous bid'); 
             
@@ -138,12 +204,38 @@
               alert('Bid Submitted successfully.'); 
 
                 document.getElementById('bid_amount').value = "";
+
+                window.location.reload();
             }
         });
 
         }
        
 }
+    
+function addToCart() {
+
+const product_id = document.getElementById('art_id').value;
+
+    var form = $(this);
+// var actionUrl = form.attr('action');
+
+$.ajax({
+    type: "POST",
+    url: 'http://localhost:8081/add-cart',
+    data : {
+        art_id : product_id,
+    },
+    success: function(data)
+    {
+      alert('Art Added to Cart.'); 
+
+        window.location.assign('/cart');
+    }
+});
+
+}
+
 
      </script>
 </body>

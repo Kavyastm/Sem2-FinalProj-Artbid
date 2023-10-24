@@ -1,9 +1,12 @@
 <%- include('layouts/innerheader'); -%>
 
   <body>
-    <div class="main-div" style="background-image: url('images/bg1.jpeg');"> 
-        <div class="logo">
-        </div>
+    <div class="container-xl px-4 mt-4">
+        <!-- Account page navigation-->
+        <nav class="nav nav-borders">
+            <a class="nav-link active ms-0" href="#"></a>
+        </nav>
+        <hr class="mt-0 mb-4">
         <form method="post" action="/update-profile" id="submitFormValidate" enctype="multipart/form-data">
             <div class="">
                 <% if (errors && errors.length> 0) { %>
@@ -20,66 +23,78 @@
                         </p>
                     </div>
                 <% } %>
-                <p class="title">Profile</p>
-                <div class="name-field">
-                    <label for="name-field">
-                        <p>
-                            Name : 
-                        </p>
-                    </label>
-                    <input id="name" placeholder="Name" type="text" name="name" class="inputError"
-                    value="<%= typeof user[0].user.name !== 'undefined' ?  user[0].user.name : '' %>">
-                </div>
-                <span role="alert" class="requiredError" aria-hidden="true">
-                    Please enter Name
-                </span>
-                <div class="name-field">
-                    <label for="name-field">
-                        <p>
-                            Email : 
-                        </p>
-                    </label>
-                    <input id="email" placeholder="Email" class="inputError" type="email" name="email"
-                    value="<%= typeof user[0].user.email !== 'undefined' ?  user[0].user.email : '' %>">
-                </div>
-                <span role="alert" class="requiredError" aria-hidden="true">
-                    Please enter Email
-                  </span>
-                <div class="image-field">
-                    <label for="image-field">
-                        <p>
-                            Profile Image : 
-                        </p>
-                    </label>
-                    <% if (user[0].user.profile_image) { %>
-                        <img class="logo" src="<%= user[0].user.profile_image %>" alt="My_Logo" style="width: 200px; height: 200px;" type="file" name="profile_image">
-                        <input type="file" id="fileinput" name ="profile_image" multiple="multiple" accept="image/*" />
-                    <% } else {%>
-                        <input type="file" id="fileinput" class="inputError" name ="profile_image" multiple="multiple" accept="image/*" />
-                        <span role="alert" class="requiredError" aria-hidden="true">
-                            Please upload Image
-                        </span>
-                    <% } %>
-                </div>
-                <div class="about-field">
-                    <label for="about-field">
-                        <p>
-                            About : 
-                        </p>
-                    </label>
-                    <!-- <input id="about-field" placeholder="About" type="text" name="about" class="inputError"
-                    value="<%= typeof user[0].user.about !== 'undefined' ?  user[0].user.about : '' %>"> -->
-                    <textarea id="about-field" placeholder="About" type="text" name="about" class="inputError"
-                    value="<%= typeof user[0].user.about !== 'undefined' ?  user[0].user.about : '' %>"></textarea>
-                </div>
-                <span role="alert" class="requiredError" aria-hidden="true">
-                    Please enter About
-                  </span>
-                <div class="login-btn-field">
-                    <input type="submit" value="Update" class="login-btn" onclick="validateForm(event)">
+        <div class="row">
+            <div class="col-xl-4">
+                <!-- Profile picture card-->
+                <div class="card mb-4 mb-xl-0">
+                    <div class="card-header">Profile Picture</div>
+                    <div class="card-body text-center">
+                        <!-- Profile picture image-->
+                        <% if (user[0].user.profile_image) { %>
+                            <img class="img-account-profile rounded-circle mb-2" src="<%= user[0].user.profile_image %>" alt="" style="
+                            height: 148px;
+                        ">
+                        <% } else {%>
+                            <img class="img-account-profile rounded-circle mb-2" src="http://bootdey.com/img/Content/avatar/avatar1.png" alt="" style="
+                            height: 148px;
+                        ">
+                        <% } %>
+                        <!-- Profile picture help block-->
+                        <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
+                        <!-- Profile picture upload button-->
+                        
+                        <input class="btn btn-primary" type="file" name ="profile_image" multiple="multiple" accept="image/*">
+                    </div>
                 </div>
             </div>
-        </form>
+            <div class="col-xl-8">
+                <!-- Account details card-->
+                <div class="card mb-4">
+                    <div class="card-header">Account Details</div>
+                    <div class="card-body">
+                        <form>
+                            <!-- Form Group (username)-->
+                            <div class="mb-3">
+                                <label class="small mb-1" for="inputUsername">Username (how your name will appear to other users on the site)</label>
+                                <input id="name" placeholder="Name" type="text" name="name" class="inputError"
+                                value="<%= typeof user[0].user.name !== 'undefined' ?  user[0].user.name : '' %>">
+                            </div>
+                            <span role="alert" class="requiredError" aria-hidden="true">
+                                Please enter Name
+                            </span>
+                            <!-- Form Row-->
+                            
+                            <!-- Form Group (email address)-->
+                            <div class="mb-3">
+                                <label class="small mb-1" for="inputEmailAddress">Email address</label>
+                                <input id="email" placeholder="Email" class="inputError" type="email" name="email"
+                        value="<%= typeof user[0].user.email !== 'undefined' ?  user[0].user.email : '' %>">
+                    </div>
+                    <span role="alert" class="requiredError" aria-hidden="true">
+                        Please enter Email
+                      </span>
+                            <!-- Form Row-->
+                            <div class="row gx-3 mb-3">
+                                <!-- Form Group (phone number)-->
+                                <div class="col-md-12">
+                                    <label class="small mb-1" for="inputPhone">About</label>
+                                    <textarea id="about-field" placeholder="About" type="text" name="about" class="inputError"
+                                    value="<%= typeof user[0].user.about !== 'undefined' ?  user[0].user.about : '' %>"><%= typeof user[0].user.about !== 'undefined' ?  user[0].user.about : '' %></textarea>
+                                </div>
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter About
+                                  </span>
+                                <!-- Form Group (birthday)-->
+                               
+                            </div>
+                            <!-- Save changes button-->
+                            <input type="submit" value="Update" class="login-btn" onclick="validateForm(event)">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
     </div>
   </body>
   <script>

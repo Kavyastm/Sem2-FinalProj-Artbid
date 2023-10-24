@@ -42,9 +42,16 @@ const artSchema = new mongoose.Schema({
   min_bid: String,
   start_date: String,
   end_date: String,
+  last_bid: String,
+
   user_id : {
 		type: mongoose.Schema.Types.ObjectId, 
 		required : true, 
+		ref: 'users',
+	},
+  last_bidder_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : false, 
 		ref: 'users',
 	},
   buyer_id: String,
@@ -90,13 +97,25 @@ const bidHistorySchema = new mongoose.Schema({
 	},
 },
 {timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }});
+
+const cartSchema = new mongoose.Schema({
+  user_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : true, 
+		ref: 'users',
+	},
+  art_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : true, 
+		ref: 'arts',
+	},
+},
+{timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }});
 const User = mongoose.model('User', userSchema);
 const Art = mongoose.model('Art', artSchema);
 const Comment = mongoose.model('Comment', commentSchema);
 const BiddingHistory = mongoose.model('BiddingHistory', bidHistorySchema);
-
-
-
+const Cart = mongoose.model('Cart', cartSchema);
 
 myApp.use(session({ 
   
@@ -201,6 +220,11 @@ myApp.get('/art-detail/:art_id', async (req, res) => {
     
 ]
 
+var where1 = [
+  {art_id : new mongoose.Types.ObjectId(req.params.art_id)},
+  
+]
+
 
   const aggregatorOpts = [
     {
@@ -217,12 +241,41 @@ myApp.get('/art-detail/:art_id', async (req, res) => {
     }
 ]
 
+const aggregatorOpts1 = [
+  {
+    $match : { $and : where1 }
+  },
+  {
+    $lookup:
+      {
+        from: 'users',
+        localField: 'user_id',
+        foreignField: '_id',
+        as: 'userData'
+      }
+      
+  },
+  {
+    $lookup:
+      {
+        from: 'arts',
+        localField: 'art_id',
+        foreignField: '_id',
+        as: 'artData'
+      },
+      
+  }
+]
+
   var art = await Art.aggregate(aggregatorOpts).exec();
 
-  console.log('art',art,req.params.art_id);
+
+  var biddingHistory = await BiddingHistory.aggregate(aggregatorOpts1).exec();
+
+  console.log(biddingHistory);
   
   if(req.session.user_id){
-    return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id ,art: [{art: art}] });
+    return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
 
   }else{
     res.render('login', { errors: [] });
@@ -236,8 +289,8 @@ myApp.post('/post-comment', async (req, res) => {
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
   if (!req.body.comment) {
-    return next(msg);
-    // return res.render('profile', { errors: [{ msg: 'Comment is reqired.' }],success: [],user: [{user: user}] });
+    // return next(msg);
+    return res.render('profile', { errors: [{ msg: 'Comment is reqired.' }],success: [],user: [{user: user}] });
   }else{
     const newComment = new Comment({
       comment: req.body.comment,
@@ -262,28 +315,132 @@ myApp.post('/submit-bid', async (req, res) => {
     return res.redirect('/login');
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
-  if (req.body.bid_amount <= req.body.last_bid) {
-    alert('Please enter bid amount greater than previous bid');
-    // return res.render('profile', { errors: [{ msg: 'Comment is reqired.' }],success: [],user: [{user: user}] });
-  }else{
+ 
     const newComment = new BiddingHistory({
       bid_amount: req.body.bid_amount,
       art_id: req.body.id,
       user_id: req.session.user_id,
     });
+
+   
     // console.log(newComment,req.body,'dgf')
-    newComment.save().then(() => {
-      return res.redirect('/art-detail/'+req.body.id);
+    newComment.save().then(async () => {
+      const art = await Art.findOne({ _id: new mongoose.Types.ObjectId(req.body.id)}).exec();
+
+      art.last_bid = req.body.bid_amount;
+      art.last_bidder_id = req.session.user_id;
+
+      await art.save().then(() => {
+        return res.redirect('/art-detail/'+req.body.id);
+      })
+      
     }).catch((err) => {
       console.error('Error saving user:', err);
       return res.redirect('/art-detail/'+req.body.id);
     });
-  }
+
   
 });
 myApp.get('/login', (req, res) => {
   if(req.session.user_id){
    return res.redirect('/welcome');
+  }else{
+    res.render('login', { errors: [] });
+  }
+});
+
+myApp.get('/cart', async (req, res) => {
+
+  var where = [
+    
+    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+        
+    },
+    {
+      $lookup:
+        {
+          from: 'arts',
+          localField: 'art_id',
+          foreignField: '_id',
+          as: 'artData'
+        },
+        
+    }
+]
+
+  var cart = await Cart.aggregate(aggregatorOpts).exec();
+
+  var cartItemsCount = cart.length
+  var total = 0;
+
+  cart.forEach(product => {
+    total = parseInt(total) + parseInt(product.artData[0].last_bid);
+  })
+  if(req.session.user_id){
+    res.render('cart', { errors: [] ,cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
+  }else{
+    res.render('login', { errors: [] });
+  }
+});
+
+myApp.get('/history/:art_id', async (req, res) => {
+
+  var where = [
+    
+    {art_id: new mongoose.Types.ObjectId(req.params.art_id)},
+    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+        
+    },
+    {
+      $lookup:
+        {
+          from: 'arts',
+          localField: 'art_id',
+          foreignField: '_id',
+          as: 'artData'
+        },
+        
+    }
+]
+
+  var BiddingHistory = await BiddingHistory.aggregate(aggregatorOpts).exec();
+
+  
+  if(req.session.user_id){
+    res.render('biddingHistory', { errors: [] ,BiddingHistory: [{BiddingHistory: BiddingHistory}] });
   }else{
     res.render('login', { errors: [] });
   }
@@ -499,13 +656,7 @@ myApp.get('/password-reset-success', (req, res) => {
   return res.render('password-reset-success');
 });
 
-myApp.get('/welcome', (req, res) => {
-  if(req.session.user_id){
-    return res.render('welcome');
-  }else{
-    return res.redirect('/login');
-  }
-});
+
 myApp.get('/profile', async (req, res) => {
   // req.session.user_id = '652e8eea63799921917f0a0f';
   // req.session.userName = 'ss';
@@ -606,6 +757,8 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
           description: req.body.description,
           image:  req.file ? 'uploads/'+req.file.filename : '',
           min_bid: req.body.min_bid,
+          last_bid: req.body.min_bid,
+
           user_id: req.session.user_id,
           // start_date: '2023-10-18',
           // end_date: '2023-10-19',
@@ -640,7 +793,7 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time) {
     var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
-    return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
+    return res.render('edit-art', { errors: [{ msg: msg+' is reqired.' }],success: [] });
   }else{
 
     const user = await Art.findOne({ _id: req.body.art_id}).exec();
@@ -657,11 +810,38 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
     user.start_date = moment(new Date(req.body.start_date)).format('YYYY-MM-DD');
     user.end_date = moment(new Date(req.body.end_date)).format('YYYY-MM-DD');
 
-    await user.save().then(() => {
-          return res.render('art-list', { success: [{ msg: 'Art Updated successfully.' }],errors: [] });
+    
+
+    await user.save().then(async () => {
+
+      var where = [
+        {status:'active'},
+        {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+        // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+        // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+        // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+        // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+    ]
+      const aggregatorOpts = [
+        {
+          $match : { $and : where }
+        },
+        {
+          $lookup:
+            {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'userData'
+            }
+        }
+    ]
+    
+      var art = await Art.aggregate(aggregatorOpts).exec();
+          return res.render('arts', { success: [{ msg: 'Art Updated successfully.' }],errors: [],art: [{art: art}] });
         }).catch((err) => {
           console.error('Error saving user:', err);
-          return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
+          return res.render('arts', { commonError: 'Art adding failed',art: [{art: art}] }); // Pass commonError here
         });
 
       }
@@ -701,6 +881,112 @@ myApp.get('/logout', async (req, res) => {
     return res.redirect('/login');
   })  
 });
+
+myApp.get('/past-auction', async (req, res) => {
+  // req.session.user_id = req.session.user_id;
+  // req.session.userName = 'ss';
+  var where = [
+    {end_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+
+  // console.log('art',art,req.session.user_id);
+  
+  if(req.session.user_id){
+    return res.render('pastAuction', { errors:[],success: [],art: [{art: art}] });
+
+  }else{
+    res.render('login', { errors: [] });
+  }
+});
+myApp.post('/add-cart',async (req, res, next) =>{
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+  
+    // User.findOne({id:req.body.id}, function (err, user) {
+        // if (!user) {
+        //   return res.redirect('/login');
+        //   // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+        // }
+        var where = [
+    
+          {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+          // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+          // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+          // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+          // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+      ]
+        const aggregatorOpts = [
+          {
+            $match : { $and : where }
+          },
+          {
+            $lookup:
+              {
+                from: 'users',
+                localField: 'user_id',
+                foreignField: '_id',
+                as: 'userData'
+              }
+              
+          },
+          {
+            $lookup:
+              {
+                from: 'arts',
+                localField: 'art_id',
+                foreignField: '_id',
+                as: 'artData'
+              },
+              
+          }
+      ]
+      
+        var cart = await Cart.aggregate(aggregatorOpts).exec();
+      
+        var cartItemsCount = cart.length
+        var total = 0;
+      
+        cart.forEach(product => {
+          total = parseInt(total) + parseInt(product.artData[0].last_bid);
+        })
+
+        const cart1 = new Cart({
+          user_id: req.session.user_id,
+          art_id: req.body.art_id
+        });
+        // console.log(newArt,req.body)
+        cart1.save().then(() => {
+          return res.render('cart', { success: [{ msg: 'Art Added to cart.' }],errors: [],cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
+        }).catch((err) => {
+          console.error('Error saving user:', err);
+          return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
+        });
+      
+  // });
+});
+
 myApp.listen(8081, () => {
   console.log('Application is running on port 8081');
 });

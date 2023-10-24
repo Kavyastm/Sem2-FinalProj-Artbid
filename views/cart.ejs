@@ -1,0 +1,203 @@
+<%- include('layouts/innerheader'); -%>
+
+<body onload = "dateCheck()">
+    <div style="height: 50px;">
+       
+    </div>
+    <div>
+        <h4 class="mt-4 mb-5" style="
+        text-align: center;
+        font-size: 58px;
+    "><strong>Cart</strong></h4>
+    </div>
+     
+    <section class="gradient-custom">
+        <div class="container py-5">
+          <div class="row d-flex justify-content-center my-4">
+            <div class="col-md-8">
+              <div class="card mb-4">
+                <div class="card-header py-3">
+                  <h5 class="mb-0">Cart - <%= cartLength %> items</h5>
+                </div>
+                <div class="card-body">
+                  <!-- Single item -->
+                  <% cart[0].cart.forEach(product => { %>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
+                      <!-- Image -->
+                      <div class="bg-image hover-overlay hover-zoom ripple rounded" data-mdb-ripple-color="light">
+                        <img src="<%= product.artData[0].image %>"
+                          class="w-100" alt="Blue Jeans Jacket" />
+                        <a href="#!">
+                          <div class="mask" style="background-color: rgba(251, 251, 251, 0.2)"></div>
+                        </a>
+                      </div>
+                      <!-- Image -->
+                    </div>
+      
+                    <div class="col-lg-5 col-md-6 mb-4 mb-lg-0">
+                      <!-- Data -->
+                      <p style="color: black;"><strong><%= product.artData[0].title %></strong></p>
+                      <p style="color: black;"><%= product.artData[0].description %></p>
+                      <p style="color: black;">Amount : $<%= product.artData[0].last_bid %></p>
+                      <button type="button" class="btn btn-primary btn-sm me-1 mb-2" data-mdb-toggle="tooltip"
+                        title="Remove item">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      
+                      <!-- Data -->
+                    </div>
+      
+                    <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                      <!-- Quantity -->
+                      <div class="d-flex mb-4" style="max-width: 300px">
+                       
+      
+                        <div class="form-outline">
+                          <label class="form-label" for="form1">1 Art</label>
+                        </div>
+      
+                        
+                      </div>
+                      <!-- Quantity -->
+      
+                      <!-- Price -->
+            
+                      <!-- Price -->
+                    </div>
+                  </div>
+                  <!-- Single item -->
+      
+                  <hr class="my-4" />
+
+                  <% }) %>
+      
+                  <!-- Single item -->
+                  
+                </div>
+              </div>
+             
+            </div>
+            <div class="col-md-4">
+              <div class="card mb-4">
+                <div class="card-header py-3">
+                  <h5 class="mb-0">Summary</h5>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    <li
+                      class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                      Products
+                      <span>$<%= total %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                      Shipping
+                      <span>$0</span>
+                    </li>
+                    <li
+                      class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                      <div>
+                        <strong>Total amount</strong>
+                        <strong>
+                          <p class="mb-0">(including VAT)</p>
+                        </strong>
+                      </div>
+                      <span><strong>$<%= total %></strong></span>
+                    </li>
+                  </ul>
+      
+                  <button type="button" class="btn btn-primary btn-lg btn-block">
+                    Go to checkout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <script type="text/javascript">
+        function dateCheck() {
+            var ToDate = new Date();
+            var UserDate = document.getElementById("userdate").value;
+            var logged_in = document.getElementById("logged_in").value;
+            var bidder = document.getElementById("bidder").value;
+
+            console.log(bidder , logged_in)
+
+
+            if (new Date(UserDate).getTime() <= ToDate.getTime()) {
+                document.getElementById('bid_amount').style.display = "none"
+                document.getElementById('submitBid').style.display = "none"
+                document.getElementById('bidend').style.display = "block"
+                if(bidder == logged_in){
+
+                document.getElementById('addcart').style.display = "block"
+                document.getElementById('buy').style.display = "block"
+
+                }
+
+
+            }
+            
+        }
+
+        function success() {
+	 if(document.getElementById("bid_amount").value =="") { 
+            document.getElementById('submitBid').style.pointerEvents = 'none'; 
+        } else { 
+            document.getElementById('submitBid').style.pointerEvents = '';
+        }
+    }
+
+    function submitBid(e) {
+
+        const bid_amount = parseInt(document.getElementById('bid_amount').value);
+        const last_bid = parseInt(document.getElementById('last_bid').value);
+
+        const product_id = document.getElementById('art_id').value;
+        var ToDate = new Date();
+
+
+        var UserDate = document.getElementById("userdate").value;
+
+        if (new Date(UserDate).getTime() <= ToDate.getTime()) {
+            alert('Bid duration is over. Please check other art works.');
+        }
+
+        else if(bid_amount <= last_bid){
+
+           alert('Please enter bid amount greater than previous bid'); 
+            
+        }else{
+
+            var form = $(this);
+        // var actionUrl = form.attr('action');
+
+        $.ajax({
+            type: "POST",
+            url: 'http://localhost:8081/submit-bid',
+            data : {
+                id : product_id,
+                bid_amount : bid_amount,
+                last_bid : last_bid // will be accessible in $_POST['data1']
+            },
+            success: function(data)
+            {
+              alert('Bid Submitted successfully.'); 
+
+                document.getElementById('bid_amount').value = "";
+
+                window.location.reload();
+            }
+        });
+
+        }
+       
+}
+
+     </script>
+</body>
+
+<%- include('layouts/footer'); -%>

@@ -369,7 +369,7 @@ li {
 }
 
 nav ul {
-    background-color: #f39c12;
+    background-color: #852b2b;
     display: flex;
 }
 
@@ -387,7 +387,7 @@ nav ul li {
 
 nav ul li a {
     display: block;
-    padding: 15px 20px;
+    padding: 8px 6px;
     color: #f8f5f5;
     text-decoration: none;
 }
@@ -672,7 +672,7 @@ p {
 .register-field a p {
     padding: 1rem;
     text-align: center;
-    color: rgba(255, 255, 255, .7);
+    color: black;
     font-size: .9rem;
 }
 
@@ -869,5 +869,136 @@ dd {
     color:black;
 }
 
+.footer .footer-socila-icon a {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #F84E77;
+    color: #ffffff;
+    border-radius: 50%;
+    margin-right: 8px;
+    font-size: 15px;
+}
 
+.footer .footer-socila-icon a:hover {
+    background: #1baaa0;
+}
+
+.footer .footer-links {
+    margin: 0;
+}
+
+.footer .footer-links li+li {
+    padding-top: 10px;
+}
+
+.footer .footer-links li a {
+    position: relative;
+}
+
+.footer .footer-links li a:after {
+    content: "";
+    position: absolute;
+    width: 0px;
+    left: auto;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    transition: ease all 0.35s;
+    background: #F84E77;
+}
+
+.footer .footer-links li a:hover:after {
+    width: 100%;
+    left: 0;
+    right: auto;
+}
+
+.footer .footer-top {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.footer .footer-top h5,
+.footer .footer-top .h5 {
+    position: relative;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+    .footer .footer-top {
+        padding-top: 2rem;
+        padding-bottom: 1rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .footer .footer-top {
+        padding-top: 3rem;
+        padding-bottom: 2rem;
+    }
+}
+
+.footer .footer-border-top {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer .footer-border-top.dark {
+    border-top: 1px solid rgba(16, 16, 16, 0.1);
+}
+
+.footer .footer-border-bottom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer .footer-border-bottom.dark {
+    border-bottom: 1px solid rgba(16, 16, 16, 0.1);
+}
+
+.bg-dark-gradient {
+    background: linear-gradient( 180deg, #101010 50%, black 100%) repeat-x !important;
+}
+
+.white-link a {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+a {
+    text-decoration: none
+}
+
+.avatar-lg img {
+   width:90px;
+   height:90px;
+}
+
+.gradient-custom {
+    /* fallback for old browsers */
+    background: #6a11cb;
+    
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+    
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      
+      td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+      
+      tr:nth-child(even) {
+        background-color: #dddddd;
+      }
 

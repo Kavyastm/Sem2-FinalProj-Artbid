@@ -22,13 +22,7 @@
                         <div class="profilepic"> 
                             <div class="profile_img"> 
                                 <div class="image"> 
-                                    <img src= 
-
-                                    
-
-
-
-                                    
+                                    <img src= "<%= product.userData[0].profile_image %>"
                                         alt="img8"> 
                                 </div> 
                             </div> 
@@ -75,27 +69,7 @@
                         </p> 
 
                     </span> 
-                    <a href="#"> 
-                        <h4 class="comments">View all comments</h4> 
-                    </a> 
-                   
-                    <div class="addComments"> 
-                        <div class="reaction"> 
-                            <h3> 
-                            <i class="far fa-smile"></i> 
-                            </h3> 
-                        </div> 
-                        <input type="hidden"
-                            class="text" id="productId"
-                           value="<%= product._id %>">
-                        <input type="text"
-                            class="text" id="commentId"
-                            placeholder="Add a comment..." class="inputError"> 
-                            <span role="alert" class="requiredError" aria-hidden="true">
-                                Please enter Comment
-                            </span><br>
-                        <button onclick="postComment(event)">Post</a> 
-                    </div> 
+                    
                 </div>  
             </div> <br><br>
 

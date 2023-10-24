@@ -1,16 +1,13 @@
 <%- include('layouts/innerheader'); -%>
 
-  <body >
-    <div class="main-div"> 
-        <div class="logo">
-
-        </div>
-       <div class="col-xl-6 form-data" style="
-       justify-content: center;
-       text-align: center;
-       left: 40%;
-   ">
-        <form method="post" action="/add-art" enctype="multipart/form-data" >
+<body>
+    <div class="container-xl px-4 mt-4">
+        <!-- Account page navigation-->
+        <nav class="nav nav-borders">
+            <a class="nav-link active ms-0" href="#"></a>
+        </nav>
+        <hr class="mt-0 mb-4">
+        <form method="post" action="/add-art" id="submitFormValidate" enctype="multipart/form-data">
             <div class="">
                 <% if (errors && errors.length> 0) { %>
                     <div class="error-message">
@@ -18,95 +15,130 @@
                           <%= errors[0].msg %>
                         </p>
                     </div>
-                    <% } %>
-                    <% if (success && success.length> 0) { %>
-                        <div class="success-message">
-                            <p class="success-text">
-                              <%= success[0].msg %>
-                            </p>
-                        </div>
-                        <% } %>
-            
-                   
-                <p class="title">Upload Art</p>
-                <div class="name-field">
-                    <label for="name-field">
-                        <p>
-                            Title : 
+                <% } %>
+                <% if (success && success.length> 0) { %>
+                    <div class="success-message">
+                        <p class="success-text">
+                            <%= success[0].msg %>
                         </p>
-                    </label>
-                    <input id="name" placeholder="Title" type="text" name="title">
-                </div>
-                <div class="email-field">
-                    <label for="email-field">
-                        <p>
-                            Description : 
-                        </p>
-                    </label>
-                    <textarea id="email" placeholder="Description" type="text" name="description"></textarea>
-                </div>
-                <div class="image-field">
-                    <label for="image-field">
-                        <p>
-                            Art Image : 
-                        </p>
-                    </label>
-                    <!-- <input id="profile_image" placeholder="" type="profile_image" name="profile_image" -->
-
-                    <input type="file" name="profile_image" accept="image/*">
-                </div>
-                <div class="about-field">
-                    <label for="about-field">
-                        <p>
-                            Min Bid : 
-                        </p>
-                    </label>
-                    <input id="about-field" placeholder="Min Bid" type="text" name="min_bid">
-
-                </div>
-                <div class="date-field">
-                    <label for="date-field">
-                        <p>
-                            Start Date : 
-                        </p>
-                    </label>
-                    <input id="date-field" placeholder="Start Date" type="date" name="start_date">
-
-                </div>
-                <div class="date-field">
-                    <label for="date-field">
-                        <p>
-                            End Date : 
-                        </p>
-                    </label>
-                    <input id="date-field" placeholder="End Date" type="date" name="end_date">
-
-                </div>
-                <div class="time-field">
-                    <label for="time-field">
-                        <p>
-                            Start Time : 
-                        </p>
-                    </label>
-                    <input id="time-field" placeholder="Start Time" type="time" name="start_time">
-
-                </div>
-                <div class="time-field">
-                    <label for="time-field">
-                        <p>
-                            End Time : 
-                        </p>
-                    </label>
-                    <input id="time-field" placeholder="End Time" type="time" name="end_time">
-
-                </div>
-                <div class="login-btn-field">
-                    <input type="submit" value="Update" class="login-btn">
+                    </div>
+                <% } %>
+        <div class="row">
+            <div class="col-xl-4">
+                <!-- Profile picture card-->
+                <div class="card mb-4 mb-xl-0">
+                    <div class="card-header">Art Image</div>
+                    <div class="card-body text-center">
+                        <!-- Profile picture image-->
+                       
+                            <img class="img-account-profile rounded-circle mb-2" src="http://bootdey.com/img/Content/avatar/avatar1.png" alt="" style="
+                            height: 148px;
+                        ">
+                        <!-- Profile picture help block-->
+                        <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
+                        <!-- Profile picture upload button-->
+                        
+                        <input class="btn btn-primary" type="file" name ="profile_image" multiple="multiple" accept="image/*">
+                    </div>
                 </div>
             </div>
-        </form>
-    </div>
-    
+            <div class="col-xl-8">
+                <!-- Account details card-->
+                <div class="card mb-4">
+                    <div class="card-header">Art Details</div>
+                    <div class="card-body">
+                        <form>
+                            <!-- Form Group (username)-->
+                            <div class="mb-3">
+                                <label class="small mb-1" for="inputUsername">Title</label>
+                                <input id="name" placeholder="Title" type="hidden" value="" name="art_id">
+
+                    <input id="name" placeholder="Title" type="text" name="title" value="" name="art_id">
+                </div>
+                            <span role="alert" class="requiredError" aria-hidden="true">
+                                Please enter Title
+                            </span>
+                            <!-- Form Row-->
+                            
+                            <!-- Form Group (email address)-->
+                            <div class="mb-3">
+                                <label class="small mb-1" for="inputEmailAddress">Min Bid</label>
+                                <input id="about-field" placeholder="Min Bid" type="text" name="min_bid" value="">
+
+                    </div>
+                    <span role="alert" class="requiredError" aria-hidden="true">
+                        Please enter Bid amount
+                      </span>
+                            <!-- Form Row-->
+                            <div class="row gx-3 mb-3">
+                                <!-- Form Group (phone number)-->
+                                <div class="col-md-12">
+                                    <label class="small mb-1" for="inputPhone">Description</label>
+                                    <textarea id="email" placeholder="Description" value="" type="text" name="description"></textarea>
+
+                                </div>
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter About
+                                  </span>
+                                <!-- Form Group (birthday)-->
+                               
+                            </div>
+
+                            <div class="row gx-3 mb-3">
+                                <!-- Form Group (phone number)-->
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputPhone">Start Date</label>
+                                    <input id="date-field" placeholder="Start Date" type="date" name="start_date" value="">
+
+                                </div>
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter Start Date
+                                  </span>
+
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputPhone">Start Time</label>
+                                    <input id="time-field" placeholder="Start Time" type="time" name="start_time" value="">
+
+                                </div>
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter Start Time
+                                  </span>
+                                <!-- Form Group (birthday)-->
+                               
+                            </div>
+
+                            <div class="row gx-3 mb-3">
+                                <!-- Form Group (phone number)-->
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputPhone">End Date</label>
+                                    <input id="date-field" placeholder="End Date" type="date" name="end_date" value="">
+
+                                </div>
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter End Date
+                                  </span>
+
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputPhone">End Time</label>
+                                    <input id="time-field" placeholder="End Time" type="time" name="end_time" value="">
+
+                                </div>
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter End Time
+                                  </span>
+                                <!-- Form Group (birthday)-->
+                               
+                            </div>
+
+                            
+                            <!-- Save changes button-->
+                            <input type="submit" value="Update" class="login-btn" >
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
     </div>
   </body>
 
