@@ -182,8 +182,8 @@ myApp.get('/welcome', async (req, res) => {
   // req.session.user_id = req.session.user_id;
   // req.session.userName = 'ss';
   var where = [
-    {status:'inprogress'},
-    // {status:{$nin:['deleted','completed']}},
+    // {status:'inprogress'},
+    {status:{$nin:['deleted','completed']}},
     {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
     {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
