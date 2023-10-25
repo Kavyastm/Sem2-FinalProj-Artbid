@@ -9,6 +9,16 @@ const multer  = require('multer')
 const myApp = express(); // Create an Express application instance
 // const upload = multer({ dest: 'uploads/' });
 var moment = require('moment-timezone');
+const bodyParser = require('body-parser');
+myApp.use(bodyParser.json());
+const nodemailer = require("nodemailer");
+let mailTransporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: "n23goswami@gmail.com",
+    pass: "nygu wbnm srlm btkz",
+  }
+});
 
 var cron = require('node-cron');
 
@@ -112,11 +122,6 @@ const cartSchema = new mongoose.Schema({
 		required : true, 
 		ref: 'arts',
 	},
-  status: {
-		type: String,
-		enum: ["active","completed"],
-		default: "active"
-	},
 },
 {timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }});
 const User = mongoose.model('User', userSchema);
@@ -183,14 +188,8 @@ myApp.get('/art-list', async (req, res) => {
   }
 });
 myApp.post('/get-all-comments', async (req, res) => {
-  // req.session.user_id = req.session.user_id;
-  // req.session.userName = 'ss';
-  console.log(req.body,req.body.id)
-  var where = [{art_id: req.body.id}];
-  // var where = [{art_id: ObjectId(req.body.id)}];
-
-
-  const aggregatorOpts = [
+  var where = [{art_id: new mongoose.Types.ObjectId(req.body.id)}];
+  const aggregatorOptsCom = [
     {
       $match : { $and : where }
     },
@@ -198,22 +197,39 @@ myApp.post('/get-all-comments', async (req, res) => {
       $lookup:
         {
           from: 'users',
-          localField: '_id',
-          foreignField: 'user_id',
+          localField: 'user_id',
+          foreignField: '_id',
           as: 'userData'
         }
     },
 ]
 
-  var comment = await Comment.aggregate(aggregatorOpts).exec();
-// });
-  // var art1 = await Comment.populate(art, {path: "comment"});
-  // await Comment.populate(art, {path: "comments"});
+  var comment = await Comment.aggregate(aggregatorOptsCom).exec();
 
-// return appointments;
+  console.log('comment',comment,req.session.user_id);
   
+//   var where = [
+//     {status:{$in:['active','completed','inprogress']}},
+//     {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+// ]
+//   const aggregatorOpts = [
+//     {
+//       $match : { $and : where }
+//     },
+//     {
+//       $lookup:
+//         {
+//           from: 'users',
+//           localField: 'user_id',
+//           foreignField: '_id',
+//           as: 'userData'
+//         }
+//     }
+// ]
+
+//   var art = await Art.aggregate(aggregatorOpts).exec();
   if(req.session.user_id){
-    // return res.render('home', { errors:[],success: [],art: [{art: art}] });
+    res.json({comment: comment})
 
   }else{
     return res.redirect('/login');
@@ -269,16 +285,12 @@ myApp.get('/welcome', async (req, res) => {
     // }
 ]
 
-  var art = await Art.aggregate(aggregatorOpts)
-  .exec();
-// });
-  // var art1 = await Comment.populate(art, {path: "comment"});
-  // await Comment.populate(art, {path: "comments"});
+  var art = await Art.aggregate(aggregatorOpts).exec();
 
-// return appointments;
+  // console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
-    return res.render('home', { errors:[],success: [],art: [{art: art}] });
+    return res.render('home', { errors:[],success: [],art: [{art: art}],comment: [] });
 
   }else{
     return res.redirect('/login');
@@ -301,7 +313,6 @@ var where1 = [
 var where3 = [
   {user_id : new mongoose.Types.ObjectId(req.session.user_id)},
   {art_id : new mongoose.Types.ObjectId(req.params.art_id)},
-  {status:"active"}
 
   
 ]
@@ -381,6 +392,7 @@ const aggregatorOpts2 = [
 
   var cart = await Cart.aggregate(aggregatorOpts2).sort({ _id: -1 }).limit(1).exec();
 
+  console.log(cart);
   
   if(req.session.user_id){
     return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
@@ -423,15 +435,12 @@ myApp.post('/submit-bid', async (req, res) => {
     return res.redirect('/login');
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
- 
     const newComment = new BiddingHistory({
       bid_amount: req.body.bid_amount,
       art_id: req.body.id,
       user_id: req.session.user_id,
     });
 
-   
-    // console.log(newComment,req.body,'dgf')
     newComment.save().then(async () => {
       const art = await Art.findOne({ _id: new mongoose.Types.ObjectId(req.body.id)}).exec();
 
@@ -439,6 +448,22 @@ myApp.post('/submit-bid', async (req, res) => {
       art.last_bidder_id = req.session.user_id;
 
       await art.save().then(() => {
+        let mailDetails = {
+          // from: 'n23goswami+1@gmail.com',
+          to: 'n23goswami+2@gmail.com',
+          // to: req.session.email,
+          subject: 'Latest Bid',
+          html: '<p>Latest bid for your art <b>'+ req.body.art_title + '</b> is <b>'+ req.body.bid_amount + '</b> by <b>' + req.session.userName + '</b></p>'
+        };
+        if(req.session.email){
+          mailTransporter.sendMail(mailDetails, function(err, data) {
+            if(err) {
+                console.log('Error Occurs',err);
+            } else {
+                console.log('Email sent successfully');
+            }
+          });
+        }
         return res.redirect('/art-detail/'+req.body.id);
       })
       
@@ -446,8 +471,6 @@ myApp.post('/submit-bid', async (req, res) => {
       console.error('Error saving user:', err);
       return res.redirect('/art-detail/'+req.body.id);
     });
-
-  
 });
 myApp.get('/login', (req, res) => {
   if(req.session.user_id){
@@ -462,7 +485,6 @@ myApp.get('/cart', async (req, res) => {
   var where = [
     
     {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
-    {status:"active"}
     // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
     // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
@@ -588,6 +610,7 @@ myApp.post('/login', [
       }
       req.session.user_id = user._id;
       req.session.userName = user.userName;
+      req.session.email = user.email;
 
       // console.log(user);
 
@@ -783,6 +806,7 @@ myApp.get('/edit-art/:art_id', async (req, res) => {
   // req.session.user_id = '652e8eea63799921917f0a0f';
   // req.session.userName = 'ss';
 
+  console.log(req.params.art_id,req.session.user_id)
 
   const art = await Art.findOne({ _id: req.params.art_id}).exec();
     if (req.session.user_id) {
@@ -962,6 +986,7 @@ myApp.get('/delete-art/:art_id',upload.single('profile_image'),async (req, res, 
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
+  console.log(req.params.art_id);
 
     const art = await Art.findOne({ _id: req.params.art_id}).exec();
 
@@ -978,74 +1003,6 @@ myApp.get('/delete-art/:art_id',upload.single('profile_image'),async (req, res, 
 
       
       
-  // });
-});
-
-myApp.post('/purchase',async (req, res, next) =>{
-  const user = await User.findOne({ _id: req.session.user_id}).exec();
-  if (!user) {
-    return res.redirect('/login');
-    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
-  }
-  // const user = await User.findOne({ _id: req.session.user_id}).exec();
-
-  var where = [
-    
-    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
-    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
-    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
-    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
-    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
-]
-  const aggregatorOpts = [
-    {
-      $match : { $and : where }
-    },
-    {
-      $lookup:
-        {
-          from: 'users',
-          localField: 'user_id',
-          foreignField: '_id',
-          as: 'userData'
-        }
-        
-    },
-    {
-      $lookup:
-        {
-          from: 'arts',
-          localField: 'art_id',
-          foreignField: '_id',
-          as: 'artData'
-        },
-        
-    }
-]
-
-  var cart = await Cart.aggregate(aggregatorOpts).exec();
-
-  var cartItemsCount = cart.length
-  var total = 0;
-
-  cart.forEach(async (product) => {
-
-
-    const art = await Cart.findOne({ _id: product._id}).exec();
-
-   
-    art.status = 'completed';
-    
-
-    await art.save()
-    
-  })
-
-  return res.redirect('/cart');
-
-
-    
-    
   // });
 });
 myApp.get('/logout', async (req, res) => {

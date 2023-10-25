@@ -67,6 +67,7 @@
                 <input type="hidden" name="art_id" id="art_id" value="<%= art[0].art[0]._id %>" />
                 <input type="hidden" name="logged_in" id="logged_in" value="<%= logged_in_id %>" />
                 <input type="hidden" name="last_bid" id="last_bid" value="<%= art[0].art[0].last_bid %>" />
+                <input type="hidden" name="art_title" id="art_title" value="<%= art[0].art[0].title %>" />
                 <input type="hidden" name="cartData" id="cart" value="<%= cart.length %>" />
                 <input type="hidden" name="StartDate" id="userdate" value="<%= art[0].art[0].end_date %> <%= art[0].art[0].end_time %>:00" />
 
@@ -209,6 +210,8 @@
 
         const bid_amount = parseInt(document.getElementById('bid_amount').value);
         const last_bid = parseInt(document.getElementById('last_bid').value);
+        const art_title = document.getElementById('art_title').value;
+
 
         const product_id = document.getElementById('art_id').value;
         var ToDate = new Date();
@@ -235,7 +238,8 @@
             data : {
                 id : product_id,
                 bid_amount : bid_amount,
-                last_bid : last_bid // will be accessible in $_POST['data1']
+                last_bid : last_bid, // will be accessible in $_POST['data1']
+                art_title : art_title
             },
             success: function(data)
             {
