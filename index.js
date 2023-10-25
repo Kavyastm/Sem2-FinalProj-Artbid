@@ -112,6 +112,11 @@ const cartSchema = new mongoose.Schema({
 		required : true, 
 		ref: 'arts',
 	},
+  status: {
+		type: String,
+		enum: ["active","completed"],
+		default: "active"
+	},
 },
 {timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }});
 const User = mongoose.model('User', userSchema);
@@ -180,7 +185,6 @@ myApp.get('/art-list', async (req, res) => {
 myApp.post('/get-all-comments', async (req, res) => {
   // req.session.user_id = req.session.user_id;
   // req.session.userName = 'ss';
-  console.log(req.body)
   var where = [
     {art_id:req.body.id},
 ]
@@ -206,7 +210,6 @@ myApp.post('/get-all-comments', async (req, res) => {
   // await Comment.populate(art, {path: "comments"});
 
 // return appointments;
-  console.log('comment',comment,req.session.user_id);
   
   if(req.session.user_id){
     // return res.render('home', { errors:[],success: [],art: [{art: art}] });
@@ -272,7 +275,6 @@ myApp.get('/welcome', async (req, res) => {
   // await Comment.populate(art, {path: "comments"});
 
 // return appointments;
-  console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
     return res.render('home', { errors:[],success: [],art: [{art: art}] });
@@ -298,6 +300,7 @@ var where1 = [
 var where3 = [
   {user_id : new mongoose.Types.ObjectId(req.session.user_id)},
   {art_id : new mongoose.Types.ObjectId(req.params.art_id)},
+  {status:"active"}
 
   
 ]
@@ -377,7 +380,6 @@ const aggregatorOpts2 = [
 
   var cart = await Cart.aggregate(aggregatorOpts2).sort({ _id: -1 }).limit(1).exec();
 
-  console.log(cart);
   
   if(req.session.user_id){
     return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
@@ -459,6 +461,7 @@ myApp.get('/cart', async (req, res) => {
   var where = [
     
     {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    {status:"active"}
     // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
     // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
@@ -779,7 +782,6 @@ myApp.get('/edit-art/:art_id', async (req, res) => {
   // req.session.user_id = '652e8eea63799921917f0a0f';
   // req.session.userName = 'ss';
 
-  console.log(req.params.art_id,req.session.user_id)
 
   const art = await Art.findOne({ _id: req.params.art_id}).exec();
     if (req.session.user_id) {
@@ -959,7 +961,6 @@ myApp.get('/delete-art/:art_id',upload.single('profile_image'),async (req, res, 
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
-  console.log(req.params.art_id);
 
     const art = await Art.findOne({ _id: req.params.art_id}).exec();
 
@@ -976,6 +977,74 @@ myApp.get('/delete-art/:art_id',upload.single('profile_image'),async (req, res, 
 
       
       
+  // });
+});
+
+myApp.post('/purchase',async (req, res, next) =>{
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+
+  var where = [
+    
+    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+        
+    },
+    {
+      $lookup:
+        {
+          from: 'arts',
+          localField: 'art_id',
+          foreignField: '_id',
+          as: 'artData'
+        },
+        
+    }
+]
+
+  var cart = await Cart.aggregate(aggregatorOpts).exec();
+
+  var cartItemsCount = cart.length
+  var total = 0;
+
+  cart.forEach(async (product) => {
+
+
+    const art = await Cart.findOne({ _id: product._id}).exec();
+
+   
+    art.status = 'completed';
+    
+
+    await art.save()
+    
+  })
+
+  return res.redirect('/cart');
+
+
+    
+    
   // });
 });
 myApp.get('/logout', async (req, res) => {
@@ -1157,6 +1226,7 @@ cron.schedule('* * * * *', async () => {
   var art = await Art.aggregate(aggregatorOpts).exec();
 
   art.forEach(async(element) => {
+    
     if((element.start_date + " " + element.start_time) >= moment(new Date()).format('YYYY-MM-DD HH:mm')){
 
       console.log('running a task every minute status inprogress', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);

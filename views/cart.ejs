@@ -10,7 +10,8 @@
         font-size: 58px;
     "><strong>Cart</strong></h4>
     </div>
-     
+
+      
     <section class="gradient-custom">
         <div class="container py-5">
           <div class="row d-flex justify-content-center my-4">
@@ -22,6 +23,10 @@
                 <div class="card-body">
                   <!-- Single item -->
                   <% cart[0].cart.forEach(product => { %>
+
+                    <!-- <input type="hidden" name="art_id" id="art_id" value="<%= cart[0].cart[0].art_id %>" />
+                    <input type="hidden" name="logged_in" id="logged_in" value="<%= cart[0].cart[0].user_id %>" />
+     -->
 
                   <div class="row">
                     <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
@@ -107,7 +112,7 @@
                     </li>
                   </ul>
       
-                  <button type="button" class="btn btn-primary btn-lg btn-block">
+                  <button type="button" class="btn btn-primary btn-lg btn-block" onclick="purchase()">
                     Go to checkout
                   </button>
                 </div>
@@ -151,50 +156,30 @@
         }
     }
 
-    function submitBid(e) {
-
-        const bid_amount = parseInt(document.getElementById('bid_amount').value);
-        const last_bid = parseInt(document.getElementById('last_bid').value);
-
-        const product_id = document.getElementById('art_id').value;
-        var ToDate = new Date();
+    
+function purchase(e) {
 
 
-        var UserDate = document.getElementById("userdate").value;
+var ToDate = new Date();
+    var form = $(this);
+// var actionUrl = form.attr('action');
 
-        if (new Date(UserDate).getTime() <= ToDate.getTime()) {
-            alert('Bid duration is over. Please check other art works.');
-        }
-
-        else if(bid_amount <= last_bid){
-
-           alert('Please enter bid amount greater than previous bid'); 
-            
-        }else{
-
-            var form = $(this);
-        // var actionUrl = form.attr('action');
-
-        $.ajax({
-            type: "POST",
-            url: 'http://localhost:8081/submit-bid',
-            data : {
-                id : product_id,
-                bid_amount : bid_amount,
-                last_bid : last_bid // will be accessible in $_POST['data1']
-            },
-            success: function(data)
-            {
-              alert('Bid Submitted successfully.'); 
-
-                document.getElementById('bid_amount').value = "";
-
-                window.location.reload();
-            }
-        });
-
-        }
+$.ajax({
+    type: "POST",
+    url: 'http://localhost:8081/purchase',
+    data : {
        
+       // will be accessible in $_POST['data1']
+    },
+    success: function(data)
+    {
+      alert('Art Purchased successfully.'); 
+      window.location.assign('/welcome');
+    }
+});
+
+
+
 }
 
      </script>

@@ -58,20 +58,16 @@
                 </div>
       
                 <hr />
-            
+                <% if (art[0].art[0].status != 'active') { %>
                 <% if (logged_in_id != art[0].art[0].user_id) { %>
               <div class="col-md-12">
                 <input id="bid_amount" placeholder="Bid Amount" type="number" name="bid_amount" onkeyup="success()" value = "" style="width: 60%;"">
                 <h4 id="bidend" style="color:red;display: none;">Bidding Finished</h4>
                 <input type="hidden" name="bidder" id="bidder" value="<%= art[0].art[0].last_bidder_id %>" />
                 <input type="hidden" name="art_id" id="art_id" value="<%= art[0].art[0]._id %>" />
-
                 <input type="hidden" name="logged_in" id="logged_in" value="<%= logged_in_id %>" />
-
                 <input type="hidden" name="last_bid" id="last_bid" value="<%= art[0].art[0].last_bid %>" />
                 <input type="hidden" name="cartData" id="cart" value="<%= cart.length %>" />
-
-
                 <input type="hidden" name="StartDate" id="userdate" value="<%= art[0].art[0].end_date %> <%= art[0].art[0].end_time %>:00" />
 
               </div><br>
@@ -87,12 +83,18 @@
                 <!-- <a href="#" class="btn btn-warning shadow-0" data-toggle="modal" data-target="#myModal"> Bidding History </a> -->
                 
               <% } %>
+              <!-- <button type="button" id="buy" style="display: none;" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#ignismyModal">Buy Now</button> -->
 
-                <a href="#" id="buy" class="btn btn-warning shadow-0" style="display: none;"> Buy now </a>
+                <!-- <a href="#" id="buy" class="btn btn-warning shadow-0" style="display: none;" > Buy now </a> -->
                 <a id="addcart" href="javascript:addToCart()" class="btn btn-primary shadow-0" style="display: none;"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
 
-                <div id="alreadyadded" style="display: none;"><h4>Already added to card </h4><a  href="/cart" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i>Go To Cart </a></div>
+                <div id="alreadyadded" style="display: none;"><h4>Already added to card </h4><a  href="/cart" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i>Go To Cart </a></div>\
 
+                <% }else { %>
+
+                    <h4 id="upcoming" style="color:red">Bidding Will be start soon!</h4>
+
+                <% } %>
               </div>
             </main>
           </div>
@@ -137,6 +139,29 @@
           </div>
         </div>
       </div>
+
+      <div class="modal fade" id="ignismyModal" role="dialog" >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label=""><span>×</span></button>
+                 </div>
+      
+                <div class="modal-body">
+                   
+        <div class="thank-you-pop">
+          <img src="http://goactionstations.co.uk/wp-content/uploads/2017/03/Green-Round-Tick.png" alt="">
+          <h1>Thank You!</h1>
+          <p>Your submission is received and we will contact you soon</p>
+          <h3 class="cupon-pop">Your Id: <span>12345</span></h3>
+          
+         </div>
+                     
+                </div>
+      
+            </div>
+        </div>
+    </div>
 
       <script type="text/javascript">
         function dateCheck() {
