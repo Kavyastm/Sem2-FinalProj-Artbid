@@ -1,0 +1,145 @@
+<%- include('layouts/innerheader'); -%>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<body>
+    <div style="height: 50px;">
+       
+    </div>
+    
+    <% if(art[0].art.length > 0) { %>
+
+
+        <div class="col-9"> 
+           
+        <!-- Code for viewing the Post -->
+        <% art[0].art.forEach(product => { %>
+
+            <div class="card" style="
+            margin-left: 28%;
+        "> 
+                <div class="top"> 
+                    <div class="userDetails"> 
+                        <div class="profilepic"> 
+                            <div class="profile_img"> 
+                                <div class="image"> 
+                                    <img src= "<%= product.userData[0].profile_image %>"
+                                        alt="img8"> 
+                                </div> 
+                            </div> 
+                        </div> 
+                        <h3><%= product.userData[0].userName %> 
+                            <br> 
+                            <span><%= product.userData[0].about %></span> 
+                    </h3> 
+                    </div> 
+                    <div> 
+                        <span class="dot"> 
+                            <i class="fas fa-ellipsis-h"></i> 
+                        </span> 
+                    </div> 
+                </div> 
+                <div class="imgBx"> 
+                    <a href="/art-detail/<%= product._id %>">
+                    <img src="<%= product.image %>"
+                    class="cover" />
+                </a>
+                </div> 
+                <div class="bottom"> 
+                    <div class="actionBtns"> 
+                        <div class="left"> 
+                             
+                        </div> 
+                    </div> 
+                    <a href="#"> 
+                        <p class="message"> 
+                        <b><%= product.title %></b> 
+                        </p> 
+
+                    </a> 
+
+                    <span href="#"> 
+                        <p class="message"> 
+                        <b><%= product.description %></b> 
+                        </p> 
+
+                    </span> 
+                    <span href="#"> 
+                        <p class="message"> 
+                        <b>$<%= product.min_bid %></b> 
+                        </p> 
+
+                    </span> 
+                    <span> 
+                        <p class="message"> 
+                        
+                        <b>Start Date & Time:</b> <%= product.start_date %> <%= product.start_time %>
+                        </p> 
+                    </span> 
+                    <span> 
+                        <p class="message"> 
+                        <b>End Date & Time:</b> <%= product.end_date %> <%= product.end_time %>
+                        </p> 
+                    </span> 
+
+                    <% if(product.is_payment_done == 'yes') { %>
+                    <div style="float: right;margin-top: -173px;"><h6>Payment Status</h6> <span style="color: green;"> Success</span> </div>
+                    <% } else { %>
+                        <div style="float: right;margin-top: -173px;"><h6>Payment Status</h6> <span style="color: red;"> Pending</span> </div>
+
+                    <% } %>
+                    
+                </div>  
+
+
+            </div> <br><br>
+
+            <% }) %>
+
+        
+            
+        </div> 
+
+        <% } else { %>
+
+            <div class="col-9 table-data"> </div>
+     <% } %>
+
+</body>
+<script>
+    function postComment(e,id) {
+        // $("#idForm").submit(function(e) {
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+        const comment = document.getElementById('commentId').value;
+        const product_id = document.getElementById('productId').value;
+
+        console.log(comment,product_id)
+        var form = $(this);
+        // var actionUrl = form.attr('action');
+        if(comment){
+            $.ajax({
+                type: "POST",
+                url: 'http://localhost:8081/post-comment',
+                data : {
+                    id : product_id,
+                    comment : comment // will be accessible in $_POST['data1']
+                },
+                success: function(data)
+                {
+                    document.getElementById('commentId').value = "";
+                }
+            });
+        }else{
+            const userNameField = document.getElementsByClassName("inputError");
+            const showRequiredErr = document.getElementsByClassName("requiredError");
+            console.log(showRequiredErr)
+            showRequiredErr[0].classList.add("visible");
+            userNameField[0].classList.add("invalid");
+            showRequiredErr[0].setAttribute("aria-hidden", false);
+            showRequiredErr[0].setAttribute("aria-invalid", true);
+        }
+       
+
+}
+</script>
+
+<%- include('layouts/footer'); -%>

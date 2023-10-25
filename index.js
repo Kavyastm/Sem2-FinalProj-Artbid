@@ -71,6 +71,12 @@ const artSchema = new mongoose.Schema({
 		enum: ["active","completed","expired","deleted","inprogress"],
 		default: "active"
 	},
+
+  is_payment_done: {
+		type: String,
+		enum: ["yes","no"],
+		default: "no"
+	},
 });
 const commentSchema = new mongoose.Schema({
   comment: String,
@@ -981,6 +987,26 @@ myApp.get('/delete-art/:art_id',upload.single('profile_image'),async (req, res, 
   // });
 });
 
+myApp.get('/remove-cart/:art_id',upload.single('profile_image'),async (req, res, next) =>{
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+
+    const art = await Cart.deleteOne({ art_id: req.params.art_id , user_id:req.session.user_id}).then(() => {
+      return res.redirect('/cart');
+    }).catch((err) => {
+          console.error('Error saving user:', err);
+          return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
+        });
+
+      
+      
+  // });
+});
+
 myApp.post('/purchase',async (req, res, next) =>{
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!user) {
@@ -1023,6 +1049,22 @@ myApp.post('/purchase',async (req, res, next) =>{
     }
 ]
 
+const aggregatorOpts1 = [
+  {
+    $match : { $and : where }
+  },
+  {
+    $lookup:
+      {
+        from: 'users',
+        localField: 'user_id',
+        foreignField: '_id',
+        as: 'userData'
+      }
+      
+  }
+]
+
   var cart = await Cart.aggregate(aggregatorOpts).exec();
 
   var cartItemsCount = cart.length
@@ -1032,12 +1074,18 @@ myApp.post('/purchase',async (req, res, next) =>{
 
 
     const art = await Cart.findOne({ _id: product._id}).exec();
+    const art1 = await Art.findOne({ _id: product.art_id}).exec();
+
 
    
     art.status = 'completed';
+    art1.is_payment_done = 'yes';
+
     
 
     await art.save()
+    await art1.save()
+
     
   })
 
@@ -1237,6 +1285,42 @@ cron.schedule('* * * * *', async () => {
     }
   
   });
+});
+
+myApp.get('/winning-bid', async (req, res) => {
+  // req.session.user_id = req.session.user_id;
+  // req.session.userName = 'ss';
+  var where = [
+    {last_bidder_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    {status : "completed"}
+    // {end_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+
+  // console.log('art',art,req.session.user_id);
+  
+  if(req.session.user_id){
+    return res.render('winningBid', { errors:[],success: [],art: [{art: art}] });
+
+  }else{
+    return res.redirect('/login');
+  }
 });
 
 

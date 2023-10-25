@@ -1001,4 +1001,11 @@ a {
       tr:nth-child(even) {
         background-color: #dddddd;
       }
+        .table-data {
+            height: 100%;
+            text-align: center;
+            background-image: url(/images/no.png);
+            background-repeat: no-repeat;
+            margin-left: 28%;
+      }
 
