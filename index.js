@@ -398,7 +398,7 @@ const aggregatorOpts2 = [
 
   var cart = await Cart.aggregate(aggregatorOpts2).sort({ _id: -1 }).limit(1).exec();
 
-  console.log(cart);
+  // console.log(cart);
   
   if(req.session.user_id){
     return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
@@ -450,23 +450,26 @@ myApp.post('/submit-bid', async (req, res) => {
     newComment.save().then(async () => {
       const art = await Art.findOne({ _id: new mongoose.Types.ObjectId(req.body.id)}).exec();
 
+
       art.last_bid = req.body.bid_amount;
       art.last_bidder_id = req.session.user_id;
 
-      await art.save().then(() => {
+      await art.save().then(async () => {
+      const artistData = await User.findOne({ _id: new mongoose.Types.ObjectId(art.user_id)}).exec();
+
         let mailDetails = {
           // from: 'n23goswami+1@gmail.com',
           to: 'n23goswami+2@gmail.com',
-          // to: req.session.email,
+          // to: artistData.email,
           subject: 'Latest Bid',
-          html: '<p>Latest bid for your art <b>'+ req.body.art_title + '</b> is <b>'+ req.body.bid_amount + '</b> by <b>' + req.session.userName + '</b></p>'
+          html: '<p>Hi <b>'+artistData.userName+'</b>, Latest bid for your art <b>'+ req.body.art_title + '</b> is <b>$'+ req.body.bid_amount + '</b> by <b>' + req.session.userName + '</b></p>'
         };
-        if(req.session.email){
+        if(artistData.email){
           mailTransporter.sendMail(mailDetails, function(err, data) {
             if(err) {
                 console.log('Error Occurs',err);
             } else {
-                console.log('Email sent successfully');
+                console.log('Email sent successfully',artistData.email);
             }
           });
         }
@@ -1102,6 +1105,7 @@ const aggregatorOpts1 = [
 
     const art = await Cart.findOne({ _id: product._id}).exec();
     const art1 = await Art.findOne({ _id: product.art_id}).exec();
+    const artistData = await User.findOne({ _id: art1.user_id}).exec();
 
 
    
@@ -1112,9 +1116,37 @@ const aggregatorOpts1 = [
 
     await art.save()
     await art1.save()
+    let mailDetails = {
+      // from: 'n23goswami+1@gmail.com',
+      to: 'n23goswami+2@gmail.com',
+      // to: artistData.email,
+      subject: 'Art Sold',
+      html: '<p>Hi <b>'+artistData.userName+'</b>, Your art <b>'+art1.title+'</b> has been bought by <b>'+ req.session.userName + '</b></p>'
+    };
+      mailTransporter.sendMail(mailDetails, function(err, data) {
+        if(err) {
+            console.log('Error Occurs',err);
+        } else {
+            console.log('Email sent successfully',artistData.email);
+        }
+      });
 
     
   })
+  let mailDetails = {
+    // from: 'n23goswami+1@gmail.com',
+    to: 'n23goswami+2@gmail.com',
+    // to: req.session.email,
+    subject: 'Purchase Completed',
+    html: '<p>Hi <b>'+req.session.userName+'</b>, your order has been placed.</p>'
+  };
+    mailTransporter.sendMail(mailDetails, function(err, data) {
+      if(err) {
+          console.log('Error Occurs',err);
+      } else {
+          console.log('Email sent successfully',artistData.email);
+      }
+    });
 
   return res.redirect('/cart');
 
@@ -1239,6 +1271,7 @@ cron.schedule('* * * * *', async () => {
 
   var where = [
     {status:"inprogress"},
+    // {_id: new mongoose.Types.ObjectId('653131a126e2b9cf90709dac')},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
     // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
 ]
@@ -1260,13 +1293,46 @@ cron.schedule('* * * * *', async () => {
 
 
   var art = await Art.aggregate(aggregatorOpts).exec();
-
+// console.log(art)
   art.forEach(async(element) => {
 
     if((element.end_date + " " + element.end_time) <= moment(new Date()).format('YYYY-MM-DD HH:mm') ){
 
       console.log('running a task every minute status completed', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
-
+      var artistMsg = '<p>Hi <b>'+element.userData[0].userName+'</b>, Bidding for your art <b>'+ element.title + '</b> has been completed.</p>'
+      if(element.last_bidder_id){
+        const bidderData = await User.findOne({ _id: element.last_bidder_id }).exec();
+        artistMsg = artistMsg + '<p> <b>'+bidderData.userName+'</b> won bid with highest bidding amount of <b>$' +element.last_bid+ '</b></p>' 
+        let mailDetailsBidder = {
+          // from: 'n23goswami+1@gmail.com',
+          to: 'n23goswami+2@gmail.com',
+          // to: bidderData.email,
+          subject: 'Won Bid',
+          html: '<p>Hi <b>'+bidderData.userName+'</b>, You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p>'
+        };
+          mailTransporter.sendMail(mailDetailsBidder, function(err, data) {
+            if(err) {
+                console.log('Error Occurs',err);
+            } else {
+                console.log('Email sent successfully',bidderData.email);
+            }
+          });
+      }
+      let mailDetails = {
+        // from: 'n23goswami+1@gmail.com',
+        to: 'n23goswami+2@gmail.com',
+        // to: element.userData[0].email,
+        subject: 'Bid Completed',
+        html: artistMsg
+      };
+        mailTransporter.sendMail(mailDetails, function(err, data) {
+          if(err) {
+              console.log('Error Occurs',err);
+          } else {
+              console.log('Email sent successfully',element.userData[0].email);
+          }
+        });
+      
       const art =  await Art.findOne({ _id: element._id}).exec();
       art.status = 'completed';
       await art.save();
