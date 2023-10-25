@@ -68,7 +68,7 @@ const artSchema = new mongoose.Schema({
 	},
   status: {
 		type: String,
-		enum: ["active","completed","expired","deleted"],
+		enum: ["active","completed","expired","deleted","inprogress"],
 		default: "active"
 	},
 });
@@ -174,7 +174,7 @@ myApp.get('/art-list', async (req, res) => {
     return res.render('arts', { errors:[],success: [],art: [{art: art}] });
 
   }else{
-    res.render('login', { errors: [] });
+    return res.redirect('/login');
   }
 });
 
@@ -182,7 +182,8 @@ myApp.get('/welcome', async (req, res) => {
   // req.session.user_id = req.session.user_id;
   // req.session.userName = 'ss';
   var where = [
-    {status:'active'},
+    {status:'inprogress'},
+    // {status:{$nin:['deleted','completed']}},
     {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
     {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
@@ -200,18 +201,47 @@ myApp.get('/welcome', async (req, res) => {
           foreignField: '_id',
           as: 'userData'
         }
+    },
+    {
+      $lookup:
+        {
+          from: 'comments',
+          localField: '_id',
+          foreignField: 'art_id',
+          as: 'commentData'
+        },
+        
+        // pipeline: [
+        //   [{
+        //     $lookup:
+        //       {
+        //         from: 'users',
+        //         localField: 'user_id',
+        //         foreignField: '_id',
+        //         as: 'commentUserData'
+        //       },
+              
+        //   }],
+        //   { $unwind: "$users" },
+        // ],
+        
     }
 ]
 
-  var art = await Art.aggregate(aggregatorOpts).exec();
+  var art = await Art.aggregate(aggregatorOpts)
+  .exec();
+// });
+  // var art1 = await Comment.populate(art, {path: "comment"});
+  // await Comment.populate(art, {path: "comments"});
 
-  // console.log('art',art,req.session.user_id);
+// return appointments;
+  console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
     return res.render('home', { errors:[],success: [],art: [{art: art}] });
 
   }else{
-    res.render('login', { errors: [] });
+    return res.redirect('/login');
   }
 });
 
@@ -316,7 +346,7 @@ const aggregatorOpts2 = [
     return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
 
   }else{
-    res.render('login', { errors: [] });
+    return res.redirect('/login');
   }
 });
 myApp.post('/post-comment', async (req, res) => {
@@ -434,7 +464,7 @@ myApp.get('/cart', async (req, res) => {
   if(req.session.user_id){
     res.render('cart', { errors: [] ,cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
   }else{
-    res.render('login', { errors: [] });
+    return res.redirect('/login');
   }
 });
 
@@ -480,7 +510,7 @@ myApp.get('/history/:art_id', async (req, res) => {
   if(req.session.user_id){
     res.render('biddingHistory', { errors: [] ,BiddingHistory: [{BiddingHistory: BiddingHistory}] });
   }else{
-    res.render('login', { errors: [] });
+    return res.redirect('/login');
   }
 });
 
@@ -716,10 +746,9 @@ myApp.get('/edit-art/:art_id', async (req, res) => {
 
   const art = await Art.findOne({ _id: req.params.art_id}).exec();
     if (req.session.user_id) {
-  console.log(';llll')
           return res.render('edit-art', { errors:[],success: [],art: [{art: art}] });
     }else{
-       return res.redirect('/login');
+      return res.redirect('/login');
     }
 });
 
@@ -874,7 +903,6 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
             }
         }
     ]
-    
       var art = await Art.aggregate(aggregatorOpts).exec();
           return res.render('arts', { success: [{ msg: 'Art Updated successfully.' }],errors: [],art: [{art: art}] });
         }).catch((err) => {
@@ -924,9 +952,9 @@ myApp.get('/past-auction', async (req, res) => {
   // req.session.user_id = req.session.user_id;
   // req.session.userName = 'ss';
   var where = [
-    {end_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
-    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
-    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+    {status:'completed'},
+    // {end_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    
 ]
   const aggregatorOpts = [
     {
@@ -951,7 +979,7 @@ myApp.get('/past-auction', async (req, res) => {
     return res.render('pastAuction', { errors:[],success: [],art: [{art: art}] });
 
   }else{
-    res.render('login', { errors: [] });
+    return res.redirect('/login');
   }
 });
 myApp.post('/add-cart',async (req, res, next) =>{
@@ -1028,7 +1056,7 @@ myApp.post('/add-cart',async (req, res, next) =>{
 cron.schedule('* * * * *', async () => {
 
   var where = [
-    {status:"active"},
+    {status:"inprogress"},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
     // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
 ]
@@ -1053,9 +1081,9 @@ cron.schedule('* * * * *', async () => {
 
   art.forEach(async(element) => {
 
-    if((element.end_date + " " + element.end_time) < moment(new Date()).format('YYYY-MM-DD HH:mm:ss') ){
+    if((element.end_date + " " + element.end_time) <= moment(new Date()).format('YYYY-MM-DD HH:mm') ){
 
-      console.log('running a task every minute', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
+      console.log('running a task every minute status completed', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
 
       const art =  await Art.findOne({ _id: element._id}).exec();
       art.status = 'completed';
@@ -1064,6 +1092,46 @@ cron.schedule('* * * * *', async () => {
   
   });
 });
+
+cron.schedule('* * * * *', async () => {
+
+  var where = [
+    {status:"active"},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+
+  art.forEach(async(element) => {
+    if((element.start_date + " " + element.start_time) >= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+
+      console.log('running a task every minute status inprogress', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
+
+      const art =  await Art.findOne({ _id: element._id}).exec();
+      art.status = 'inprogress';
+      await art.save();
+    }
+  
+  });
+});
+
 
 myApp.listen(8081, () => {
   console.log('Application is running on port 8081');

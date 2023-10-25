@@ -1,5 +1,6 @@
 <%- include('layouts/innerheader'); -%>
 
+
 <body>
     <div style="height: 50px;">
        
@@ -74,16 +75,35 @@
                    
                     <a href="#"> 
                         <p class="message"> 
-                        <b><%= product.title %>i</b> 
+                        <b><%= product.title %></b> 
                         </p> 
 
                     </a> 
 
-                    <span href="#"> 
+                    <span> 
                         <p class="message"> 
-                        <b><%= product.description %>i</b> 
+                        <b><%= product.description %></b> 
                         </p> 
 
+                    </span> 
+                    <span> 
+                        <p class="message"> 
+                        <b>$<%= product.min_bid %></b> 
+                        </p> 
+
+                    </span> 
+                    <span> 
+                        <p class="message"> 
+                        
+                        <b>Start Date:</b> <%= product.start_date %>
+                        <b>Start Time:</b> <%= product.start_time %>
+                        </p> 
+                    </span> 
+                    <span> 
+                        <p class="message"> 
+                        <b>End Date:</b> <%= product.end_date %>
+                        <b>End Time:</b> <%= product.end_time %> 
+                        </p> 
                     </span> 
                   
                 </div> 
