@@ -145,7 +145,7 @@ myApp.get('/', (req, res) => {
 myApp.get('/art-list', async (req, res) => {
 
   var where = [
-    {status:'active'},
+    {status:{$nin:['deleted']}},
     {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
     // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
     // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
