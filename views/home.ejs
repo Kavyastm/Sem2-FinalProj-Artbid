@@ -69,14 +69,25 @@
                         </p> 
                         
                     </span> 
-                <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" onclick="openModel()">View all comments</button> -->
+                    <span> 
+                        <p class="message"> 
+                        
+                        <b>Start Date & Time:</b> <%= product.start_date %> <%= product.start_time %>
+                        </p> 
+                    </span> 
+                    <span> 
+                        <p class="message"> 
+                        <b>End Date & Time:</b> <%= product.end_date %> <%= product.end_time %>
+                        </p> 
+                    </span> 
+                <!-- <button type="button" class="btn btn-info btn-lg" onclick="openModel('<%= product._id %>')">View all comments</button>
                     
                     
 
                     <a href="#" data-toggle="modal" data-target="#myModal" > 
                         
                         <h4 class="comments">View all comments</h4> 
-                    </a> 
+                    </a>  -->
                    
                     <div class="addComments"> 
                         <div class="reaction"> 
@@ -104,12 +115,13 @@
         
 </body>
 <script>
-     function openModel() {
-        $('#myModal').modal('show');
+     function openModel(id) {
+        // $('#myModal').modal('show');
         $.ajax({
             type: "POST",
-            url: 'http://localhost:8081/forgotpassword',
+            url: 'http://localhost:8081/get-all-comments',
             data : {
+                id: id
                 // will be accessible in $_POST['data1']
             },
             success: function(data)

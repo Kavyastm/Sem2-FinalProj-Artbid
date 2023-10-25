@@ -177,7 +177,44 @@ myApp.get('/art-list', async (req, res) => {
     return res.redirect('/login');
   }
 });
+myApp.post('/get-all-comments', async (req, res) => {
+  // req.session.user_id = req.session.user_id;
+  // req.session.userName = 'ss';
+  console.log(req.body)
+  var where = [
+    {art_id:req.body.id},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    },
+]
 
+  var comment = await Comment.aggregate(aggregatorOpts)
+  .exec();
+// });
+  // var art1 = await Comment.populate(art, {path: "comment"});
+  // await Comment.populate(art, {path: "comments"});
+
+// return appointments;
+  console.log('comment',comment,req.session.user_id);
+  
+  if(req.session.user_id){
+    // return res.render('home', { errors:[],success: [],art: [{art: art}] });
+
+  }else{
+    return res.redirect('/login');
+  }
+});
 myApp.get('/welcome', async (req, res) => {
   // req.session.user_id = req.session.user_id;
   // req.session.userName = 'ss';
@@ -202,30 +239,30 @@ myApp.get('/welcome', async (req, res) => {
           as: 'userData'
         }
     },
-    {
-      $lookup:
-        {
-          from: 'comments',
-          localField: '_id',
-          foreignField: 'art_id',
-          as: 'commentData'
-        },
+    // {
+    //   $lookup:
+    //     {
+    //       from: 'comments',
+    //       localField: '_id',
+    //       foreignField: 'art_id',
+    //       as: 'commentData'
+    //     },
         
-        // pipeline: [
-        //   [{
-        //     $lookup:
-        //       {
-        //         from: 'users',
-        //         localField: 'user_id',
-        //         foreignField: '_id',
-        //         as: 'commentUserData'
-        //       },
+    //     pipeline: [
+    //       [{
+    //         $lookup:
+    //           {
+    //             from: 'users',
+    //             localField: 'user_id',
+    //             foreignField: '_id',
+    //             as: 'commentUserData'
+    //           },
               
-        //   }],
-        //   { $unwind: "$users" },
-        // ],
+    //       }],
+    //       { $unwind: "$users" },
+    //     ],
         
-    }
+    // }
 ]
 
   var art = await Art.aggregate(aggregatorOpts)
