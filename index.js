@@ -180,10 +180,11 @@ myApp.get('/art-list', async (req, res) => {
 myApp.post('/get-all-comments', async (req, res) => {
   // req.session.user_id = req.session.user_id;
   // req.session.userName = 'ss';
-  console.log(req.body)
-  var where = [
-    {art_id:req.body.id},
-]
+  console.log(req.body,req.body.id)
+  var where = [{art_id: req.body.id}];
+  // var where = [{art_id: ObjectId(req.body.id)}];
+
+
   const aggregatorOpts = [
     {
       $match : { $and : where }
@@ -192,15 +193,14 @@ myApp.post('/get-all-comments', async (req, res) => {
       $lookup:
         {
           from: 'users',
-          localField: 'user_id',
-          foreignField: '_id',
+          localField: '_id',
+          foreignField: 'user_id',
           as: 'userData'
         }
     },
 ]
 
-  var comment = await Comment.aggregate(aggregatorOpts)
-  .exec();
+  var comment = await Comment.aggregate(aggregatorOpts).exec();
 // });
   // var art1 = await Comment.populate(art, {path: "comment"});
   // await Comment.populate(art, {path: "comments"});
@@ -1157,7 +1157,7 @@ cron.schedule('* * * * *', async () => {
   var art = await Art.aggregate(aggregatorOpts).exec();
 
   art.forEach(async(element) => {
-    if((element.start_date + " " + element.start_time) >= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+    if((element.start_date + " " + element.start_time) <= moment(new Date()).format('YYYY-MM-DD HH:mm') && (element.end_date + " " + element.end_time) > moment(new Date()).format('YYYY-MM-DD HH:mm')){
 
       console.log('running a task every minute status inprogress', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
 
