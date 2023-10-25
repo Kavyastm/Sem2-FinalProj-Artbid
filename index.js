@@ -81,6 +81,12 @@ const artSchema = new mongoose.Schema({
 		enum: ["active","completed","expired","deleted","inprogress"],
 		default: "active"
 	},
+
+  is_payment_done: {
+		type: String,
+		enum: ["yes","no"],
+		default: "no"
+	},
 });
 const commentSchema = new mongoose.Schema({
   comment: String,
@@ -873,8 +879,8 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
-  if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time) {
-    var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
+  if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time || (!user.profile_image && !req.file)) {
+    var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : (!user.profile_image && !req.file) ? 'Art Image' : ''
     return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
   }else{
     // User.findOne({id:req.body.id}, function (err, user) {
@@ -968,7 +974,9 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
         }
     ]
       var art = await Art.aggregate(aggregatorOpts).exec();
-          return res.render('arts', { success: [{ msg: 'Art Updated successfully.' }],errors: [],art: [{art: art}] });
+        return res.redirect('/art-list');
+
+          // return res.render('arts', { success: [{ msg: 'Art Updated successfully.' }],errors: [],art: [{art: art}] });
         }).catch((err) => {
           console.error('Error saving user:', err);
           return res.render('arts', { commonError: 'Art adding failed',art: [{art: art}] }); // Pass commonError here
@@ -1003,6 +1011,116 @@ myApp.get('/delete-art/:art_id',upload.single('profile_image'),async (req, res, 
 
       
       
+  // });
+});
+
+myApp.get('/remove-cart/:art_id',upload.single('profile_image'),async (req, res, next) =>{
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+
+    const art = await Cart.deleteOne({ art_id: req.params.art_id , user_id:req.session.user_id}).then(() => {
+      return res.redirect('/cart');
+    }).catch((err) => {
+          console.error('Error saving user:', err);
+          return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
+        });
+
+      
+      
+  // });
+});
+
+myApp.post('/purchase',async (req, res, next) =>{
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+  // const user = await User.findOne({ _id: req.session.user_id}).exec();
+
+  var where = [
+    
+    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+        
+    },
+    {
+      $lookup:
+        {
+          from: 'arts',
+          localField: 'art_id',
+          foreignField: '_id',
+          as: 'artData'
+        },
+        
+    }
+]
+
+const aggregatorOpts1 = [
+  {
+    $match : { $and : where }
+  },
+  {
+    $lookup:
+      {
+        from: 'users',
+        localField: 'user_id',
+        foreignField: '_id',
+        as: 'userData'
+      }
+      
+  }
+]
+
+  var cart = await Cart.aggregate(aggregatorOpts).exec();
+
+  var cartItemsCount = cart.length
+  var total = 0;
+
+  cart.forEach(async (product) => {
+
+
+    const art = await Cart.findOne({ _id: product._id}).exec();
+    const art1 = await Art.findOne({ _id: product.art_id}).exec();
+
+
+   
+    art.status = 'completed';
+    art1.is_payment_done = 'yes';
+
+    
+
+    await art.save()
+    await art1.save()
+
+    
+  })
+
+  return res.redirect('/cart');
+
+
+    
+    
   // });
 });
 myApp.get('/logout', async (req, res) => {
@@ -1194,6 +1312,42 @@ cron.schedule('* * * * *', async () => {
     }
   
   });
+});
+
+myApp.get('/winning-bid', async (req, res) => {
+  // req.session.user_id = req.session.user_id;
+  // req.session.userName = 'ss';
+  var where = [
+    {last_bidder_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    {status : "completed"}
+    // {end_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+
+  // console.log('art',art,req.session.user_id);
+  
+  if(req.session.user_id){
+    return res.render('winningBid', { errors:[],success: [],art: [{art: art}] });
+
+  }else{
+    return res.redirect('/login');
+  }
 });
 
 
