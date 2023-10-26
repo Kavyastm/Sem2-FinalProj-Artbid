@@ -43,7 +43,11 @@
                         <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
                         <!-- Profile picture upload button-->
                         
-                        <input class="btn btn-primary" type="file" name ="profile_image" multiple="multiple" accept="image/*">
+                        <input class="btn btn-primary inputError" type="file" name ="profile_image" multiple="multiple" accept="image/*">
+                        <input  type="hidden" name = "profile_image_exist" id = "profile_image_exist" value = "<%= user[0].user.profile_image %>">
+                        <span role="alert" class="requiredError" aria-hidden="true">
+                            Please upload Profile Picture
+                        </span>
                     </div>
                 </div>
 
@@ -67,21 +71,23 @@
                                 <label class="small mb-1" for="inputUsername">Username (how your name will appear to other users on the site)</label>
                                 <input id="name" placeholder="Name" type="text" name="name" class="inputError"
                                 value="<%= typeof user[0].user.name !== 'undefined' ?  user[0].user.name : '' %>">
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter Name
+                                </span>
                             </div>
-                            <span role="alert" class="requiredError" aria-hidden="true">
-                                Please enter Name
-                            </span>
+                            
                             <!-- Form Row-->
                             
                             <!-- Form Group (email address)-->
                             <div class="mb-3">
                                 <label class="small mb-1" for="inputEmailAddress">Email address</label>
-                                <input id="email" placeholder="Email" class="inputError" type="email" name="email"
+                                <input id="email" placeholder="Email" class="inputError emailInput" type="email" name="email"
                         value="<%= typeof user[0].user.email !== 'undefined' ?  user[0].user.email : '' %>">
+                        <span role="alert" class="requiredError" aria-hidden="true">
+                            Please enter Email
+                          </span>
                     </div>
-                    <span role="alert" class="requiredError" aria-hidden="true">
-                        Please enter Email
-                      </span>
+                    
                             <!-- Form Row-->
                             <div class="row gx-3 mb-3">
                                 <!-- Form Group (phone number)-->
@@ -89,10 +95,11 @@
                                     <label class="small mb-1" for="inputPhone">About</label>
                                     <textarea id="about-field" placeholder="About" type="text" name="about" class="inputError"
                                     value="<%= typeof user[0].user.about !== 'undefined' ?  user[0].user.about : '' %>"><%= typeof user[0].user.about !== 'undefined' ?  user[0].user.about : '' %></textarea>
+                                    <span role="alert" class="requiredError" aria-hidden="true">
+                                        Please enter About
+                                      </span>
                                 </div>
-                                <span role="alert" class="requiredError" aria-hidden="true">
-                                    Please enter About
-                                  </span>
+                                
                                 <!-- Form Group (birthday)-->
                                
                             </div>
@@ -111,12 +118,23 @@
         const form = document.getElementById('submitFormValidate')
         e.preventDefault();
         const userNameField = document.getElementsByClassName("inputError");
+        var is_profile_image_exist = false;
         let vaClass = true;
         for (var i = 0; i < userNameField.length; i++) {
-            if (!userNameField[i].value) {
+            const profile_image_exist = document.getElementById("profile_image_exist").value;
+            console.log(profile_image_exist,'profile_image_exist')
+            is_profile_image_exist = profile_image_exist ? true : false;
+            if(i == 0 && !userNameField[i].value && !is_profile_image_exist){
+                console.log('gfdgdf')
                 vaClass = false;
                 const showRequiredErr = document.getElementsByClassName("requiredError");
-                console.log(showRequiredErr)
+                showRequiredErr[i].classList.add("visible");
+                userNameField[i].classList.add("invalid");
+                showRequiredErr[i].setAttribute("aria-hidden", false);
+                showRequiredErr[i].setAttribute("aria-invalid", true);
+            }else if (!userNameField[i].value && i != 0) {
+                vaClass = false;
+                const showRequiredErr = document.getElementsByClassName("requiredError");
                 showRequiredErr[i].classList.add("visible");
                 userNameField[i].classList.add("invalid");
                 showRequiredErr[i].setAttribute("aria-hidden", false);
@@ -127,6 +145,42 @@
                 userNameField[i].classList.remove("invalid");
                 showRequiredErr[i].setAttribute("aria-hidden", true);
                 showRequiredErr[i].setAttribute("aria-invalid", false);
+                if(userNameField[i].value.length > 30 && i == 1){
+                    vaClass = false;
+                    document.getElementsByClassName("requiredError")[i].textContent = "Maximum 30 characters are allowed";
+                    const showlengthErr = document.getElementsByClassName("requiredError");
+                    showlengthErr[i].classList.add("visible");
+                    userNameField[i].classList.add("invalid");
+                    showlengthErr[i].setAttribute("aria-hidden", false);
+                    showlengthErr[i].setAttribute("aria-invalid", true);
+                  }else{
+                    if(i == 2){
+                        let userEmail = document.getElementsByClassName('emailInput')[0].value;
+                        let regex = new RegExp(/\S+@\S+\.\S+/);
+                        let isValid = regex.test(userEmail);
+                        if (isValid) {
+                          const showlengthErr = document.getElementsByClassName("requiredError");
+                          showlengthErr[i].classList.remove("visible");
+                          userNameField[i].classList.remove("invalid");
+                          showlengthErr[i].setAttribute("aria-hidden", true);
+                          showlengthErr[i].setAttribute("aria-invalid", false);
+                        } else {
+                            vaClass = false;
+                            document.getElementsByClassName("requiredError")[i].textContent =  "Email is not a valid email address";
+                            const showlengthErr = document.getElementsByClassName("requiredError");
+                            showlengthErr[i].classList.add("visible");
+                            userNameField[i].classList.add("invalid");
+                            showlengthErr[i].setAttribute("aria-hidden", false);
+                            showlengthErr[i].setAttribute("aria-invalid", true);
+                        }
+                    }else{
+                      const showlengthErr = document.getElementsByClassName("requiredError");
+                      showlengthErr[i].classList.remove("visible");
+                      userNameField[i].classList.remove("invalid");
+                      showlengthErr[i].setAttribute("aria-hidden", true);
+                      showlengthErr[i].setAttribute("aria-invalid", false);
+                    }
+                }
             }
         }
         if(vaClass){

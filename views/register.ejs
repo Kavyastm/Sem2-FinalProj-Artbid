@@ -21,15 +21,16 @@
                             </span>
                             <div class="name-field">
                                 
-                              <input id="pass-field" placeholder="Email" type="text" name="email" class="inputError">
+                              <input id="pass-field" placeholder="Email" type="email" name="email" class="inputError emailInput">
                             </div>
                             <span role="alert" class="requiredError" aria-hidden="true">
                                 Please enter Email
                               </span>
+                              
 
                               <div class="name-field">
                                 
-                                <input id="confirmemail" placeholder="Confirm Email" type="text" name="confirmemail" class="inputError">
+                                <input id="confirmemail" placeholder="Confirm Email" type="email" name="confirmemail" class="inputError emailInput">
                              </div>
                              <span role="alert" class="requiredError" aria-hidden="true">
                                 Please enter Confirm Email
@@ -47,11 +48,11 @@
                                 <div class="name-field">
                                 
                                   <input id="pass-field" placeholder="Confirm password" type="password" name="confirmpassword" class="inputError"
-              value="<%= typeof confirmpassword !== 'undefined' ? confirmpassword : '' %>">
-            </div>
-            <span role="alert" class="requiredError" aria-hidden="true">
-              Please enter Confirm Password
-            </span>
+                                    value="<%= typeof confirmpassword !== 'undefined' ? confirmpassword : '' %>">
+                                  </div>
+                                  <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter Confirm Password
+                                  </span>
                                   <div class="name-field">
                                 
                                     <input id="securityQuestion" placeholder="Security Question" type="text" name="securityQuestion" class="inputError"
@@ -79,7 +80,7 @@
                                 </div>
                             <% } %>
                             <div class="d-flex justify-content-center mt-3 login_container">
-                                <input id="submitId" value="Login" type="submit" class="btn login_btn" onclick="validateForm(event)">
+                                <input id="submitId" value="Register" type="submit" class="btn login_btn" onclick="validateForm(event)">
                             </div><br>
                             
                             <div class="register-field">
@@ -107,7 +108,6 @@
               if (!userNameField[i].value) {
                   vaClass = false;
                   const showRequiredErr = document.getElementsByClassName("requiredError");
-                  console.log(showRequiredErr)
                   showRequiredErr[i].classList.add("visible");
                   userNameField[i].classList.add("invalid");
                   showRequiredErr[i].setAttribute("aria-hidden", false);
@@ -118,6 +118,43 @@
                   userNameField[i].classList.remove("invalid");
                   showRequiredErr[i].setAttribute("aria-hidden", true);
                   showRequiredErr[i].setAttribute("aria-invalid", false);
+                  if(userNameField[i].value.length > 30){
+                    vaClass = false;
+                    document.getElementsByClassName("requiredError")[i].textContent = "Maximum 30 characters are allowed";
+                    const showlengthErr = document.getElementsByClassName("requiredError");
+                    showlengthErr[i].classList.add("visible");
+                    userNameField[i].classList.add("invalid");
+                    showlengthErr[i].setAttribute("aria-hidden", false);
+                    showlengthErr[i].setAttribute("aria-invalid", true);
+                  }else{
+                    if(i == 1 || i == 2){
+                      let userEmail = document.getElementsByClassName('emailInput')[i-1].value;
+                      let regex = new RegExp(/\S+@\S+\.\S+/);
+                      let isValid = regex.test(userEmail);
+                      console.log(document.getElementsByClassName('emailInput')[0].value,userEmail,'fghgfhf',isValid,i)
+                      if (isValid) {
+                          const showlengthErr = document.getElementsByClassName("requiredError");
+                          showlengthErr[i].classList.remove("visible");
+                          userNameField[i].classList.remove("invalid");
+                          showlengthErr[i].setAttribute("aria-hidden", true);
+                          showlengthErr[i].setAttribute("aria-invalid", false);
+                      } else {
+                          vaClass = false;
+                          document.getElementsByClassName("requiredError")[i].textContent = i == 1 ? "Email is not a valid email address" : "Confirm Email is not a valid email address";
+                          const showlengthErr = document.getElementsByClassName("requiredError");
+                          showlengthErr[i].classList.add("visible");
+                          userNameField[i].classList.add("invalid");
+                          showlengthErr[i].setAttribute("aria-hidden", false);
+                          showlengthErr[i].setAttribute("aria-invalid", true);
+                      }
+                    }else{
+                      const showlengthErr = document.getElementsByClassName("requiredError");
+                      showlengthErr[i].classList.remove("visible");
+                      userNameField[i].classList.remove("invalid");
+                      showlengthErr[i].setAttribute("aria-hidden", true);
+                      showlengthErr[i].setAttribute("aria-invalid", false);
+                    }
+                  }
               }
           }
       if(vaClass){

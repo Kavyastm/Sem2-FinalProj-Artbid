@@ -38,7 +38,10 @@
                         <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
                         <!-- Profile picture upload button-->
                         
-                        <input class="btn btn-primary" type="file" name ="profile_image" multiple="multiple" accept="image/*">
+                        <input class="btn btn-primary inputError" type="file" name ="profile_image" multiple="multiple" accept="image/*">
+                        <span role="alert" class="requiredError" aria-hidden="true">
+                            Please upload Art Image
+                        </span>
                     </div>
                 </div>
             </div>
@@ -53,33 +56,34 @@
                                 <label class="small mb-1" for="inputUsername">Title</label>
                                 <input id="name" placeholder="Title" type="hidden" value="" name="art_id">
 
-                    <input id="name" placeholder="Title" type="text" name="title" value="" name="art_id">
+                    <input id="name" placeholder="Title" type="text" name="title" value="" name="art_id" class="inputError">
+                    <span role="alert" class="requiredError" aria-hidden="true">
+                        Please enter Title
+                    </span>
                 </div>
-                            <span role="alert" class="requiredError" aria-hidden="true">
-                                Please enter Title
-                            </span>
+                           
                             <!-- Form Row-->
                             
                             <!-- Form Group (email address)-->
                             <div class="mb-3">
                                 <label class="small mb-1" for="inputEmailAddress">Min Bid</label>
-                                <input id="about-field" placeholder="Min Bid" type="text" name="min_bid" value="">
-
+                                <input id="about-field" placeholder="Min Bid" type="number" name="min_bid" value="" class="inputError">
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter Bid amount
+                                  </span>
                     </div>
-                    <span role="alert" class="requiredError" aria-hidden="true">
-                        Please enter Bid amount
-                      </span>
+                    
                             <!-- Form Row-->
                             <div class="row gx-3 mb-3">
                                 <!-- Form Group (phone number)-->
                                 <div class="col-md-12">
                                     <label class="small mb-1" for="inputPhone">Description</label>
-                                    <textarea id="email" placeholder="Description" value="" type="text" name="description"></textarea>
-
+                                    <textarea id="email" placeholder="Description" value="" type="text" name="description" class="inputError"></textarea>
+                                    <span role="alert" class="requiredError" aria-hidden="true">
+                                        Please enter Description
+                                      </span>
                                 </div>
-                                <span role="alert" class="requiredError" aria-hidden="true">
-                                    Please enter About
-                                  </span>
+                               
                                 <!-- Form Group (birthday)-->
                                
                             </div>
@@ -88,21 +92,21 @@
                                 <!-- Form Group (phone number)-->
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputPhone">Start Date</label>
-                                    <input id="date-field" placeholder="Start Date" type="date" name="start_date" value="">
-
+                                    <input id="date-field" placeholder="Start Date" type="date" name="start_date" value="" class="inputError">
+                                    <span role="alert" class="requiredError" aria-hidden="true">
+                                        Please enter Start Date
+                                      </span>
                                 </div>
-                                <span role="alert" class="requiredError" aria-hidden="true">
-                                    Please enter Start Date
-                                  </span>
+                                
 
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputPhone">Start Time</label>
-                                    <input id="time-field" placeholder="Start Time" type="time" name="start_time" value="">
-
+                                    <input id="time-field" placeholder="Start Time" type="time" name="start_time" value="" class="inputError">
+                                    <span role="alert" class="requiredError" aria-hidden="true">
+                                        Please enter Start Time
+                                      </span>
                                 </div>
-                                <span role="alert" class="requiredError" aria-hidden="true">
-                                    Please enter Start Time
-                                  </span>
+                                
                                 <!-- Form Group (birthday)-->
                                
                             </div>
@@ -111,28 +115,28 @@
                                 <!-- Form Group (phone number)-->
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputPhone">End Date</label>
-                                    <input id="date-field" placeholder="End Date" type="date" name="end_date" value="">
-
+                                    <input id="date-field" placeholder="End Date" type="date" name="end_date" value="" class="inputError">
+                                    <span role="alert" class="requiredError" aria-hidden="true">
+                                        Please enter End Date
+                                      </span>
                                 </div>
-                                <span role="alert" class="requiredError" aria-hidden="true">
-                                    Please enter End Date
-                                  </span>
+                               
 
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputPhone">End Time</label>
-                                    <input id="time-field" placeholder="End Time" type="time" name="end_time" value="">
-
-                                </div>
-                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    <input id="time-field" placeholder="End Time" type="time" name="end_time" value="" class="inputError">
+                                    <span role="alert" class="requiredError" aria-hidden="true">
                                     Please enter End Time
                                   </span>
+                                </div>
+                                
                                 <!-- Form Group (birthday)-->
                                
                             </div>
 
                             
                             <!-- Save changes button-->
-                            <input type="submit" value="Update" class="login-btn" >
+                            <input type="submit" value="Add" class="login-btn" onclick="validateForm(event)">
                         </form>
                     </div>
                 </div>
@@ -141,5 +145,52 @@
     </form>
     </div>
   </body>
-
+  <script>
+    window.onload=function(){
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementsByName("end_date")[0].setAttribute('min', today);
+    }
+    function validateForm(e) {
+        const form = document.getElementById('submitFormValidate')
+        e.preventDefault();
+        const userNameField = document.getElementsByClassName("inputError");
+        let vaClass = true;
+        for (var i = 0; i < userNameField.length; i++) {
+            if (!userNameField[i].value) {
+                vaClass = false;
+                const showRequiredErr = document.getElementsByClassName("requiredError");
+                showRequiredErr[i].classList.add("visible");
+                userNameField[i].classList.add("invalid");
+                showRequiredErr[i].setAttribute("aria-hidden", false);
+                showRequiredErr[i].setAttribute("aria-invalid", true);
+            }else{
+                const showRequiredErr = document.getElementsByClassName("requiredError");
+                showRequiredErr[i].classList.remove("visible");
+                userNameField[i].classList.remove("invalid");
+                showRequiredErr[i].setAttribute("aria-hidden", true);
+                showRequiredErr[i].setAttribute("aria-invalid", false);
+                if(userNameField[i].value.length > 30 && i == 1){
+                    vaClass = false;
+                    document.getElementsByClassName("requiredError")[i].textContent = "Maximum 30 characters are allowed";
+                    const showlengthErr = document.getElementsByClassName("requiredError");
+                    showlengthErr[i].classList.add("visible");
+                    userNameField[i].classList.add("invalid");
+                    showlengthErr[i].setAttribute("aria-hidden", false);
+                    showlengthErr[i].setAttribute("aria-invalid", true);
+                }else{
+                    const showlengthErr = document.getElementsByClassName("requiredError");
+                    showlengthErr[i].classList.remove("visible");
+                    userNameField[i].classList.remove("invalid");
+                    showlengthErr[i].setAttribute("aria-hidden", true);
+                    showlengthErr[i].setAttribute("aria-invalid", false);
+                }
+            }
+        }
+        if(vaClass){
+            form.submit();
+        }else{
+            return false;
+        }
+    }
+</script>
   <%- include('layouts/footer'); -%>
