@@ -1006,6 +1006,7 @@ a {
             text-align: center;
             background-image: url(/images/no.png);
             background-repeat: no-repeat;
-            margin-left: 28%;
+            margin-left: 35%;
+            margin-top: 170px !important;
       }
 
