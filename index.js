@@ -681,30 +681,33 @@ myApp.post('/register', [
         // Password and confirm password do not match
         return res.render('register', { errors: [{ msg: 'Password and Confirm Password do not match.' }], submitted: true });
       }
-
-
       // Hash the password before saving it
       const hashedPassword = await bcrypt.hash(password, 10);
       User.findOne({userName: userName}).then(function(result){
         if(result!=null){
           return res.render('register', { errors: [{ msg: 'Username already exist.' }], submitted: true });
         }
-      // Create a new user
-        const newUser = new User({
-          userName: userName,
-          securityQuestion: securityQuestion,
-          securityAnswer: securityAnswer,
-          // lastName: lname,
-          // dob: new Date(dob),
-          email: email,
-          password: hashedPassword,
-        });
+        User.findOne({email: email}).then(function(resultEmail){
+          if(resultEmail!=null){
+            return res.render('register', { errors: [{ msg: 'Email already exist.' }], submitted: true });
+          }
+        // Create a new user
+          const newUser = new User({
+            userName: userName,
+            securityQuestion: securityQuestion,
+            securityAnswer: securityAnswer,
+            // lastName: lname,
+            // dob: new Date(dob),
+            email: email,
+            password: hashedPassword,
+          });
 
-          newUser.save().then(() => {
-            return res.redirect('/registration-success');
-        }).catch((err) => {
-          console.error('Error saving user:', err);
-          return res.render('register', { commonError: 'User registration failed' }); // Pass commonError here
+            newUser.save().then(() => {
+              return res.redirect('/registration-success');
+          }).catch((err) => {
+            console.error('Error saving user:', err);
+            return res.render('register', { commonError: 'User registration failed' }); // Pass commonError here
+          });
         });
       });
     } catch (err) {
@@ -860,28 +863,27 @@ myApp.post('/update-profile',upload.single('profile_image'),async (req, res, nex
     return res.redirect('/login');
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
-  if (!req.body.email || !req.body.about || !req.body.name || (!user.profile_image && !req.file)) {
-    var msg = !req.body.email ? 'Email' : !req.body.about ? 'About' : !req.body.name ? 'Name' : (!user.profile_image && !req.file) ? 'Profile Image' : '';
-    // return next(msg);
-    return res.render('profile', { errors: [{ msg: msg+' is reqired.' }],success: [],user: [{user: user}] });
-  }else{
-    // User.findOne({id:req.body.id}, function (err, user) {
-        
-
-        var email = req.body.email.trim();
-        var name = req.body.name.trim();
-        var about = req.body.about.trim();
-
-        
-        user.email = email;
-        user.profile_image = req.file ? 'uploads/'+req.file.filename : user.profile_image;
-        user.about = about;
-        user.name = name;
-        await user.save();
-        return res.render('profile', { success: [{ msg: 'Profile updated successfully.' }],errors: [],user: [{user: user}] });
-  }
-      
-  // });
+  User.findOne({email: req.body.email}).then(async function(resultEmail){
+    if(resultEmail != null){
+      if(new mongoose.Types.ObjectId(resultEmail._id) != req.session.user_id){
+        return res.render('profile', { errors: [{ msg: 'Email already exist.' }],success: [],user: [{user: user}] });
+      }
+    }
+    // if (!req.body.email || !req.body.about || !req.body.name || (!user.profile_image && !req.file)) {
+    //   var msg = !req.body.email ? 'Email' : !req.body.about ? 'About' : !req.body.name ? 'Name' : (!user.profile_image && !req.file) ? 'Profile Image' : '';
+    
+    // else{
+      var email = req.body.email.trim();
+      var name = req.body.name.trim();
+      var about = req.body.about.trim();
+      user.email = email;
+      user.profile_image = req.file ? 'uploads/'+req.file.filename : user.profile_image;
+      user.about = about;
+      user.name = name;
+      await user.save();
+      return res.render('profile', { success: [{ msg: 'Profile updated successfully.' }],errors: [],user: [{user: user}] });
+    // }
+  })
 });
 
 myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
@@ -891,46 +893,48 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
-  if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time || (!user.profile_image && !req.file)) {
-    var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : (!user.profile_image && !req.file) ? 'Art Image' : ''
-    return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
+  // if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time || (!user.profile_image && !req.file)) {
+  //   var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : (!user.profile_image && !req.file) ? 'Art Image' : ''
+  //   return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
+  console.log(req.body.start_date,req.body.start_time,req.body.end_date + " " + req.body.end_time,req.body.start_date + " " + req.body.start_time <= req.body.end_date + " " + req.body.end_time)
+  
+  if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
+    return res.render('uploadart', { errors: [{ msg: 'End date can not be greater than start date' }],success: [] });
+  
   }else{
     // User.findOne({id:req.body.id}, function (err, user) {
         // if (!user) {
         //   return res.redirect('/login');
         //   // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
         // }
+      const newArt = new Art({
+        title: req.body.title,
+        description: req.body.description,
+        image:  req.file ? 'uploads/'+req.file.filename : '',
+        min_bid: req.body.min_bid,
+        last_bid: req.body.min_bid,
 
-        const newArt = new Art({
-          title: req.body.title,
-          description: req.body.description,
-          image:  req.file ? 'uploads/'+req.file.filename : '',
-          min_bid: req.body.min_bid,
-          last_bid: req.body.min_bid,
-
-          user_id: req.session.user_id,
-          // start_date: '2023-10-18',
-          // end_date: '2023-10-19',
-          // start_time: '10:00',
-          // end_time: '23:05',
-          start_date: moment(new Date(req.body.start_date)).format('YYYY-MM-DD'),
-          end_date: moment(new Date(req.body.end_date)).format('YYYY-MM-DD'),
-          start_time: req.body.start_time,
-          end_time: req.body.end_time,
-          status: 'active',
-          
-        });
-        // console.log(newArt,req.body)
-        newArt.save().then(() => {
-          return res.render('uploadart', { success: [{ msg: 'Art Added successfully.' }],errors: [] });
-        }).catch((err) => {
-          console.error('Error saving user:', err);
-          return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
-        });
-
-      }
-      
-  // });
+        user_id: req.session.user_id,
+        // start_date: '2023-10-18',
+        // end_date: '2023-10-19',
+        // start_time: '10:00',
+        // end_time: '23:05',
+        start_date: moment(new Date(req.body.start_date)).format('YYYY-MM-DD'),
+        end_date: moment(new Date(req.body.end_date)).format('YYYY-MM-DD'),
+        start_time: req.body.start_time,
+        end_time: req.body.end_time,
+        status: 'active',
+        
+      });
+      // console.log(newArt,req.body)
+      newArt.save().then(() => {
+        return res.redirect('/art-list');
+        // return res.render('uploadart', { success: [{ msg: 'Art Added successfully.' }],errors: [] });
+      }).catch((err) => {
+        console.error('Error saving user:', err);
+        return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
+      });
+  }
 });
 
 myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =>{
@@ -940,13 +944,14 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
-  if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time) {
-    var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
-    return res.render('edit-art', { errors: [{ msg: msg+' is reqired.' }],success: [] });
+  // if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time) {
+  //   var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
+  //   return res.render('edit-art', { errors: [{ msg: msg+' is reqired.' }],success: [] });
+  if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
+    const art = await Art.findOne({ _id: req.body.art_id}).exec();
+    return res.render('edit-art', { errors:[{ msg: 'End date can not be greater than start date' }],success: [],art: [{art: art}] });
   }else{
-
     const user = await Art.findOne({ _id: req.body.art_id}).exec();
-
     var title = req.body.title.trim();
     var description = req.body.description.trim();
     var min_bid = req.body.min_bid.trim();
