@@ -9,8 +9,8 @@ const multer  = require('multer')
 const myApp = express(); // Create an Express application instance
 // const upload = multer({ dest: 'uploads/' });
 var moment = require('moment-timezone');
-const bodyParser = require('body-parser');
-myApp.use(bodyParser.json());
+// const bodyParser = require('body-parser');
+// myApp.use(bodyParser.json());
 const nodemailer = require("nodemailer");
 let mailTransporter = nodemailer.createTransport({
   service: 'gmail',
@@ -128,6 +128,11 @@ const cartSchema = new mongoose.Schema({
 		required : true, 
 		ref: 'arts',
 	},
+  status: {
+		type: String,
+		enum: ["active","completed"],
+		default: "active"
+	},
 },
 {timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }});
 const User = mongoose.model('User', userSchema);
@@ -157,6 +162,8 @@ myApp.get('/', (req, res) => {
     res.render('login', { errors: [] });
   }
 });
+
+
 
 myApp.get('/art-list', async (req, res) => {
 
@@ -319,6 +326,7 @@ var where1 = [
 var where3 = [
   {user_id : new mongoose.Types.ObjectId(req.session.user_id)},
   {art_id : new mongoose.Types.ObjectId(req.params.art_id)},
+  {status:"active"}
 
   
 ]
@@ -494,6 +502,7 @@ myApp.get('/cart', async (req, res) => {
   var where = [
     
     {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    {status:"active"}
     // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
     // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
@@ -1118,7 +1127,7 @@ const aggregatorOpts1 = [
     await art1.save()
     let mailDetails = {
       // from: 'n23goswami+1@gmail.com',
-      to: 'n23goswami+2@gmail.com',
+      to: 'sakshukla8574@gmail.com',
       // to: artistData.email,
       subject: 'Art Sold',
       html: '<p>Hi <b>'+artistData.userName+'</b>, Your art <b>'+art1.title+'</b> has been bought by <b>'+ req.session.userName + '</b></p>'
@@ -1135,7 +1144,7 @@ const aggregatorOpts1 = [
   })
   let mailDetails = {
     // from: 'n23goswami+1@gmail.com',
-    to: 'n23goswami+2@gmail.com',
+    to: 'sakshukla8574@gmail.com',
     // to: req.session.email,
     subject: 'Purchase Completed',
     html: '<p>Hi <b>'+req.session.userName+'</b>, your order has been placed.</p>'
@@ -1416,6 +1425,57 @@ myApp.get('/winning-bid', async (req, res) => {
   }
 });
 
+myApp.get('/checkout', async (req, res) => {
+
+  var where = [
+    
+    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    {status:"active"}
+    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+        
+    },
+    {
+      $lookup:
+        {
+          from: 'arts',
+          localField: 'art_id',
+          foreignField: '_id',
+          as: 'artData'
+        },
+        
+    }
+]
+
+  var cart = await Cart.aggregate(aggregatorOpts).exec();
+
+  var cartItemsCount = cart.length
+  var total = 0;
+
+  cart.forEach(product => {
+    total = parseInt(total) + parseInt(product.artData[0].last_bid);
+  })
+  if(req.session.user_id){
+    res.render('checkout', { errors: [] ,cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
+  }else{
+    return res.redirect('/login');
+  }
+});
 
 myApp.listen(8081, () => {
   console.log('Application is running on port 8081');
