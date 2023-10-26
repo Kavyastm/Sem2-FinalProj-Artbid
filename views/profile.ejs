@@ -43,7 +43,7 @@
                         <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
                         <!-- Profile picture upload button-->
                         
-                        <input class="btn btn-primary inputError" type="file" name ="profile_image" multiple="multiple" accept="image/*">
+                        <input class="btn btn-primary inputError" type="file" name ="profile_image" multiple="multiple" accept="image/*" id="imageId" onchange="return validateFileUpload()">
                         <input  type="hidden" name = "profile_image_exist" id = "profile_image_exist" value = "<%= user[0].user.profile_image %>">
                         <span role="alert" class="requiredError" aria-hidden="true">
                             Please upload Profile Picture
@@ -114,6 +114,66 @@
     </div>
   </body>
   <script>
+    function validateFileUpload() {
+        var fuData = document.getElementById('imageId');
+        var FileUploadPath = fuData.value;
+        const userNameField = document.getElementsByClassName("inputError");
+        // if (FileUploadPath == '') {
+        //     // alert("Please upload an image");
+        if (FileUploadPath){
+            var Extension = FileUploadPath.substring(
+            FileUploadPath.lastIndexOf('.') + 1).toLowerCase();
+            if (Extension == "png" || Extension == "jpg") {
+                const fsize = fuData.files.item(0).size;
+                const file = Math.round((fsize / 1024));
+                // The size of the file.
+                if (file >= 5120) {
+                    document.getElementById('imageId').value = '';
+                    document.getElementsByClassName("requiredError")[0].textContent = "File too Big, please select a file less than 5mb";
+                    const showlengthErr = document.getElementsByClassName("requiredError");
+                    showlengthErr[0].classList.add("visible");
+                    userNameField[0].classList.add("invalid");
+                    showlengthErr[0].setAttribute("aria-hidden", false);
+                    showlengthErr[0].setAttribute("aria-invalid", true);
+                    // alert(
+                    // "File too Big, please select a file less than 5mb");
+                } else{
+                    const showRequiredErr = document.getElementsByClassName("requiredError");
+                    showRequiredErr[0].classList.remove("visible");
+                    userNameField[0].classList.remove("invalid");
+                    showRequiredErr[0].setAttribute("aria-hidden", true);
+                    showRequiredErr[0].setAttribute("aria-invalid", false);
+                }
+                // else if (file < 2048) {
+                //     alert(
+                //     "File too small, please select a file greater than 2mb");
+                // } else {
+                //     document.getElementById('size').innerHTML = '<b>'
+                //     + file + '</b> KB';
+                // }
+                    
+                // if (fuData.files && fuData.files[0]) {
+                //     var reader = new FileReader();
+
+                //     reader.onload = function(e) {
+                //         $('#blah').attr('src', e.target.result);
+                //     }
+
+                //     reader.readAsDataURL(fuData.files[0]);
+                // }
+
+            } else {
+                document.getElementById('imageId').value = '';
+                document.getElementsByClassName("requiredError")[0].textContent = "Photo only allows file types of PNG or JPG.";
+                const showlengthErr = document.getElementsByClassName("requiredError");
+                showlengthErr[0].classList.add("visible");
+                userNameField[0].classList.add("invalid");
+                showlengthErr[0].setAttribute("aria-hidden", false);
+                showlengthErr[0].setAttribute("aria-invalid", true);
+                // alert("Photo only allows file types of GIF, PNG, JPG, JPEG and BMP. ");
+            }
+        }
+    }
     function validateForm(e) {
         const form = document.getElementById('submitFormValidate')
         e.preventDefault();

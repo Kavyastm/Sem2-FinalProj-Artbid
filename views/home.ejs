@@ -6,7 +6,7 @@
        
     </div>
     
-        
+    <% if(art[0].art.length > 0) { %>
 
         <div class="col-9"> 
            
@@ -135,7 +135,10 @@
                   </div>
                 </div>
         </div> 
-        
+    <% } else { %>
+
+            <div class="col-9 table-data"> </div>
+     <% } %>
           
 </body>
 <script>

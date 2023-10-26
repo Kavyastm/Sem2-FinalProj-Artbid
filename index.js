@@ -919,7 +919,8 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
       });
       // console.log(newArt,req.body)
       newArt.save().then(() => {
-        return res.render('uploadart', { success: [{ msg: 'Art Added successfully.' }],errors: [] });
+        return res.redirect('/art-list');
+        // return res.render('uploadart', { success: [{ msg: 'Art Added successfully.' }],errors: [] });
       }).catch((err) => {
         console.error('Error saving user:', err);
         return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
