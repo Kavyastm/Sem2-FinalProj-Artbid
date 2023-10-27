@@ -849,7 +849,7 @@ myApp.get('/edit-art/:art_id', async (req, res) => {
   // req.session.user_id = '652e8eea63799921917f0a0f';
   // req.session.userName = 'ss';
 
-  console.log(req.params.art_id,req.session.user_id)
+  // console.log(req.params.art_id,req.session.user_id)
 
   const art = await Art.findOne({ _id: req.params.art_id}).exec();
     if (req.session.user_id) {
@@ -859,33 +859,32 @@ myApp.get('/edit-art/:art_id', async (req, res) => {
     }
 });
 myApp.get('/advertisement-list', async (req, res) => {
-  var where = [
-    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
-  ]
-  const aggregatorOpts = [
-    {
-      $match : { $and : where }
-    },
-    {
-      $lookup:
-        {
-          from: 'users',
-          localField: 'user_id',
-          foreignField: '_id',
-          as: 'userData'
-        }
-    }
-]
-
-  var advertisement = await Advertisement.aggregate(aggregatorOpts).exec();
-  // const advertisement = await Art.find({ user_id: req.session.user_id}).exec();
-
-  if(req.session.user_id){
-    return res.render('advertisements', { errors:[],success: [],advertisements: [{advertisements: advertisement}] });
-
-  }else{
+  if(!req.session.user_id){
     return res.redirect('/login');
+  }else{
+      var where = [
+        {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+      ]
+      const aggregatorOpts = [
+        {
+          $match : { $and : where }
+        },
+        {
+          $lookup:
+            {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'userData'
+            }
+        }
+    ]
+
+    var advertisement = await Advertisement.aggregate(aggregatorOpts).exec();
+    // const advertisement = await Art.find({ user_id: req.session.user_id}).exec();
+    return res.render('advertisements', { errors:[],success: [],advertisements: [{advertisements: advertisement}] });
   }
+  
 });
 myApp.get('/create-advertisement', async (req, res) => {
 
@@ -977,13 +976,11 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
   // console.log(req.body.start_date,req.body.start_time,req.body.end_date + " " + req.body.end_time,req.body.start_date + " " + req.body.start_time <= req.body.end_date + " " + req.body.end_time)
   
   if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
-    return res.render('uploadart', { errors: [{ msg: 'End date should be always greater than start date' }],success: [] });
+    return res.render('uploadart', { errors: [{ msg: 'End date & time should be always greater than start date & time' }],success: [] });
   }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    const art = await Art.findOne({ _id: req.body.art_id}).exec();
-    return res.render('edit-art', { errors:[{ msg: 'Start date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
+    return res.render('uploadart', { errors:[{ msg: 'Start date & time should be always greater than current date & time' }],success: [] });
   }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    const art = await Art.findOne({ _id: req.body.art_id}).exec();
-    return res.render('edit-art', { errors:[{ msg: 'End date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
+    return res.render('uploadart', { errors:[{ msg: 'End date & time should be always greater than current date & time' }],success: [] });
   }else{
     // User.findOne({id:req.body.id}, function (err, user) {
         // if (!user) {
@@ -1026,18 +1023,17 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
     return res.redirect('/login');
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
+  const art = await Art.findOne({ _id: req.body.art_id}).exec();
+
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
   // if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time) {
   //   var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
   //   return res.render('edit-art', { errors: [{ msg: msg+' is reqired.' }],success: [] });
   if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
-    const art = await Art.findOne({ _id: req.body.art_id}).exec();
-    return res.render('edit-art', { errors:[{ msg: 'End date should be always greater than start date' }],success: [],art: [{art: art}] });
+    return res.render('edit-art', { errors:[{ msg: 'End date & time should be always greater than start date & time' }],success: [],art: [{art: art}] });
   }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-      const art = await Art.findOne({ _id: req.body.art_id}).exec();
       return res.render('edit-art', { errors:[{ msg: 'Start date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
   }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    const art = await Art.findOne({ _id: req.body.art_id}).exec();
     return res.render('edit-art', { errors:[{ msg: 'End date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
   }else{
     const user = await Art.findOne({ _id: req.body.art_id}).exec();
