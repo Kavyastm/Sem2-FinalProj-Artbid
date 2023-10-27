@@ -1,0 +1,156 @@
+<%- include('layouts/innerheader'); -%>
+
+<body>
+    <div class="container-xl px-4 mt-4">
+        <!-- Account page navigation-->
+        <nav class="nav nav-borders">
+            <a class="nav-link active ms-0" href="#"></a>
+        </nav>
+        <hr class="mt-0 mb-4">
+        <form method="post" action="/store-advertisement" id="submitFormValidate" enctype="multipart/form-data">
+            <div class="">
+                <% if (errors && errors.length> 0) { %>
+                    <div class="error-message">
+                        <p class="error-text">
+                          <%= errors[0].msg %>
+                        </p>
+                    </div>
+                <% } %>
+                <% if (success && success.length> 0) { %>
+                    <div class="success-message">
+                        <p class="success-text">
+                            <%= success[0].msg %>
+                        </p>
+                    </div>
+                <% } %>
+        <div class="row">
+            <div class="col-xl-4">
+                <!-- Profile picture card-->
+                <div class="card mb-4 mb-xl-0">
+                    <div class="card-header">Image</div>
+                    <div class="card-body text-center">
+                        <!-- Profile picture image-->
+                       
+                            <img class="img-account-profile rounded-circle mb-2" src="http://bootdey.com/img/Content/avatar/avatar1.png" alt="" style="
+                            height: 148px;
+                        ">
+                        <!-- Profile picture help block-->
+                        <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
+                        <!-- Profile picture upload button-->
+                        
+                        <input class="btn btn-primary inputError" type="file" name ="advertisement_image" accept="image/*" id="imageId" onchange="return validateFileUpload()">
+                        <span role="alert" class="requiredError" aria-hidden="true">
+                            Please upload Image
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-8">
+                <!-- Account details card-->
+                <div class="card mb-4">
+                    <div class="card-header">Advertisement Details</div>
+                    <div class="card-body">
+                        <form>
+                            <!-- Form Group (username)-->
+                            <div class="mb-3">
+                                <label class="small mb-1" for="inputUsername">Title</label>
+                                <input id="name" placeholder="Title" type="hidden" value="" name="art_id">
+                                <input id="name" placeholder="Title" type="text" name="title" value="" name="art_id" class="inputError">
+                                <span role="alert" class="requiredError" aria-hidden="true">
+                                    Please enter Title
+                                </span>
+                            </div>
+                            <!-- Save changes button-->
+                            <input type="submit" value="Add" class="login-btn" onclick="validateForm(event)">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    </div>
+  </body>
+  <script>
+    function validateFileUpload() {
+        var fuData = document.getElementById('imageId');
+        var FileUploadPath = fuData.value;
+        const userNameField = document.getElementsByClassName("inputError");
+        if (FileUploadPath){
+            var Extension = FileUploadPath.substring(
+            FileUploadPath.lastIndexOf('.') + 1).toLowerCase();
+            if (Extension == "png" || Extension == "jpg") {
+                const fsize = fuData.files.item(0).size;
+                const file = Math.round((fsize / 1024));
+                // The size of the file.
+                if (file >= 5120) {
+                    document.getElementById('imageId').value = '';
+                    document.getElementsByClassName("requiredError")[0].textContent = "File too Big, please select a file less than 5mb";
+                    const showlengthErr = document.getElementsByClassName("requiredError");
+                    showlengthErr[0].classList.add("visible");
+                    userNameField[0].classList.add("invalid");
+                    showlengthErr[0].setAttribute("aria-hidden", false);
+                    showlengthErr[0].setAttribute("aria-invalid", true);
+                    // alert(
+                    // "File too Big, please select a file less than 5mb");
+                } else{
+                    const showRequiredErr = document.getElementsByClassName("requiredError");
+                    showRequiredErr[0].classList.remove("visible");
+                    userNameField[0].classList.remove("invalid");
+                    showRequiredErr[0].setAttribute("aria-hidden", true);
+                    showRequiredErr[0].setAttribute("aria-invalid", false);
+                }
+            } else {
+                document.getElementById('imageId').value = '';
+                document.getElementsByClassName("requiredError")[0].textContent = "Photo only allows file types of PNG or JPG.";
+                const showlengthErr = document.getElementsByClassName("requiredError");
+                showlengthErr[0].classList.add("visible");
+                userNameField[0].classList.add("invalid");
+                showlengthErr[0].setAttribute("aria-hidden", false);
+                showlengthErr[0].setAttribute("aria-invalid", true);
+            }
+        }
+    }
+    function validateForm(e) {
+        const form = document.getElementById('submitFormValidate')
+        e.preventDefault();
+        const userNameField = document.getElementsByClassName("inputError");
+        let vaClass = true;
+        for (var i = 0; i < userNameField.length; i++) {
+            if (!userNameField[i].value) {
+                vaClass = false;
+                const showRequiredErr = document.getElementsByClassName("requiredError");
+                showRequiredErr[i].classList.add("visible");
+                userNameField[i].classList.add("invalid");
+                showRequiredErr[i].setAttribute("aria-hidden", false);
+                showRequiredErr[i].setAttribute("aria-invalid", true);
+            }else{
+                const showRequiredErr = document.getElementsByClassName("requiredError");
+                showRequiredErr[i].classList.remove("visible");
+                userNameField[i].classList.remove("invalid");
+                showRequiredErr[i].setAttribute("aria-hidden", true);
+                showRequiredErr[i].setAttribute("aria-invalid", false);
+                if(userNameField[i].value.length > 30 && i == 1){
+                    vaClass = false;
+                    document.getElementsByClassName("requiredError")[i].textContent = "Maximum 30 characters are allowed";
+                    const showlengthErr = document.getElementsByClassName("requiredError");
+                    showlengthErr[i].classList.add("visible");
+                    userNameField[i].classList.add("invalid");
+                    showlengthErr[i].setAttribute("aria-hidden", false);
+                    showlengthErr[i].setAttribute("aria-invalid", true);
+                }else{
+                    const showlengthErr = document.getElementsByClassName("requiredError");
+                    showlengthErr[i].classList.remove("visible");
+                    userNameField[i].classList.remove("invalid");
+                    showlengthErr[i].setAttribute("aria-hidden", true);
+                    showlengthErr[i].setAttribute("aria-invalid", false);
+                }
+            }
+        }
+        if(vaClass){
+            form.submit();
+        }else{
+            return false;
+        }
+    }
+</script>
+  <%- include('layouts/footer'); -%>

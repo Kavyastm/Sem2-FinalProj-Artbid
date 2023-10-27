@@ -48,6 +48,15 @@ const userSchema = new mongoose.Schema({
   about: String,
 });
 
+const advertisementSchema = new mongoose.Schema({
+  title: String,
+  image: String,
+  user_id : {
+		type: mongoose.Schema.Types.ObjectId, 
+		required : true, 
+		ref: 'users',
+	},
+});
 const artSchema = new mongoose.Schema({
   title: String,
   description: String,
@@ -100,7 +109,8 @@ const commentSchema = new mongoose.Schema({
 		required : true, 
 		ref: 'arts',
 	},
-});
+},
+{timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }});
 
 const bidHistorySchema = new mongoose.Schema({
   bid_amount: String,
@@ -140,6 +150,8 @@ const Art = mongoose.model('Art', artSchema);
 const Comment = mongoose.model('Comment', commentSchema);
 const BiddingHistory = mongoose.model('BiddingHistory', bidHistorySchema);
 const Cart = mongoose.model('Cart', cartSchema);
+const Advertisement = mongoose.model('Advertisement', advertisementSchema);
+
 
 myApp.use(session({ 
   
@@ -846,7 +858,63 @@ myApp.get('/edit-art/:art_id', async (req, res) => {
       return res.redirect('/login');
     }
 });
+myApp.get('/advertisement-list', async (req, res) => {
+  var where = [
+    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+  ]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
 
+  var advertisement = await Advertisement.aggregate(aggregatorOpts).exec();
+  // const advertisement = await Art.find({ user_id: req.session.user_id}).exec();
+
+  if(req.session.user_id){
+    return res.render('advertisements', { errors:[],success: [],advertisements: [{advertisements: advertisement}] });
+
+  }else{
+    return res.redirect('/login');
+  }
+});
+myApp.get('/create-advertisement', async (req, res) => {
+
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+  }else{
+    return res.render('createAdvertisement' , { errors:[],success: [] });
+  }
+});
+myApp.post('/store-advertisement',upload.single('advertisement_image'),async (req, res, next) =>{
+    const user = await User.findOne({ _id: req.session.user_id}).exec();
+    if (!user) {
+      return res.redirect('/login');
+    }
+    const newAdvertisement = new Advertisement({
+      title: req.body.title,
+      image:  req.file ? 'uploads/'+req.file.filename : '',
+      user_id: req.session.user_id,
+    });
+    // console.log(newAdvertisement,req.body)
+    newAdvertisement.save().then(() => {
+    return res.redirect('/advertisement-list');
+    }).catch((err) => {
+      console.error('Error saving user:', err);
+      return res.render('createAdvertisement' , { errors:[{msg:'Advertisement adding failed'}],success: [] });
+    });
+  
+});
 myApp.get('/uploadart', async (req, res) => {
 
   const user = await User.findOne({ _id: req.session.user_id}).exec();
@@ -906,11 +974,16 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
   // if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time || (!user.profile_image && !req.file)) {
   //   var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : (!user.profile_image && !req.file) ? 'Art Image' : ''
   //   return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
-  console.log(req.body.start_date,req.body.start_time,req.body.end_date + " " + req.body.end_time,req.body.start_date + " " + req.body.start_time <= req.body.end_date + " " + req.body.end_time)
+  // console.log(req.body.start_date,req.body.start_time,req.body.end_date + " " + req.body.end_time,req.body.start_date + " " + req.body.start_time <= req.body.end_date + " " + req.body.end_time)
   
   if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
-    return res.render('uploadart', { errors: [{ msg: 'End date can not be greater than start date' }],success: [] });
-  
+    return res.render('uploadart', { errors: [{ msg: 'End date should be always greater than start date' }],success: [] });
+  }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+    const art = await Art.findOne({ _id: req.body.art_id}).exec();
+    return res.render('edit-art', { errors:[{ msg: 'Start date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
+  }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+    const art = await Art.findOne({ _id: req.body.art_id}).exec();
+    return res.render('edit-art', { errors:[{ msg: 'End date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
   }else{
     // User.findOne({id:req.body.id}, function (err, user) {
         // if (!user) {
@@ -959,7 +1032,13 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
   //   return res.render('edit-art', { errors: [{ msg: msg+' is reqired.' }],success: [] });
   if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
     const art = await Art.findOne({ _id: req.body.art_id}).exec();
-    return res.render('edit-art', { errors:[{ msg: 'End date can not be greater than start date' }],success: [],art: [{art: art}] });
+    return res.render('edit-art', { errors:[{ msg: 'End date should be always greater than start date' }],success: [],art: [{art: art}] });
+  }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+      const art = await Art.findOne({ _id: req.body.art_id}).exec();
+      return res.render('edit-art', { errors:[{ msg: 'Start date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
+  }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+    const art = await Art.findOne({ _id: req.body.art_id}).exec();
+    return res.render('edit-art', { errors:[{ msg: 'End date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
   }else{
     const user = await Art.findOne({ _id: req.body.art_id}).exec();
     var title = req.body.title.trim();

@@ -1,0 +1,77 @@
+<%- include('layouts/innerheader'); -%>
+
+
+<body>
+    <div style="height: 50px;">
+       
+    </div>
+    <div>
+        <h4 class="mt-4 mb-5" style="
+        text-align: center;
+        font-size: 58px;
+    "><strong> My Advertisements</strong></h4>
+    </div>
+<div><a class="btn btn-primary" href="create-advertisement" role="button" style="
+    float: right;
+    margin-top: -103px;
+    margin-right: 116px;
+    /* margin: -100px; */
+">Add Advertisement</a></div>
+     
+     <% if(advertisements[0].advertisements.length > 0) { %>
+
+        <div class="col-9"> 
+           
+            
+        <!-- Code for viewing the Post -->
+        <% advertisements[0].advertisements.forEach(advertisement => { %>
+
+            <div class="card" style="
+            margin-left: 28%;
+        "> 
+                <div class="top"> 
+                    <div class="userDetails"> 
+                        <div class="profilepic"> 
+                            <div class="profile_img"> 
+                                <div class="image"> 
+                                    <img src= 
+                                    "<%= advertisement.userData[0].profile_image %>"
+                                        alt="img8"> 
+                                    
+                                </div> 
+                            </div> 
+                        </div> 
+                        <h3><%= advertisement.userData[0].userName %> 
+                            <br> 
+                            <span><%= advertisement.userData[0].about %></span> 
+                    </h3> 
+                    </div> 
+                </div> 
+
+                <div class="imgBx"> 
+                    <img src="<%= advertisement.image %>"
+                    class="cover" />
+                </div> 
+                <div class="bottom"> 
+                    
+                   
+                    <a href="#"> 
+                        <p class="message"> 
+                        <b><%= advertisement.title %></b> 
+                        </p> 
+
+                    </a> 
+                  
+                </div> 
+            </div> <br><br>
+
+            <% }) %>
+            
+        </div> 
+    <% } else { %>
+
+        <div class="col-9 table-data"> </div>
+    <% } %>
+</body>
+
+<%- include('layouts/footer'); -%>
