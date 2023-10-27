@@ -71,16 +71,14 @@
                     </span> 
                     <span> 
                         <p class="message"> 
-                        
-                        <b>Start Date & Time:</b> <%= product.start_date %> <%= product.start_time %>
+                        <b>Start Date & Time:</b> <%= moment(product.start_date).format('DD-MM-YYYY') %>  <%= product.start_time %>
                         </p> 
                     </span> 
                     <span> 
                         <p class="message"> 
-                        <b>End Date & Time:</b> <%= product.end_date %> <%= product.end_time %>
+                        <b>End Date & Time:</b> <%= moment(product.end_date).format('DD-MM-YYYY') %>  <%= product.end_time %>
                         </p> 
                     </span> 
-
                     <% if(product.is_payment_done == 'yes') { %>
                     <div style="float: right;margin-top: -173px;"><h6>Payment Status</h6> <span style="color: green;"> Success</span> </div>
                     <% } else { %>

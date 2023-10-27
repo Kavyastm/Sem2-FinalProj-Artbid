@@ -1,6 +1,6 @@
 <%- include('layouts/innerheader'); -%>
 
-<body onload = "dateCheck()">
+<body onload="dateCheck()">
     <div style="height: 50px;">
        
     </div>
@@ -18,7 +18,7 @@
 
                             <h4 class="mb-3">Billing Address</h4>
                         <!-- Single item -->
-                        <form class="needs-validation" novalidate="">
+                        <form method="post" action="/purchase" class="needs-validation" novalidate="">
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="firstName">First name</label>
@@ -122,7 +122,7 @@
                                 </div>
                             </div> -->
                             <hr class="mb-4">
-                            <button class="btn btn-primary btn-lg btn-block" type="submit">Buy Now</button>
+                            <button class="btn btn-primary btn-lg btn-block" type="submit" onclick="validateForm()">Buy Now</button>
                         </form>
                         <!-- Single item -->
             
@@ -137,37 +137,32 @@
 
                 <div class="col-md-4">
                     <div class="card mb-4">
-                      <div class="card-header py-3">
+                    <div class="card-header py-3">
                         <h5 class="mb-0">Summary</h5>
-                      </div>
-                      <div class="card-body">
+                    </div>
+                    <div class="card-body">
                         <ul class="list-group list-group-flush">
-                          <li
+                        <li
                             class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                            Item Cost($)
-                            <span id="cost"><%= total %></span>
-                          </li>
-                          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            Shipping($)
-                            <span>10</span>
-                          </li>
-                          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            Tax(10%)($)
-                            <span id="percent"></span>
-                          </li>
-                          <li
+                            Item Cost
+                            <span>$<%= total %></span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            Shipping
+                            <span>$0</span>
+                        </li>
+                        <li
                             class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
                             <div>
-                              <strong>Total amount($)</strong>
-                              
+                            <strong>Total amount</strong>
+                            
                             </div>
-                            <span><strong id="total"><%= total %></strong></span>
-                          </li>
+                            <span><strong>$<%= total %></strong></span>
+                        </li>
                         </ul>
-                       
-                      </div>
                     </div>
-                  </div>
+                    </div>
+                </div>
 
                 </div>
                 </div>
@@ -175,73 +170,41 @@
 </body>
 
 <script>
-    function purchase(e) {
+    function validateForm() {
+        'use strict'
+        var forms = document.getElementsByClassName('needs-validation')
+        let vaClass = true;
+        Array.prototype.filter.call(forms, function (form) {
+            console.log(form,'hddg',form.checkValidity());
+            form.addEventListener('submit', function (event) {
+                console.log(form.checkValidity(),form);
+                if (form.checkValidity() === false) {
+                    vaClass = false;
+                    event.preventDefault()
+                    event.stopPropagation()
+                }else{
+                    vaClass = true;
+                }
+                form.classList.add('was-validated')
+                if(vaClass){
+                    form.submit();
+                }
+            })
+        })
+  }
+  function dateCheck() {
 
+        var cost = document.getElementById('cost').innerHTML
+        var per = document.getElementById('percent').innerHTML
 
-var ToDate = new Date();
-    var form = $(this);
-// var actionUrl = form.attr('action');
+        var percent = (parseFloat(cost)/100) * 10;
+        document.getElementById('percent').innerHTML = percent;
 
-$.ajax({
-    type: "POST",
-    url: 'http://localhost:8081/purchase',
-    data : {
-       
-       // will be accessible in $_POST['data1']
-    },
-    success: function(data)
-    {
-      alert('Art Purchased successfully.'); 
-      window.location.assign('/welcome');
-    }
-});
+        var total = parseFloat(cost) + 10 + parseFloat(percent);
 
-
-
-}
-
-function dateCheck() {
-
-var cost = document.getElementById('cost').innerHTML
-var per = document.getElementById('percent').innerHTML
-
-var percent = (parseFloat(cost)/100) * 10;
-document.getElementById('percent').innerHTML = percent;
-
-var total = parseFloat(cost) + 10 + parseFloat(percent);
-
-document.getElementById('total').innerHTML = total;
-
+        document.getElementById('total').innerHTML = total;
 
 }
-
-
-(function () {
-  'use strict'
-
-  window.addEventListener('load', function () {
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    var forms = document.getElementsByClassName('needs-validation')
-
-    // Loop over them and prevent submission
-    Array.prototype.filter.call(forms, function (form) {
-      form.addEventListener('submit', function (event) {
-        if (form.checkValidity() === false) {
-
-            console.log('hjjkjkk');
-          event.preventDefault()
-          event.stopPropagation()
-
-        }else{
-
-          purchase().then(alert('Art Purchased successfully.'))
-
-        }
-        form.classList.add('was-validated')
-      }, false)
-    })
-  }, false)
-}())
 </script>
 
 <%- include('layouts/footer'); -%>
