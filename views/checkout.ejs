@@ -1,6 +1,6 @@
 <%- include('layouts/innerheader'); -%>
 
-<body>
+<body onload="dateCheck()">
     <div style="height: 50px;">
        
     </div>
@@ -192,6 +192,19 @@
             })
         })
   }
+  function dateCheck() {
+
+        var cost = document.getElementById('cost').innerHTML
+        var per = document.getElementById('percent').innerHTML
+
+        var percent = (parseFloat(cost)/100) * 10;
+        document.getElementById('percent').innerHTML = percent;
+
+        var total = parseFloat(cost) + 10 + parseFloat(percent);
+
+        document.getElementById('total').innerHTML = total;
+
+}
 </script>
 
 <%- include('layouts/footer'); -%>
