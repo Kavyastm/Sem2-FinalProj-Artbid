@@ -242,7 +242,11 @@ myApp.post('/get-all-comments', async (req, res) => {
 
 //   var art = await Art.aggregate(aggregatorOpts).exec();
   if(req.session.user_id){
-    res.json({comment: comment})
+
+    var response = res.render('comment', { errors:[],success: [],comment: [{comment: comment}] });
+    res.json(response)
+    // return res.render('comment', { errors:[],success: [],comment: [{comment: comment}] });
+
 
   }else{
     return res.redirect('/login');

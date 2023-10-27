@@ -213,7 +213,7 @@ $.ajax({
 
         }else{
 
-          purchase()
+          purchase().then(alert('Art Purchased successfully.'))
 
         }
         form.classList.add('was-validated')

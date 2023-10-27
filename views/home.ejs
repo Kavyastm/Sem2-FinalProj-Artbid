@@ -6,7 +6,7 @@
        
     </div>
     
-    <% if(art[0].art.length > 0) { %>
+        
 
         <div class="col-9"> 
            
@@ -79,12 +79,12 @@
                         <b>End Date & Time:</b> <%= product.end_date %> <%= product.end_time %>
                         </p> 
                     </span> 
-                    <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" onclick="openModel('<%= product._id %>')">View all comments</button> -->
+                    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" onclick="openModel('<%= product._id %>')">View all comments</button>
                 
                     
 
                     
-                    <!-- <div class="addComments"> 
+                    <div class="addComments"> 
                         <div class="reaction"> 
                             <h3> 
                             <i class="far fa-smile"></i> 
@@ -100,12 +100,12 @@
                                 Please enter Comment
                             </span><br>
                         <button class="btn btn-danger" style="background-color: #bd2130;" onclick="postComment(event,'<%= key %>')">Post</a> 
-                    </div>  -->
+                    </div> 
                 </div>  
             </div> <br><br>
 
             <% }) %>
-            <!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
@@ -114,21 +114,27 @@
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div>
-                    
-                           
+                    <div id="comments">
+                            <% if (comment.comment && comment.length> 0) { %>
+                                <div> 
+                                <% comment.forEach((comments,key1) => { %>"
+                                  <span><%= comments.comment %></span>
+                                </div>
+                                <% }) %>  
+                            <% }else { %>
+                                <div>
+                                    <span>No Record found</span>
+                                  </div>
+                            <% } %>
+                        </div>
                          
                         
                     </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
+                    
                   </div>
-                </div> -->
+                </div>
         </div> 
-    <% } else { %>
-
-            <div class="col-9 table-data"> </div>
-     <% } %>
+        
           
 </body>
 <script>
@@ -143,12 +149,14 @@
             },
             success: function(comment){
                 console.log(comment)
+                document.getElementById("comments").innerHTML = comment
 
-                return {
-                        comment : comment,
-                    }
-            },
-            dataType: "json"
+                // $('#comments').html(comment);
+
+                // return {
+                //         comment : comment,
+                //     }
+            }
         });
     }
     

@@ -1,0 +1,50 @@
+ 
+
+
+  <section style="background-color: #f7f6f6;">
+    <div class="container my-5 py-5 text-dark">
+      <div class="row d-flex justify-content-center">
+        <div class="col-md-12 col-lg-10 col-xl-8">
+          
+
+          <% if (comment[0].comment && comment[0].comment.length> 0) { %>
+          <% comment[0].comment.forEach((comments,key1) => { %>
+  
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex flex-start">
+                <% if (comments.userData[0].profile_image) { %>
+                <img class="rounded-circle shadow-1-strong me-3"
+                  src="<%= comments.userData[0].profile_image %>" alt="avatar" width="40"
+                  height="40" />
+                  <% }else { %>  
+                    <img class="rounded-circle shadow-1-strong me-3"
+                    src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(26).webp" alt="avatar" width="40"
+                    height="40" />
+                <% } %>
+                <div class="w-100">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-primary fw-bold mb-0">
+                        &nbsp;  &nbsp;  &nbsp;<%= comments.userData[0].userName %><br>
+                      <span class="text-dark ms-2">  &nbsp;  &nbsp;  &nbsp; &nbsp;<%= comments.comment %></span>
+                    </h6>
+                    
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <% }) %>  
+                <% }else { %>   
+                    <div>
+                        <span>No Record found</span>
+                    </div>
+                <% } %>
+  
+        </div>
+      </div>
+    </div>
+  </section>
+  
