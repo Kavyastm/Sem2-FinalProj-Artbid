@@ -474,7 +474,13 @@ myApp.post('/submit-bid', async (req, res) => {
           // to: 'n23goswami+2@gmail.com',
           to: artistData.email,
           subject: 'Latest Bid',
-          html: '<p>Hi <b>'+artistData.userName+'</b>, Latest bid for your art <b>'+ req.body.art_title + '</b> is <b>$'+ req.body.bid_amount + '</b> by <b>' + req.session.userName + '</b></p>'
+
+          
+ 
+    	// '<style type="text/css">@media only screen and (max-device-width: 768px) {.responsive_table { background-color:#e6e6fa; height:100%; width:100%;}}@media only screen and (min-device-width: 769px) {.responsive_table { background-color:#e6e6fa; height:100%; width:50%;}}</style><!--[if (gte mso 9)|(IE)]><table width="400" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><tr><td><tr><td><p><p><![endif]-->	<table align="center" border="0" cellpadding="5" cellspacing="0" class="responsive_table"><tbody><tr><td width="350" style="background-color:#ffffff; text-align:center; vertical-align:middle;"><hr /></td></tr><tr><td style="background-color:#ffffff; text-align:center"><h1 style="text-align:left"><strong><strong>Hi ' + artistData.userName + ',</strong></strong></h1><p style="text-align:left"><strong>:</strong>  Latest bid for your art <b>'+ req.body.art_title + '</b> is <b>$'+ req.body.bid_amount + '</b> by <b>' + req.session.userName + '</b></p><p style="text-align:left">&nbsp;</p><p style="text-align:left">Thank you.</p><p style="text-align:left">Cheers,<br />EL Connect&nbsp;Team</p><hr /></td></tr></tbody></table></p> </p></tr></table>'
+  
+          html: '<style type="text/css">@media only screen and (max-device-width: 768px) {.responsive_table { background-color:#e6e6fa; height:100%; width:100%;}}@media only screen and (min-device-width: 769px) {.responsive_table { background-color:#e6e6fa; height:100%; width:50%;}}</style><!--[if (gte mso 9)|(IE)]><table width="400" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><tr><td><tr><td><p><p><![endif]-->	<table align="center" border="0" cellpadding="5" cellspacing="0" class="responsive_table"><tbody><tr><td width="350" style="background-color:#ffffff; text-align:center; vertical-align:middle;"><hr /></td></tr><tr><td style="background-color:#ffffff; text-align:center"><h1 style="text-align:left"><strong><strong>Hi ' + artistData.userName + ',</strong></strong></h1><p style="text-align:left"><strong></strong>  Latest bid for your art <b>'+ req.body.art_title + '</b> is <b>$'+ req.body.bid_amount + '</b> by <b>' + req.session.userName + '</b></p><p style="text-align:left">&nbsp;</p><p style="text-align:left">Thank you.</p><p style="text-align:left">Cheers,<br />Art Bid&nbsp;Team</p><hr /></td></tr></tbody></table></p> </p></tr></table>'
+
         };
         if(artistData.email){
           mailTransporter.sendMail(mailDetails, function(err, data) {
@@ -1066,6 +1072,7 @@ myApp.post('/purchase',async (req, res, next) =>{
   var where = [
     
     {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    {status:"active"}
     // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
     // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
@@ -1139,7 +1146,9 @@ const aggregatorOpts1 = [
       // to: 'sakshukla8574@gmail.com',
       to: artistData.email,
       subject: 'Art Sold',
-      html: '<p>Hi <b>'+artistData.userName+'</b>, Your art <b>'+art1.title+'</b> has been bought by <b>'+ req.session.userName + '</b></p>'
+      html: '<style type="text/css">@media only screen and (max-device-width: 768px) {.responsive_table { background-color:#e6e6fa; height:100%; width:100%;}}@media only screen and (min-device-width: 769px) {.responsive_table { background-color:#e6e6fa; height:100%; width:50%;}}</style><!--[if (gte mso 9)|(IE)]><table width="400" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><tr><td><tr><td><p><p><![endif]-->	<table align="center" border="0" cellpadding="5" cellspacing="0" class="responsive_table"><tbody><tr><td width="350" style="background-color:#ffffff; text-align:center; vertical-align:middle;"><hr /></td></tr><tr><td style="background-color:#ffffff; text-align:center"><h1 style="text-align:left"><strong><strong>Hi ' + artistData.userName + ',</strong></strong></h1><p style="text-align:left"><strong></strong>  Your art <b>'+art1.title+'</b> has been bought by <b>'+ req.session.userName + '</b></p><p style="text-align:left">&nbsp;</p><p style="text-align:left">Thank you.</p><p style="text-align:left">Cheers,<br />Art Bid&nbsp;Team</p><hr /></td></tr></tbody></table></p> </p></tr></table>'
+
+      // html: '<p>Hi <b>'+artistData.userName+'</b>, Your art <b>'+art1.title+'</b> has been bought by <b>'+ req.session.userName + '</b></p>'
     };
       mailTransporter.sendMail(mailDetails, function(err, data) {
         if(err) {
@@ -1156,7 +1165,9 @@ const aggregatorOpts1 = [
     // to: 'sakshukla8574@gmail.com',
     to: req.session.email,
     subject: 'Purchase Completed',
-    html: '<p>Hi <b>'+req.session.userName+'</b>, your order has been placed.</p>'
+    html: '<style type="text/css">@media only screen and (max-device-width: 768px) {.responsive_table { background-color:#e6e6fa; height:100%; width:100%;}}@media only screen and (min-device-width: 769px) {.responsive_table { background-color:#e6e6fa; height:100%; width:50%;}}</style><!--[if (gte mso 9)|(IE)]><table width="400" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><tr><td><tr><td><p><p><![endif]-->	<table align="center" border="0" cellpadding="5" cellspacing="0" class="responsive_table"><tbody><tr><td width="350" style="background-color:#ffffff; text-align:center; vertical-align:middle;"><hr /></td></tr><tr><td style="background-color:#ffffff; text-align:center"><h1 style="text-align:left"><strong><strong>Hi ' + req.session.userName + ',</strong></strong></h1><p style="text-align:left"><strong></strong>  your order has been placed</p><p style="text-align:left">&nbsp;</p><p style="text-align:left">Thank you.</p><p style="text-align:left">Cheers,<br />Art Bid&nbsp;Team</p><hr /></td></tr></tbody></table></p> </p></tr></table>'
+
+    // html: '<p>Hi <b>'+req.session.userName+'</b>, your order has been placed.</p>'
   };
     mailTransporter.sendMail(mailDetails, function(err, data) {
       if(err) {
@@ -1326,7 +1337,9 @@ cron.schedule('* * * * *', async () => {
           // to: 'n23goswami+2@gmail.com',
           to: bidderData.email,
           subject: 'Won Bid',
-          html: '<p>Hi <b>'+bidderData.userName+'</b>, You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p>'
+          html: '<style type="text/css">@media only screen and (max-device-width: 768px) {.responsive_table { background-color:#e6e6fa; height:100%; width:100%;}}@media only screen and (min-device-width: 769px) {.responsive_table { background-color:#e6e6fa; height:100%; width:50%;}}</style><!--[if (gte mso 9)|(IE)]><table width="400" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><tr><td><tr><td><p><p><![endif]-->	<table align="center" border="0" cellpadding="5" cellspacing="0" class="responsive_table"><tbody><tr><td width="350" style="background-color:#ffffff; text-align:center; vertical-align:middle;"><hr /></td></tr><tr><td style="background-color:#ffffff; text-align:center"><h1 style="text-align:left"><strong><strong>Hi ' + bidderData.userName + ',</strong></strong></h1><p style="text-align:left"><strong></strong>  You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p><p style="text-align:left">&nbsp;</p><p style="text-align:left">Thank you.</p><p style="text-align:left">Cheers,<br />Art Bid&nbsp;Team</p><hr /></td></tr></tbody></table></p> </p></tr></table>'
+
+          // html: '<p>Hi <b>'+bidderData.userName+'</b>, You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p>'
         };
           mailTransporter.sendMail(mailDetailsBidder, function(err, data) {
             if(err) {
