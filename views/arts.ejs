@@ -46,10 +46,10 @@
                             <span><%= product.userData[0].about %></span> 
                     </h3> 
                     </div> 
-
+                    <% if(product.status == 'active') { %>
                     <a class="btn btn-primary" href="edit-art/<%= product._id %>" role="button">Edit</a>&nbsp;&nbsp;&nbsp;
                     <a class="btn btn-primary" href="delete-art/<%= product._id %>" role="button">Delete</a>
-
+                    <% } %>
 
                     
                     <!-- <div class="btn-group">
