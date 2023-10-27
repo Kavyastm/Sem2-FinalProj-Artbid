@@ -15,8 +15,8 @@ const nodemailer = require("nodemailer");
 let mailTransporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: "n23goswami@gmail.com",
-    pass: "nygu wbnm srlm btkz",
+    user: "artbid2k23@gmail.com", // Art@Bid#123
+    pass: "nyzr waoi zsoz atis",
   }
 });
 
@@ -471,8 +471,8 @@ myApp.post('/submit-bid', async (req, res) => {
 
         let mailDetails = {
           // from: 'n23goswami+1@gmail.com',
-          to: 'n23goswami+2@gmail.com',
-          // to: artistData.email,
+          // to: 'n23goswami+2@gmail.com',
+          to: artistData.email,
           subject: 'Latest Bid',
           html: '<p>Hi <b>'+artistData.userName+'</b>, Latest bid for your art <b>'+ req.body.art_title + '</b> is <b>$'+ req.body.bid_amount + '</b> by <b>' + req.session.userName + '</b></p>'
         };
@@ -1136,8 +1136,8 @@ const aggregatorOpts1 = [
     await art1.save()
     let mailDetails = {
       // from: 'n23goswami+1@gmail.com',
-      to: 'sakshukla8574@gmail.com',
-      // to: artistData.email,
+      // to: 'sakshukla8574@gmail.com',
+      to: artistData.email,
       subject: 'Art Sold',
       html: '<p>Hi <b>'+artistData.userName+'</b>, Your art <b>'+art1.title+'</b> has been bought by <b>'+ req.session.userName + '</b></p>'
     };
@@ -1153,8 +1153,8 @@ const aggregatorOpts1 = [
   })
   let mailDetails = {
     // from: 'n23goswami+1@gmail.com',
-    to: 'sakshukla8574@gmail.com',
-    // to: req.session.email,
+    // to: 'sakshukla8574@gmail.com',
+    to: req.session.email,
     subject: 'Purchase Completed',
     html: '<p>Hi <b>'+req.session.userName+'</b>, your order has been placed.</p>'
   };
@@ -1323,8 +1323,8 @@ cron.schedule('* * * * *', async () => {
         artistMsg = artistMsg + '<p> <b>'+bidderData.userName+'</b> won bid with highest bidding amount of <b>$' +element.last_bid+ '</b></p>' 
         let mailDetailsBidder = {
           // from: 'n23goswami+1@gmail.com',
-          to: 'n23goswami+2@gmail.com',
-          // to: bidderData.email,
+          // to: 'n23goswami+2@gmail.com',
+          to: bidderData.email,
           subject: 'Won Bid',
           html: '<p>Hi <b>'+bidderData.userName+'</b>, You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p>'
         };
@@ -1338,8 +1338,8 @@ cron.schedule('* * * * *', async () => {
       }
       let mailDetails = {
         // from: 'n23goswami+1@gmail.com',
-        to: 'n23goswami+2@gmail.com',
-        // to: element.userData[0].email,
+        // to: 'n23goswami+2@gmail.com',
+        to: element.userData[0].email,
         subject: 'Bid Completed',
         html: artistMsg
       };
