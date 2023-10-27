@@ -136,11 +136,11 @@
           var per = document.getElementById('percent').innerHTML
 
           var percent = (parseFloat(cost)/100) * 10;
-          document.getElementById('percent').innerHTML = percent;
+          document.getElementById('percent').innerHTML = percent.toFixed(2);
 
           var total = parseFloat(cost) + 10 + parseFloat(percent);
 
-          document.getElementById('total').innerHTML = total;
+          document.getElementById('total').innerHTML = total.toFixed(2);
 
             var ToDate = new Date();
             var UserDate = document.getElementById("userdate").value;
