@@ -206,7 +206,7 @@ myApp.get('/art-list', async (req, res) => {
   // const art = await Art.find({ user_id: req.session.user_id}).exec();
 
   if(req.session.user_id){
-    return res.render('arts', { errors:[],success: [],art: [{art: art}] });
+    return res.render('arts', { errors:[],success: [],art: [{art: art}],moment: moment });
 
   }else{
     return res.redirect('/login');
@@ -319,7 +319,7 @@ myApp.get('/welcome', async (req, res) => {
   // console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
-    return res.render('home', { errors:[],success: [],art: [{art: art}],comment: [] });
+    return res.render('home', { errors:[],success: [],art: [{art: art}],comment: [],moment: moment });
 
   }else{
     return res.redirect('/login');
@@ -1078,10 +1078,10 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
       var art = await Art.aggregate(aggregatorOpts).exec();
         return res.redirect('/art-list');
 
-          // return res.render('arts', { success: [{ msg: 'Art Updated successfully.' }],errors: [],art: [{art: art}] });
+          // return res.render('arts', { success: [{ msg: 'Art Updated successfully.' }],errors: [],art: [{art: art}],moment: moment });
         }).catch((err) => {
           console.error('Error saving user:', err);
-          return res.render('arts', { commonError: 'Art adding failed',art: [{art: art}] }); // Pass commonError here
+          return res.render('arts', { commonError: 'Art adding failed',art: [{art: art}],moment: moment }); // Pass commonError here
         });
 
       }
@@ -1249,16 +1249,23 @@ const aggregatorOpts1 = [
           console.log('Error Occurs',err);
       } else {
           console.log('Email sent successfully',artistData.email);
+          // return res.redirect('/thankyou-page');
       }
     });
 
-  return res.redirect('/cart');
-
-
-    
+  return res.redirect('/thankyou-page');
+  
     
   // });
 });
+myApp.get('/thankyou-page', (req, res) => {
+  if(req.session.user_id){
+    res.render('thankyou');
+  }else{
+    return res.redirect('/login');
+  }
+});
+
 myApp.get('/logout', async (req, res) => {
   req.session.destroy(function(error){ 
     console.log("Session Destroyed");
@@ -1294,7 +1301,7 @@ myApp.get('/past-auction', async (req, res) => {
   // console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
-    return res.render('pastAuction', { errors:[],success: [],art: [{art: art}] });
+    return res.render('pastAuction', { errors:[],success: [],art: [{art: art}],moment: moment });
 
   }else{
     return res.redirect('/login');
@@ -1515,7 +1522,7 @@ myApp.get('/winning-bid', async (req, res) => {
   // console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
-    return res.render('winningBid', { errors:[],success: [],art: [{art: art}] });
+    return res.render('winningBid', { errors:[],success: [],art: [{art: art}],moment: moment });
 
   }else{
     return res.redirect('/login');
