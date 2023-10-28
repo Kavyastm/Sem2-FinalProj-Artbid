@@ -767,13 +767,22 @@ display: block;
     display: block;
   }
 
-  .commentSuccess {
+  .commentBidSuccess {
     display: none;
     font-size: 0.8em;
     color: rgb(21, 201, 93);
   }
   
-  .commentSuccess.visible {
+  .commentBidSuccess.visible {
+    display: block;
+  }
+  .addedtocartSuccess {
+    display: none;
+    font-size: 0.8em;
+    color: rgb(21, 201, 93);
+  }
+  
+  .addedtocartSuccess.visible {
     display: block;
   }
   

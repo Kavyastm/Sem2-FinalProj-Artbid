@@ -1158,10 +1158,13 @@ myApp.get('/remove-cart/:art_id',upload.single('profile_image'),async (req, res,
   // const user = await User.findOne({ _id: req.session.user_id}).exec();
 
     const art = await Cart.deleteOne({ art_id: req.params.art_id , user_id:req.session.user_id}).then(() => {
+      req.flash('success_message', 'Art removed from cart.'); 
       return res.redirect('/cart');
     }).catch((err) => {
-          console.error('Error saving user:', err);
-          return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
+      console.error('Error saving user:', err);
+      req.flash('error_message', 'Error removing from cart.'); 
+      return res.redirect('/cart');
+          // return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
         });
 
       
