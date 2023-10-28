@@ -11,6 +11,7 @@ const myApp = express(); // Create an Express application instance
 var moment = require('moment-timezone');
 // const bodyParser = require('body-parser');
 // myApp.use(bodyParser.json());
+const flash = require('connect-flash'); 
 const nodemailer = require("nodemailer");
 let mailTransporter = nodemailer.createTransport({
   service: 'gmail',
@@ -25,7 +26,7 @@ var cron = require('node-cron');
 
 var fs = require("fs");
 const ObjectId = mongoose.Types.ObjectId;
-
+myApp.use(flash()); 
 const upload = require('./upload');
 // myApp.use(fileUpload()); // Use the fileUpload middleware to handle file uploads
 myApp.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
@@ -206,8 +207,8 @@ myApp.get('/art-list', async (req, res) => {
   // const art = await Art.find({ user_id: req.session.user_id}).exec();
 
   if(req.session.user_id){
-    return res.render('arts', { errors:[],success: [],art: [{art: art}],moment: moment });
-
+    // res.send(req.flash('message')); 
+    return res.render('arts', { errors:req.flash('error_message'),success: req.flash('success_message'),art: [{art: art}],moment: moment });
   }else{
     return res.redirect('/login');
   }
@@ -1018,6 +1019,8 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
 });
 
 myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =>{
+   req.session.user_id = '652e8eea63799921917f0a0f';
+  req.session.userName = 'ss';
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!user) {
     return res.redirect('/login');
@@ -1075,13 +1078,16 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
             }
         }
     ]
-      var art = await Art.aggregate(aggregatorOpts).exec();
-        return res.redirect('/art-list');
-
+        var art = await Art.aggregate(aggregatorOpts).exec();
+          req.flash('success_message', 'Art Updated successfully.'); 
+          res.redirect('/art-list');
+          // return res.redirect('/art-list');
           // return res.render('arts', { success: [{ msg: 'Art Updated successfully.' }],errors: [],art: [{art: art}],moment: moment });
         }).catch((err) => {
           console.error('Error saving user:', err);
-          return res.render('arts', { commonError: 'Art adding failed',art: [{art: art}],moment: moment }); // Pass commonError here
+          req.flash('error_message', 'Art adding failed'); 
+          res.redirect('/art-list');
+          // return res.render('arts', { commonError: 'Art adding failed',art: [{art: art}],moment: moment }); // Pass commonError here
         });
 
       }
