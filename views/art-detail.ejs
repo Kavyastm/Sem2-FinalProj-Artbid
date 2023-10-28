@@ -74,7 +74,7 @@
                 <% if (art[0].art[0].status != 'active') { %>
                 <% if (logged_in_id != art[0].art[0].user_id) { %>
               <div class="col-md-12">
-                <input id="bid_amount" placeholder="Bid Amount" type="number" name="bid_amount" onkeyup="success()" value = "" style="width: 60%;"">
+                <input id="bid_amount" class="inputError inputSuccess" placeholder="Bid Amount" type="number" name="bid_amount" onkeyup="success()" value = "" style="width: 60%;"">
                 <h4 id="bidend" style="color:red;display: none;">Bidding Finished</h4>
                 <input type="hidden" name="bidder" id="bidder" value="<%= art[0].art[0].last_bidder_id %>" />
                 <input type="hidden" name="art_id" id="art_id" value="<%= art[0].art[0]._id %>" />
@@ -87,7 +87,12 @@
               </div><br>
 
               <a  href="javascript:submitBid()" id="submitBid" class="btn btn-primary shadow-0 submitBid" style="pointer-events: none;margin-left:100px;"> Submit Bid </a>
-
+              <span role="alert" class="requiredError" aria-hidden="true">
+                Please enter Comment
+            </span><br>
+              <span role="alert" class="commentBidSuccess" aria-hidden1="true">
+                Bid Submitted successfully
+             </span><br>
               <% } %>
 
 
@@ -101,7 +106,10 @@
 
                 <!-- <a href="#" id="buy" class="btn btn-warning shadow-0" style="display: none;" > Buy now </a> -->
                 <a id="addcart" href="javascript:addToCart()" class="btn btn-primary shadow-0" style="display: none;"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
-
+                
+                <span role="alert" class="addedtocartSuccess" aria-hidden1="true">
+                  Added to cart
+               </span><br>
                 <div id="alreadyadded" style="display: none;"><h4>Already added to card </h4><a  href="/cart" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i>Go To Cart </a></div>
 
                 <% }else { %>
@@ -231,14 +239,41 @@
 
 
         var UserDate = document.getElementById("userdate").value;
-
+        
         if (new Date(UserDate).getTime() <= ToDate.getTime()) {
-            alert('Bid duration is over. Please check other art works.');
+            // alert('Bid duration is over. Please check other art works.');
+            const userNameField = document.getElementsByClassName("inputError");
+            document.getElementsByClassName("requiredError")[0].textContent = "Bid duration is over. Please check other art works.";
+            const showRequiredErr = document.getElementsByClassName("requiredError");
+            showRequiredErr[0].classList.add("visible");
+            userNameField[0].classList.add("invalid");
+            showRequiredErr[0].setAttribute("aria-hidden", false);
+            showRequiredErr[0].setAttribute("aria-invalid", true);
+            setTimeout(() => {
+                showRequiredErr[0].classList.remove("visible");
+                userNameField[0].classList.remove("invalid");
+                showRequiredErr[0].setAttribute("aria-hidden", true);
+                showRequiredErr[0].setAttribute("aria-invalid", false);
+            }, "2000");
         }
 
         else if(bid_amount <= last_bid){
 
-           alert('Please enter bid amount greater than previous bid'); 
+          //  alert('Please enter bid amount greater than previous bid'); 
+          const userNameField = document.getElementsByClassName("inputError");
+          document.getElementsByClassName("requiredError")[0].textContent = "Please enter bid amount greater than previous bid.";
+            const showRequiredErr = document.getElementsByClassName("requiredError");
+            // console.log(showRequiredErr,!userNameField[key],key)
+            showRequiredErr[0].classList.add("visible");
+            userNameField[0].classList.add("invalid");
+            showRequiredErr[0].setAttribute("aria-hidden", false);
+            showRequiredErr[0].setAttribute("aria-invalid", true);
+            setTimeout(() => {
+                showRequiredErr[0].classList.remove("visible");
+                userNameField[0].classList.remove("invalid");
+                showRequiredErr[0].setAttribute("aria-hidden", true);
+                showRequiredErr[0].setAttribute("aria-invalid", false);
+            }, "2000");
             
         }else{
 
@@ -256,11 +291,24 @@
             },
             success: function(data)
             {
-              alert('Bid Submitted successfully.'); 
+              // alert('Bid Submitted successfully.'); 
 
                 document.getElementById('bid_amount').value = "";
 
-                window.location.reload();
+                // window.location.reload();
+                    const userNameField = document.getElementsByClassName("inputSuccess");
+                    const showRequiredSuccess = document.getElementsByClassName("commentBidSuccess");
+                    // console.log(showRequiredSuccess,!userNameField[0],0)
+                    showRequiredSuccess[0].classList.add("visible");
+                    userNameField[0].classList.add("invalid");
+                    showRequiredSuccess[0].setAttribute("aria-hidden1", false);
+                    showRequiredSuccess[0].setAttribute("aria-invalid", true);
+                    setTimeout(() => {
+                        showRequiredSuccess[0].classList.remove("visible");
+                        userNameField[0].classList.remove("invalid");
+                        showRequiredSuccess[0].setAttribute("aria-hidden1", true);
+                        showRequiredSuccess[0].setAttribute("aria-invalid", false);
+                    }, "2000");
             }
         });
 
@@ -283,9 +331,17 @@ $.ajax({
     },
     success: function(data)
     {
-      alert('Art Added to Cart.'); 
-
-        window.location.assign('/cart');
+      // alert('Art Added to Cart.'); 
+      const showRequiredSuccess = document.getElementsByClassName("addedtocartSuccess");
+      showRequiredSuccess[0].classList.add("visible");
+      showRequiredSuccess[0].setAttribute("aria-hidden1", false);
+      showRequiredSuccess[0].setAttribute("aria-invalid", true);
+      setTimeout(() => {
+          showRequiredSuccess[0].classList.remove("visible");
+          showRequiredSuccess[0].setAttribute("aria-hidden1", true);
+          showRequiredSuccess[0].setAttribute("aria-invalid", false);
+          window.location.assign('/cart');
+      }, "2000");
     }
 });
 
