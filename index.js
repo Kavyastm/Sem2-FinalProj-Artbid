@@ -178,41 +178,7 @@ myApp.get('/', (req, res) => {
 
 
 
-myApp.get('/art-list', async (req, res) => {
 
-  var where = [
-    {status:{$in:['active','completed','inprogress']}},
-    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
-    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
-    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
-    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
-    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
-]
-  const aggregatorOpts = [
-    {
-      $match : { $and : where }
-    },
-    {
-      $lookup:
-        {
-          from: 'users',
-          localField: 'user_id',
-          foreignField: '_id',
-          as: 'userData'
-        }
-    }
-]
-
-  var art = await Art.aggregate(aggregatorOpts).exec();
-  // const art = await Art.find({ user_id: req.session.user_id}).exec();
-
-  if(req.session.user_id){
-    // res.send(req.flash('message')); 
-    return res.render('arts', { errors:req.flash('error_message'),success: req.flash('success_message'),art: [{art: art}],moment: moment });
-  }else{
-    return res.redirect('/login');
-  }
-});
 myApp.post('/get-all-comments', async (req, res) => {
   var where = [{art_id: new mongoose.Types.ObjectId(req.body.id)}];
   const aggregatorOptsCom = [
@@ -426,7 +392,7 @@ const aggregatorOpts2 = [
   // console.log(cart);
   
   if(req.session.user_id){
-    return res.render('art-detail', { errors:[],success: [],logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
+    return res.render('art-detail', { errors:req.flash('error_message'),success: req.flash('success_message'),logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
 
   }else{
     return res.redirect('/login');
@@ -504,11 +470,13 @@ myApp.post('/submit-bid', async (req, res) => {
             }
           });
         }
+        req.flash('success_message', 'Bid submitted successfully.'); 
         return res.redirect('/art-detail/'+req.body.id);
       })
       
     }).catch((err) => {
-      console.error('Error saving user:', err);
+      // console.error('Error saving user:', err);
+      req.flash('error_message', 'Error saving bid.'); 
       return res.redirect('/art-detail/'+req.body.id);
     });
 });
@@ -566,7 +534,7 @@ myApp.get('/cart', async (req, res) => {
     total = parseInt(total) + parseInt(product.artData[0].last_bid);
   })
   if(req.session.user_id){
-    res.render('cart', { errors: [] ,cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
+    res.render('cart', { success: req.flash('success_message'),errors: req.flash('error_message') ,cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
   }else{
     return res.redirect('/login');
   }
@@ -842,7 +810,7 @@ myApp.get('/profile', async (req, res) => {
     if (!user) {
       return res.redirect('/login');
     }else{
-      return res.render('profile', { errors:[],success: [],user: [{user: user}] });
+      return res.render('profile', { errors:req.flash('error_message'),success: req.flash('success_message'),user: [{user: user}] });
     }
 });
 
@@ -854,7 +822,7 @@ myApp.get('/edit-art/:art_id', async (req, res) => {
 
   const art = await Art.findOne({ _id: req.params.art_id}).exec();
     if (req.session.user_id) {
-          return res.render('edit-art', { errors:[],success: [],art: [{art: art}] });
+          return res.render('edit-art', { errors:req.flash('error_message'),success: req.flash('success_message'),art: [{art: art}] });
     }else{
       return res.redirect('/login');
     }
@@ -883,7 +851,7 @@ myApp.get('/advertisement-list', async (req, res) => {
 
     var advertisement = await Advertisement.aggregate(aggregatorOpts).exec();
     // const advertisement = await Art.find({ user_id: req.session.user_id}).exec();
-    return res.render('advertisements', { errors:[],success: [],advertisements: [{advertisements: advertisement}] });
+    return res.render('advertisements', { errors:req.flash('error_message'),success: req.flash('success_message'),advertisements: [{advertisements: advertisement}] });
   }
   
 });
@@ -893,7 +861,9 @@ myApp.get('/create-advertisement', async (req, res) => {
   if (!user) {
     return res.redirect('/login');
   }else{
-    return res.render('createAdvertisement' , { errors:[],success: [] });
+    return res.render('createAdvertisement', { errors:req.flash('error_message'),success: req.flash('success_message')});
+
+    // return res.render('createAdvertisement' , { errors:[],success: [] });
   }
 });
 myApp.post('/store-advertisement',upload.single('advertisement_image'),async (req, res, next) =>{
@@ -908,10 +878,14 @@ myApp.post('/store-advertisement',upload.single('advertisement_image'),async (re
     });
     // console.log(newAdvertisement,req.body)
     newAdvertisement.save().then(() => {
+      req.flash('success_message', 'Advertisement Added successfully.'); 
     return res.redirect('/advertisement-list');
     }).catch((err) => {
       console.error('Error saving user:', err);
-      return res.render('createAdvertisement' , { errors:[{msg:'Advertisement adding failed'}],success: [] });
+      req.flash('success_message', 'Advertisement adding failed.'); 
+    return res.redirect('/createAdvertisement');
+
+      // return res.render('createAdvertisement' , { errors:[{msg:'Advertisement adding failed'}],success: [] });
     });
   
 });
@@ -930,7 +904,9 @@ myApp.get('/uploadart', async (req, res) => {
     // if (!user) {
     //   return res.redirect('/login');
     // }else{
-      return res.render('uploadArt' , { errors:[],success: [] });
+    return res.render('uploadArt', { errors:req.flash('error_message'),success: req.flash('success_message') });
+
+      // return res.render('uploadArt' , { errors:[],success: [] });
     // }
 });
 
@@ -944,7 +920,9 @@ myApp.post('/update-profile',upload.single('profile_image'),async (req, res, nex
   User.findOne({email: req.body.email}).then(async function(resultEmail){
     if(resultEmail != null){
       if(new mongoose.Types.ObjectId(resultEmail._id) != req.session.user_id){
-        return res.render('profile', { errors: [{ msg: 'Email already exist.' }],success: [],user: [{user: user}] });
+        req.flash('error_message', 'Email already exist.');
+        return res.render('profile',{ errors:req.flash('error_message'),success: req.flash('success_message'),user: [{user: user}] });
+        // return res.render('profile', { errors: [{ msg: 'Email already exist.' }],success: [],user: [{user: user}] });
       }
     }
     // if (!req.body.email || !req.body.about || !req.body.name || (!user.profile_image && !req.file)) {
@@ -959,11 +937,47 @@ myApp.post('/update-profile',upload.single('profile_image'),async (req, res, nex
       user.about = about;
       user.name = name;
       await user.save();
-      return res.render('profile', { success: [{ msg: 'Profile updated successfully.' }],errors: [],user: [{user: user}] });
+      req.flash('success_message', 'Profile updated successfully.'); 
+      // return res.render('profile', { success: [{ msg: 'Profile updated successfully.' }],errors: [],user: [{user: user}] });
+      return res.render('profile',{ errors:req.flash('error_message'),success: req.flash('success_message'),user: [{user: user}] });
     // }
   })
 });
+myApp.get('/art-list', async (req, res) => {
 
+  var where = [
+    {status:{$in:['active','completed','inprogress']}},
+    {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
+    // {start_date:{$lte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {end_date:{$gte: moment(new Date()).format('YYYY-MM-DD')}},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+  // const art = await Art.find({ user_id: req.session.user_id}).exec();
+
+  if(req.session.user_id){
+    // res.send(req.flash('message')); 
+    return res.render('arts', { errors:req.flash('error_message'),success: req.flash('success_message'),art: [{art: art}],moment: moment });
+  }else{
+    return res.redirect('/login');
+  }
+});
 myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!user) {
@@ -977,11 +991,15 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
   // console.log(req.body.start_date,req.body.start_time,req.body.end_date + " " + req.body.end_time,req.body.start_date + " " + req.body.start_time <= req.body.end_date + " " + req.body.end_time)
   
   if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
-    return res.render('uploadart', { errors: [{ msg: 'End date & time should be always greater than start date & time' }],success: [] });
+    req.flash('error_message', 'End date & time should be always greater than start date & time.'); 
+    return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
+    // return res.render('uploadart', { errors: [{ msg: 'End date & time should be always greater than start date & time' }],success: [] });
   }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    return res.render('uploadart', { errors:[{ msg: 'Start date & time should be always greater than current date & time' }],success: [] });
+    req.flash('error_message', 'Start date & time should be always greater than current date & time.'); 
+    return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
   }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    return res.render('uploadart', { errors:[{ msg: 'End date & time should be always greater than current date & time' }],success: [] });
+    req.flash('error_message', 'End date & time should be always greater than current date & time.'); 
+    return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
   }else{
     // User.findOne({id:req.body.id}, function (err, user) {
         // if (!user) {
@@ -1009,18 +1027,21 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
       });
       // console.log(newArt,req.body)
       newArt.save().then(() => {
+        req.flash('success_message', 'Art Added successfully.'); 
         return res.redirect('/art-list');
         // return res.render('uploadart', { success: [{ msg: 'Art Added successfully.' }],errors: [] });
       }).catch((err) => {
         console.error('Error saving user:', err);
-        return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
+        req.flash('error_message', 'Art adding failed.'); 
+        return res.render('uploadart', { errors: req.flash('error_message'),success: req.flash('success_message') });
+        // return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
       });
   }
 });
 
 myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =>{
-   req.session.user_id = '652e8eea63799921917f0a0f';
-  req.session.userName = 'ss';
+  //  req.session.user_id = '652e8eea63799921917f0a0f';
+  // req.session.userName = 'ss';
   const user = await User.findOne({ _id: req.session.user_id}).exec();
   if (!user) {
     return res.redirect('/login');
@@ -1033,11 +1054,14 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
   //   var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
   //   return res.render('edit-art', { errors: [{ msg: msg+' is reqired.' }],success: [] });
   if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
-    return res.render('edit-art', { errors:[{ msg: 'End date & time should be always greater than start date & time' }],success: [],art: [{art: art}] });
+    req.flash('error_message', 'End date & time should be always greater than start date & time.'); 
+    return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
   }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-      return res.render('edit-art', { errors:[{ msg: 'Start date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
+    req.flash('error_message', 'Start date & time should be always greater than current date & time.');  
+    return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
   }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    return res.render('edit-art', { errors:[{ msg: 'End date & time should be always greater than current date & time' }],success: [],art: [{art: art}] });
+    req.flash('error_message', 'End date & time should be always greater than current date & time'); 
+    return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
   }else{
     const user = await Art.findOne({ _id: req.body.art_id}).exec();
     var title = req.body.title.trim();
@@ -1085,8 +1109,8 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
           // return res.render('arts', { success: [{ msg: 'Art Updated successfully.' }],errors: [],art: [{art: art}],moment: moment });
         }).catch((err) => {
           console.error('Error saving user:', err);
-          req.flash('error_message', 'Art adding failed'); 
-          res.redirect('/art-list');
+          req.flash('error_message', 'Art updating failed'); 
+          return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
           // return res.render('arts', { commonError: 'Art adding failed',art: [{art: art}],moment: moment }); // Pass commonError here
         });
 
@@ -1111,10 +1135,13 @@ myApp.get('/delete-art/:art_id',upload.single('profile_image'),async (req, res, 
     
 
     await art.save().then(() => {
+      req.flash('success_message', 'Art Deleted successfully.'); 
       return res.redirect('/art-list');
     }).catch((err) => {
           console.error('Error saving user:', err);
-          return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
+        req.flash('error_message', 'Art Deletion failed.'); 
+        return res.redirect('/art-list');
+          // return res.render('art-list', { commonError: 'Art adding failed' }); // Pass commonError here
         });
 
       
@@ -1375,10 +1402,17 @@ myApp.post('/add-cart',async (req, res, next) =>{
         });
         // console.log(newArt,req.body)
         cart1.save().then(() => {
-          return res.render('cart', { success: [{ msg: 'Art Added to cart.' }],errors: [],cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
+          req.flash('success_message', 'Art Added to cart');
+    return res.redirect('/cart');
+
+          // return res.render('cart', { success: req.flash('success_message'),errors: req.flash('error_message'),cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
         }).catch((err) => {
           console.error('Error saving user:', err);
-          return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
+          req.flash('error_message', 'Error saving art to cart.');
+    return res.redirect('/cart');
+          
+          return res.render('cart', { success: req.flash('success_message'),errors: req.flash('error_message'),cart: [{cart: cart}], cartLength : cartItemsCount, total : total });
+          // return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
         });
       
   // });

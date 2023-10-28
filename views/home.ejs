@@ -96,10 +96,13 @@
                             class="text productId" id="productId"
                            value="<%= product._id %>">
                         <input type="text"
-                            class="text commentId inputError" id="commentId"
+                            class="text commentId inputError inputSuccess" id="commentId"
                             placeholder="Add a comment..."> 
                             <span role="alert" class="requiredError" aria-hidden="true">
                                 Please enter Comment
+                            </span><br>
+                            <span role="alert" class="commentSuccess" aria-hidden1="true">
+                               Comment posted successfully
                             </span><br>
                         <button class="btn btn-danger" style="background-color: #bd2130;" onclick="postComment(event,'<%= key %>')">Post</a> 
                     </div> 
@@ -194,12 +197,25 @@
                 success: function(data)
                 {
                     document.getElementsByClassName("commentId")[key].value = "";
+                    const userNameField = document.getElementsByClassName("inputSuccess");
+                    const showRequiredSuccess = document.getElementsByClassName("commentSuccess");
+                    // console.log(showRequiredSuccess,!userNameField[key],key)
+                    showRequiredSuccess[key].classList.add("visible");
+                    userNameField[key].classList.add("invalid");
+                    showRequiredSuccess[key].setAttribute("aria-hidden1", false);
+                    showRequiredSuccess[key].setAttribute("aria-invalid", true);
+                    setTimeout(() => {
+                        showRequiredSuccess[key].classList.remove("visible");
+                        userNameField[key].classList.remove("invalid");
+                        showRequiredSuccess[key].setAttribute("aria-hidden1", true);
+                        showRequiredSuccess[key].setAttribute("aria-invalid", false);
+                    }, "2000");
                 }
             });
         }else{
             const userNameField = document.getElementsByClassName("inputError");
             const showRequiredErr = document.getElementsByClassName("requiredError");
-            console.log(showRequiredErr,!userNameField[key],key)
+            // console.log(showRequiredErr,!userNameField[key],key)
             showRequiredErr[key].classList.add("visible");
             userNameField[key].classList.add("invalid");
             showRequiredErr[key].setAttribute("aria-hidden", false);

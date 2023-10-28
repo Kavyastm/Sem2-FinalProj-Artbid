@@ -11,31 +11,31 @@
         font-size: 58px;
     "><strong> My Arts</strong></h4>
     </div>
-    <div><a class="btn btn-primary" href="uploadart" role="button" style="
-        float: right;
-        margin-top: -103px;
-        margin-right: 116px;
-        /* margin: -100px; */
-    ">Add Art</a></div>
-     
+<div><a class="btn btn-primary" href="uploadart" role="button" style="
+    float: right;
+    margin-top: -103px;
+    margin-right: 116px;
+    /* margin: -100px; */
+">Add Art</a></div>
+     <% if (errors.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <%= errors[0] %>
+            </div>
+        </div>
+    <% } %>
+    <% if (success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <%= success[0] %>
+            </div>
+        </div>
+    <% } %>
 
      <% if(art[0].art.length > 0) { %>
 
         <div class="col-9"> 
-            <% if (errors.length > 0) { %>
-                <div class="alert alert-danger alert-dismissible">
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                    <%= errors[0] %>
-                    </div>
-                </div>
-            <% } %>
-            <% if (success.length > 0) { %>
-                <div class="alert alert-success alert-dismissible">
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                    <%= success[0] %>
-                    </div>
-                </div>
-            <% } %>
+            
             
         <!-- Code for viewing the Post -->
         <% art[0].art.forEach(product => { %>
