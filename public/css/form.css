@@ -338,13 +338,28 @@ button.register {
     -webkit-filter: blur(1px); */
 }
 
+#submitFormValidate .name-field input {
+    width: 100%;
+    height: 30px;
+    border-radius: 5px;
+    border-color: #0000007a;
+    padding: 1rem;
+    font-size: 1rem;
+    font-family: var(--txt-style);
+    font-weight: 500;
+    margin-top: .8rem;
+    box-shadow: rgb(98 98 102 / 13%) 0px 0px 12px 0px !important;
+    background-color: rgb(255, 255, 255);
+    padding: 20px 10px;
+}
+
 
 .textonimg {
     position: absolute;
     font-weight: bold;
     font-size: 20px;
     top: 60%;
-    left: 50%;
+    left: 33%;
     transform: translate(-50%, -50%);
 
 }
@@ -674,6 +689,9 @@ p {
     text-align: center;
     color: black;
     font-size: .9rem;
+    color: #000 !important;
+    padding-bottom: 30px;
+    font-weight: normal;
 }
 
 .register-field a p:hover {

@@ -11,18 +11,18 @@
         font-size: 58px;
     "><strong> My Arts</strong></h4>
     </div>
-<div><a class="btn btn-primary" href="uploadart" role="button" style="
-    float: right;
-    margin-top: -103px;
-    margin-right: 116px;
-    /* margin: -100px; */
-">Add Art</a></div>
+    <div><a class="btn btn-primary" href="uploadart" role="button" style="
+        float: right;
+        margin-top: -103px;
+        margin-right: 116px;
+        /* margin: -100px; */
+    ">Add Art</a></div>
      
 
      <% if(art[0].art.length > 0) { %>
 
         <div class="col-9"> 
-            <% if (errors[0].msg > 0) { %>
+            <% if (errors.length > 0) { %>
                 <div class="alert alert-danger alert-dismissible">
                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                     <%= errors[0] %>

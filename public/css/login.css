@@ -4,14 +4,19 @@
         margin: 0;
         padding: 0;
         height: 100%;
-        background: #60a3bc !important;
+        background-image: url(/images/background.avif);
+        background-size: cover;
+
     }
+
     .user_card {
         height: 400px;
         width: 350px;
+        box-shadow: rgb(98 98 102 / 13%) 0px 0px 12px 0px !important;
+        background-color: rgb(255, 255, 255);
         margin-top: auto;
         margin-bottom: auto;
-        background: #f39c12;
+        background: aliceblue;
         position: relative;
         display: flex;
         justify-content: center;
@@ -21,14 +26,16 @@
         -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
         border-radius: 5px;
-
     }
+
     .user_card_signup {
         height: 755px;
         width: 350px;
+        box-shadow: rgb(98 98 102 / 13%) 0px 0px 12px 0px !important;
+        background-color: rgb(255, 255, 255);
         margin-top: auto;
         margin-bottom: auto;
-        background: #f39c12;
+        background: aliceblue;
         position: relative;
         display: flex;
         justify-content: center;
