@@ -10,7 +10,20 @@
         font-size: 58px;
     "><strong>Cart</strong></h4>
     </div>
-
+    <% if (errors.length > 0) { %>
+      <div class="alert alert-danger alert-dismissible">
+          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+          <%= errors[0] %>
+          </div>
+      </div>
+  <% } %>
+  <% if (success.length > 0) { %>
+      <div class="alert alert-success alert-dismissible">
+          <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+          <%= success[0] %>
+          </div>
+      </div>
+  <% } %>
       
     <section class="gradient-custom">
         <div class="container py-5">

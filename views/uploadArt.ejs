@@ -9,18 +9,18 @@
         <hr class="mt-0 mb-4">
         <form method="post" action="/add-art" id="submitFormValidate" enctype="multipart/form-data">
             <div class="">
-                <% if (errors && errors.length> 0) { %>
-                    <div class="error-message">
-                        <p class="error-text">
-                          <%= errors[0].msg %>
-                        </p>
+                <% if (errors.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        <%= errors[0] %>
+                        </div>
                     </div>
                 <% } %>
-                <% if (success && success.length> 0) { %>
-                    <div class="success-message">
-                        <p class="success-text">
-                            <%= success[0].msg %>
-                        </p>
+                <% if (success.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        <%= success[0] %>
+                        </div>
                     </div>
                 <% } %>
         <div class="row">

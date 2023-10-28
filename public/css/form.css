@@ -766,6 +766,16 @@ display: block;
   .requiredError.visible {
     display: block;
   }
+
+  .commentSuccess {
+    display: none;
+    font-size: 0.8em;
+    color: rgb(21, 201, 93);
+  }
+  
+  .commentSuccess.visible {
+    display: block;
+  }
   
   input.invalid {
     border-color: red;

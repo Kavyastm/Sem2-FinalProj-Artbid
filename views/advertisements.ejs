@@ -17,11 +17,24 @@
     margin-right: 116px;
     /* margin: -100px; */
 ">Add Advertisement</a></div>
-     
+     <% if (errors.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <%= errors[0] %>
+            </div>
+        </div>
+    <% } %>
+    <% if (success.length > 0) { %>
+        <div class="alert alert-success alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <%= success[0] %>
+            </div>
+        </div>
+    <% } %>
      <% if(advertisements[0].advertisements.length > 0) { %>
 
         <div class="col-9"> 
-           
+            
             
         <!-- Code for viewing the Post -->
         <% advertisements[0].advertisements.forEach(advertisement => { %>
