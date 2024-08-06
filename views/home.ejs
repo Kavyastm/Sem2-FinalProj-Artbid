@@ -2,44 +2,49 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script>
     import moment from 'moment';
-
 </script>
 <body>
-    <div style="height: 50px;">
-       
-    </div>
-    
-        
-
-        <div class="col-9"> 
+<style>
+.bid_show_btn_d a{
+color:#fff;
+}
+.bid_img{
+    width: 30px;
+    padding: 2px;
+    height: 30px;
+    position: relative;
+    bottom: 3px;
+    left: 5px;}
+.bid_show_btn_d {
+    border: 1px solid #1D1D1D;
+    padding: 15px;
+    text-align: center;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #295570;
+    box-shadow: 0.2em 0.2em 0 0 #8fbbd6;
+}
+</style>
+     <img src="/images/bnr1.png" style="width:100%;">       
+	
+        <div class="container-fluid pdag"> 
+		
+        <div class="row"> 
+			<div class="col-md-12"> 
+			<div class="primd">Artbid</div>
+				<div class="she_hd">Discover the premier online art auction platform in Canada! <br>Join us and explore our vibrant art collection.</div>
+			</div>
+		</div>
+		
+		
+        <div class="row"> 
            
         <!-- Code for viewing the Post -->
         <% art[0].art.forEach((product,key) => { %>
 
-            <div class="card" style="
-            margin-left: 28%;
-        "> 
-                <div class="top"> 
-                    <div class="userDetails"> 
-                        <div class="profilepic"> 
-                            <div class="profile_img"> 
-                                <div class="image"> 
-                                    <img src= 
-                                        alt="img8"> 
-                                </div> 
-                            </div> 
-                        </div> 
-                        <h3><%= product.userData[0].userName %> 
-                            <br> 
-                            <span><%= product.userData[0].about %></span> 
-                    </h3> 
-                    </div> 
-                    <div> 
-                        <span class="dot"> 
-                            <i class="fas fa-ellipsis-h"></i> 
-                        </span> 
-                    </div> 
-                </div> 
+            <div class="col-md-3 card widse"> 
+                  
                 <div class="imgBx"> 
                     <a href="/art-detail/<%= product._id %>">
                     <img src="<%= product.image %>"
@@ -47,69 +52,150 @@
                 </a>
                 </div> 
                 <div class="bottom"> 
-                    <div class="actionBtns"> 
-                        <div class="left"> 
-                             
-                        </div> 
-                    </div> 
-                    <a href="/art-detail/<%= product._id %>"> 
-                        <p class="message"> 
+                    <div>
+                    <a class="art-link" href="/art-detail/<%= product._id %>"> 
+                        <p class="message art_title"> 
                         <b><%= product.title %></b> 
                         </p> 
 
                     </a> 
 
                     <span> 
-                        <p class="message"> 
-                        <b><%= product.description %></b> 
+                        <p class="message art_desc"> 
+                        <%= product.description %> 
                         </p> 
 
                     </span> 
                     <span> 
                         <p class="message"> 
-                        <b>$<%= product.min_bid %></b> 
+                        <b>Min Bid Amount: <span class="min_bid_amount">$<%= product.min_bid %></span></b> 
                         </p> 
                         
                     </span> 
-                    <span> 
-                        <p class="message"> 
-                        <b>Start Date & Time:</b> <%= moment(product.start_date).format('DD-MM-YYYY') %>  <%= product.start_time %>
-                        </p> 
-                    </span> 
-                    <span> 
-                        <p class="message"> 
-                        <b>End Date & Time:</b> <%= moment(product.end_date).format('DD-MM-YYYY') %>  <%= product.end_time %>
-                        </p> 
-                    </span> 
-                    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" onclick="openModel('<%= product._id %>')">View all comments</button>
+                </div>
+				
+				<div class="start_d">
+					<div class="fdh">Starts at</div>
+					<div class="fdhs"><%= moment(product.start_date).format('DD-MM-YYYY') %>  <%= moment(product.start_time, ["h:mm A"]).format('hh:mm A') %></div>
+				</div>
+				
+				<div class="start_d sfpd">
+					<div class="fdh">Ends at</div>
+					<div class="fdhs"><%= moment(product.end_date).format('DD-MM-YYYY') %>  <%= moment(product.end_time, ["h:mm A"]).format('hh:mm A') %></div>
+				</div>
+				
+            <div class="bid_show_btn_d" onclick="location.href='/art-detail/<%= product._id %>'">
+           <a href="/art-detail/<%= product._id %>" class="bid_show_btn">BID&nbsp;<img src="/images/hammer.png" class="bid_img"></a>
+		   </div>
                 
-                    
+           <% if (product.status == 'active') { %>
+            <p class="message"> 
+            <b>Bid will Start In:</b><span class="countdownTimerAllClass" style="display: block;"></span> 
+            <input type="hidden" class="countdowndate_from" value="<%= product.start_date %>">
+            <input type="hidden" class="countdowntime_from" value="<%= product.start_time %>">
+            </p>
+        <% }else{ %>
+            <p class="message"> 
+            Bid will End In:
+            <span class="countdownTimerAllClass" style="display: block;"></span> 
+            <input type="hidden" class="countdowndate_from" value="<%= product.end_date %>">
+            <input type="hidden" class="countdowntime_from" value="<%= product.end_time %>">
+            </p>
+        <% } %>
 
                     
                     <div class="addComments"> 
                         <div class="reaction"> 
-                            <h3> 
-                            <i class="far fa-smile"></i> 
-                            </h3> 
+                         <img  style="width: 30px;" src="/images/comment.png">                             
                         </div> 
                         <input type="hidden"
                             class="text productId" id="productId"
                            value="<%= product._id %>">
-                        <input type="text"
+                        <input style="height: 38px;border-radius:0;" type="text"
                             class="text commentId inputError inputSuccess" id="commentId"
                             placeholder="Add a comment..."> 
-                            <span role="alert" class="requiredError" aria-hidden="true">
-                                Please enter Comment
-                            </span><br>
-                            <span role="alert" class="commentBidSuccess" aria-hidden1="true">
-                               Comment posted successfully
-                            </span><br>
-                        <button class="btn btn-danger" style="background-color: #bd2130;" onclick="postComment(event,'<%= key %>')">Post</a> 
+                            
+							 
+                        <button class="btn btn-danger" style="border-radius: 0;background-color: #bd2130;" onclick="postComment(event,'<%= key %>')">Post</a> 
                     </div> 
+					
+					
+					<div style="padding-left: 39px;
+    padding-top: 0px !important;" role="alert" class="requiredError" aria-hidden="true">
+                                Please enter Comment
+                            </div> 
+                            <div style="padding-left: 39px;
+    padding-top: 0px !important;" role="alert" class="commentBidSuccess" aria-hidden1="true">
+                               Comment posted successfully
+                            </div> 
+							
+							
+					<div class="vie_cmnt" data-toggle="modal" data-target="#myModal" onclick="openModel('<%= product._id %>')">View comments</div>
                 </div>  
             </div> <br><br>
 
             <% }) %>
+			
+			 <div class="col-md-12 hy">
+			<ul class="nav nav-tabs dgge">
+    <li class="active"><a class="active show" data-toggle="tab" href="#home">Sell at Auction</a></li>
+    <li><a data-toggle="tab" href="#menu1">Buy at Auction</a></li>
+     
+  </ul>
+
+  <div class="tab-content ">
+    <div id="home" class="tab-pane in active tbbox">
+       <div class="row">
+		<div class="col-md-3">			
+			<div class="ul_p_i text-center"><img src="/images/signup.png"></div>
+			<div class="ul_p">Sign up</div>
+			<div class="ul_s">Sign up to access the sellers features for free. You can submit as many articles as you want.</div>
+		</div>
+		<div class="col-md-3">
+		<div class="ul_p_i text-center"><img src="/images/art.png"></div>
+			<div class="ul_p">Submit your articles</div>
+			<div class="ul_s">After your articles and descriptions have been approved by our experts, they will be scheduled for sale at auction.</div>
+		</div>
+		<div class="col-md-3">
+		<div class="ul_p_i text-center"><img src="/images/bid.png"></div>
+			<div class="ul_p">See bids</div>
+			<div class="ul_s">Feel the adrenaline when you see bidders from all over the world bidding on your lots!</div>
+		</div>
+		<div class="col-md-3">
+		<div class="ul_p_i text-center"><img src="/images/money.png"></div>
+			<div class="ul_p">Receive the money</div>
+			<div class="ul_s">You will only be asked to send your articles after the buyer has transferred the payment. ArtBid does the management of payments between buyers and sellers.</div>
+		</div>
+	   </div>
+    </div>
+    <div id="menu1" class="tab-pane">
+      <div class="row">
+		<div class="col-md-3">
+		<div class="ul_p_i text-center"><img src="/images/add-user.png"></div>
+			<div class="ul_p">Create a free account</div>
+			<div class="ul_s">Create an account using your email address.</div>
+		</div>
+		<div class="col-md-3">
+		<div class="ul_p_i text-center"><img src="/images/bid.png"></div>
+			<div class="ul_p">Bid</div>
+			<div class="ul_s">Bid on your favorite lots and win!</div>
+		</div>
+		<div class="col-md-3">
+		<div class="ul_p_i text-center"><img src="/images/checkout.png"></div>
+			<div class="ul_p">Secure checkout</div>
+			<div class="ul_s">Select the way you would like to process.</div>
+		</div>
+		<div class="col-md-3">
+		<div class="ul_p_i text-center"><img src="/images/received.png"></div>
+			<div class="ul_p">Receive your article</div>
+			<div class="ul_s">Articles will be shipped within 3 business days.</div>
+		</div>
+	   </div>
+    </div>
+    
+  </div>
+  </div>
+			
             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable" role="document">
                   <div class="modal-content">
@@ -139,10 +225,12 @@
                   </div>
                 </div>
         </div> 
+        </div> 
         
           
 </body>
 <script>
+
     function formatDate(date){
         // const today = new Date();
         const yyyy = date.getFullYear();
@@ -199,6 +287,10 @@
                     document.getElementsByClassName("commentId")[key].value = "";
                     const userNameField = document.getElementsByClassName("inputSuccess");
                     const showRequiredSuccess = document.getElementsByClassName("commentBidSuccess");
+					
+					const showRequiredErr = document.getElementsByClassName("requiredError");
+            // console.log(showRequiredErr,!userNameField[key],key)
+            showRequiredErr[key].classList.remove("visible");
                     // console.log(showRequiredSuccess,!userNameField[key],key)
                     showRequiredSuccess[key].classList.add("visible");
                     userNameField[key].classList.add("invalid");
@@ -209,7 +301,7 @@
                         userNameField[key].classList.remove("invalid");
                         showRequiredSuccess[key].setAttribute("aria-hidden1", true);
                         showRequiredSuccess[key].setAttribute("aria-invalid", false);
-                    }, "2000");
+                    }, "50000");
                 }
             });
         }else{
@@ -225,11 +317,46 @@
                 userNameField[key].classList.remove("invalid");
                 showRequiredErr[key].setAttribute("aria-hidden", true);
                 showRequiredErr[key].setAttribute("aria-invalid", false);
-            }, "2000");
+            }, "50000");
         }
        
 
 }
+</script>
+
+
+<script>
+    const countdownTimerClassArr = document.getElementsByClassName("countdownTimerAllClass");
+    var x = setInterval(
+    function () {
+        for (var i = 0; i < countdownTimerClassArr.length; i++) {
+            var countDownDateFrom = document.getElementsByClassName("countdowndate_from")[i].value;
+            var countDownTimeFrom = document.getElementsByClassName("countdowntime_from")[i].value;
+            // countDownDate = new Date(endDate.innerHTML.replace(/-/g, "/")).getTime();
+            var countDown = countdownTimerClassArr[i];
+            var coundDownFromDateTime = countDownDateFrom + " " + countDownTimeFrom;
+            // var countDownDate = new Date("2023-11-04 21:52").getTime();
+            var countDownDate = new Date(coundDownFromDateTime).getTime();
+            var now = new Date().getTime();
+
+            var distance = countDownDate - now;
+
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+
+            countDown.innerHTML = (days + "d " + hours + "h "
+                + minutes + "m " + seconds + "s ");
+            console.log(distance , i);
+            if (distance < 0) {
+                clearInterval(x);
+                countDown.innerHTML = "";
+                // window.location.reload();
+            }
+        }
+    }, 1000);
 </script>
 
 <%- include('layouts/footer'); -%>

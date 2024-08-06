@@ -222,7 +222,7 @@ myApp.post('/get-all-comments', async (req, res) => {
 //   var art = await Art.aggregate(aggregatorOpts).exec();
   if(req.session.user_id){
 
-    var response = res.render('comment', { errors:[],success: [],comment: [{comment: comment}] });
+    var response = res.render('comment', { errors:[],success: [],comment: [{comment: comment}],moment: moment });
     res.json(response)
     // return res.render('comment', { errors:[],success: [],comment: [{comment: comment}] });
 
@@ -232,6 +232,114 @@ myApp.post('/get-all-comments', async (req, res) => {
   }
 });
 myApp.get('/welcome', async (req, res) => {
+  var where = [
+    {status:"active"},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts2 = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+
+
+  var art1 = await Art.aggregate(aggregatorOpts2).exec();
+
+  art1.forEach(async(element) => {
+    if((element.start_date + " " + element.start_time) <= moment(new Date()).format('YYYY-MM-DD HH:mm') && (element.end_date + " " + element.end_time) > moment(new Date()).format('YYYY-MM-DD HH:mm')){
+
+      console.log('running a task every minute status inprogress', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
+
+      const art2 =  await Art.findOne({ _id: element._id}).exec();
+      art2.status = 'inprogress';
+      await art2.save();
+    }
+  
+  });
+
+  var where = [
+    {status:"active"},
+    // {_id: new mongoose.Types.ObjectId('653131a126e2b9cf90709dac')},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts1 = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+
+
+  var art3 = await Art.aggregate(aggregatorOpts1).exec();
+// console.log(art)
+  art3.forEach(async(element) => {
+
+    if((element.end_date + " " + element.end_time) <= moment(new Date()).format('YYYY-MM-DD HH:mm') ){
+
+      console.log('running a task every minute status completed', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
+      var artistMsg = '<p>Hi <b>'+element.userData[0].userName+'</b>, Bidding for your art <b>'+ element.title + '</b> has been completed.</p>'
+      if(element.last_bidder_id){
+        const bidderData = await User.findOne({ _id: element.last_bidder_id }).exec();
+        artistMsg = artistMsg + '<p> <b>'+bidderData.userName+'</b> won bid with highest bidding amount of <b>$' +element.last_bid+ '</b></p>' 
+        let mailDetailsBidder = {
+          // from: 'n23goswami+1@gmail.com',
+          // to: 'n23goswami+2@gmail.com',
+          to: bidderData.email,
+          subject: 'Won Bid',
+          html: '<style type="text/css">@media only screen and (max-device-width: 768px) {.responsive_table { background-color:#e6e6fa; height:100%; width:100%;}}@media only screen and (min-device-width: 769px) {.responsive_table { background-color:#e6e6fa; height:100%; width:50%;}}</style><!--[if (gte mso 9)|(IE)]><table width="400" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><tr><td><tr><td><p><p><![endif]-->	<table align="center" border="0" cellpadding="5" cellspacing="0" class="responsive_table"><tbody><tr><td width="350" style="background-color:#ffffff; text-align:center; vertical-align:middle;"><hr /></td></tr><tr><td style="background-color:#ffffff; text-align:center"><h1 style="text-align:left"><strong><strong>Hi ' + bidderData.userName + ',</strong></strong></h1><p style="text-align:left"><strong></strong>  You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p><p style="text-align:left">&nbsp;</p><p style="text-align:left">Thank you.</p><p style="text-align:left">Cheers,<br />Art Bid&nbsp;Team</p><hr /></td></tr></tbody></table></p> </p></tr></table>'
+
+          // html: '<p>Hi <b>'+bidderData.userName+'</b>, You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p>'
+        };
+          mailTransporter.sendMail(mailDetailsBidder, function(err, data) {
+            if(err) {
+                console.log('Error Occurs',err);
+            } else {
+                console.log('Email sent successfully',bidderData.email);
+            }
+          });
+      }
+      let mailDetails = {
+        // from: 'n23goswami+1@gmail.com',
+        // to: 'n23goswami+2@gmail.com',
+        to: element.userData[0].email,
+        subject: 'Bid Completed',
+        html: artistMsg
+      };
+        mailTransporter.sendMail(mailDetails, function(err, data) {
+          if(err) {
+              console.log('Error Occurs',err);
+          } else {
+              console.log('Email sent successfully',element.userData[0].email);
+          }
+        });
+      
+      const art4 =  await Art.findOne({ _id: element._id}).exec();
+      art4.status = 'completed';
+      await art4.save();
+    }
+  
+  });
   // req.session.user_id = req.session.user_id;
   // req.session.userName = 'ss';
   var where = [
@@ -286,6 +394,7 @@ myApp.get('/welcome', async (req, res) => {
   // console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
+ 
     return res.render('home', { errors:[],success: [],art: [{art: art}],comment: [],moment: moment });
 
   }else{
@@ -392,7 +501,7 @@ const aggregatorOpts2 = [
   // console.log(cart);
   
   if(req.session.user_id){
-    return res.render('art-detail', { errors:req.flash('error_message'),success: req.flash('success_message'),logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}] });
+    return res.render('art-detail', { errors:req.flash('error_message'),success: req.flash('success_message'),logged_in_id:req.session.user_id,cart:cart ,art: [{art: art}],biddingHistory: [{biddingHistory: biddingHistory}],moment: moment });
 
   }else{
     return res.redirect('/login');
@@ -605,7 +714,7 @@ myApp.post('/login', [
   // Query the database to find a user with the given email
   async function loginUser() {
     try {
-      const user = await User.findOne({ userName: userName }).exec();
+      const user = await User.findOne({$or:[{"email": userName}]}).exec();
 
       if (!user) {
         return res.render('login', { errors: [{ msg: 'User not found. Please register.' }] });
@@ -822,7 +931,7 @@ myApp.get('/edit-art/:art_id', async (req, res) => {
 
   const art = await Art.findOne({ _id: req.params.art_id}).exec();
     if (req.session.user_id) {
-          return res.render('edit-art', { errors:req.flash('error_message'),success: req.flash('success_message'),art: [{art: art}] });
+          return res.render('edit-art', { errors:req.flash('error_message'),success: req.flash('success_message'),art: [{art: art}],moment: moment });
     }else{
       return res.redirect('/login');
     }
@@ -831,13 +940,14 @@ myApp.get('/advertisement-list', async (req, res) => {
   if(!req.session.user_id){
     return res.redirect('/login');
   }else{
-      var where = [
+      /*var where = [
         {user_id: new mongoose.Types.ObjectId(req.session.user_id)},
-      ]
+      ]*/
+	  var where = [{}];
       const aggregatorOpts = [
-        {
+        /*{
           $match : { $and : where }
-        },
+        },*/
         {
           $lookup:
             {
@@ -904,7 +1014,7 @@ myApp.get('/uploadart', async (req, res) => {
     // if (!user) {
     //   return res.redirect('/login');
     // }else{
-    return res.render('uploadArt', { errors:req.flash('error_message'),success: req.flash('success_message') });
+    return res.render('uploadArt', { errors:req.flash('error_message'),success: req.flash('success_message') ,moment: moment});
 
       // return res.render('uploadArt' , { errors:[],success: [] });
     // }
@@ -942,6 +1052,21 @@ myApp.post('/update-profile',upload.single('profile_image'),async (req, res, nex
       return res.render('profile',{ errors:req.flash('error_message'),success: req.flash('success_message'),user: [{user: user}] });
     // }
   })
+});
+
+myApp.post('/remove-profile-image',async (req, res, next) =>{
+  const user = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user) {
+    return res.redirect('/login');
+    // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
+  }
+      user.profile_image = '';
+      await user.save();
+      req.flash('success_message', 'Profile Picture removed successfully.'); 
+      const user_updated = await User.findOne({ _id: req.session.user_id}).exec();
+      return res.render('profile',{ errors:req.flash('error_message'),success: req.flash('success_message'),user: [{user: user_updated}] });
+  
+  
 });
 myApp.get('/art-list', async (req, res) => {
 
@@ -990,17 +1115,17 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
   //   return res.render('uploadart', { errors: [{ msg: msg+' is reqired.' }],success: [] });
   // console.log(req.body.start_date,req.body.start_time,req.body.end_date + " " + req.body.end_time,req.body.start_date + " " + req.body.start_time <= req.body.end_date + " " + req.body.end_time)
   
-  if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
-    req.flash('error_message', 'End date & time should be always greater than start date & time.'); 
-    return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
-    // return res.render('uploadart', { errors: [{ msg: 'End date & time should be always greater than start date & time' }],success: [] });
-  }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    req.flash('error_message', 'Start date & time should be always greater than current date & time.'); 
-    return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
-  }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    req.flash('error_message', 'End date & time should be always greater than current date & time.'); 
-    return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
-  }else{
+  // if(req.body.start_date + " " + moment(req.body.start_time).format('HH:mm') >= req.body.end_date + " " + moment(req.body.end_time).format('HH:mm')){
+  //   req.flash('error_message', 'End date & time should be always greater than start date & time.'); 
+  //   return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
+  //   // return res.render('uploadart', { errors: [{ msg: 'End date & time should be always greater than start date & time' }],success: [] });
+  // }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+  //   req.flash('error_message', 'Start date & time should be always greater than current date & time.'); 
+  //   return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
+  // }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+  //   req.flash('error_message', 'End date & time should be always greater than current date & time.'); 
+  //   return res.render('uploadart', { errors: req.flash('error_message'),success: [] });
+  // }else{
     // User.findOne({id:req.body.id}, function (err, user) {
         // if (!user) {
         //   return res.redirect('/login');
@@ -1018,10 +1143,10 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
         // end_date: '2023-10-19',
         // start_time: '10:00',
         // end_time: '23:05',
-        start_date: moment(new Date(req.body.start_date)).format('YYYY-MM-DD'),
-        end_date: moment(new Date(req.body.end_date)).format('YYYY-MM-DD'),
-        start_time: req.body.start_time,
-        end_time: req.body.end_time,
+        start_date: moment(req.body.start_date).format('YYYY-MM-DD'),
+        end_date: moment(req.body.end_date).format('YYYY-MM-DD'),
+        start_time: moment(req.body.start_time,'hh:mm A').format('HH:mm'),
+        end_time: moment(req.body.end_time,'hh:mm A').format('HH:mm'),
         status: 'active',
         
       });
@@ -1036,14 +1161,14 @@ myApp.post('/add-art',upload.single('profile_image'),async (req, res, next) =>{
         return res.render('uploadart', { errors: req.flash('error_message'),success: req.flash('success_message') });
         // return res.render('uploadart', { commonError: 'Art adding failed' }); // Pass commonError here
       });
-  }
+  // }
 });
 
 myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =>{
   //  req.session.user_id = '652e8eea63799921917f0a0f';
   // req.session.userName = 'ss';
-  const user = await User.findOne({ _id: req.session.user_id}).exec();
-  if (!user) {
+  const user1 = await User.findOne({ _id: req.session.user_id}).exec();
+  if (!user1) {
     return res.redirect('/login');
     // return res.render('profile', { errors: [{ msg: 'User not found.' }],success: [],user: [{user: user}] });
   }
@@ -1053,16 +1178,16 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
   // if (!req.body.title || !req.body.description || !req.body.min_bid || !req.body.start_date || !req.body.end_date || !req.body.start_time || !req.body.end_time) {
   //   var msg = !req.body.title ? 'Title' : !req.body.description ? 'description' : !req.body.min_bid ? 'Min Bid' : !req.body.start_date ? 'Start Date' : !req.body.end_date ? 'End Date' : !req.body.start_time ? 'Start Time' : !req.body.end_time ? 'End Time' : ''
   //   return res.render('edit-art', { errors: [{ msg: msg+' is reqired.' }],success: [] });
-  if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
-    req.flash('error_message', 'End date & time should be always greater than start date & time.'); 
-    return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
-  }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    req.flash('error_message', 'Start date & time should be always greater than current date & time.');  
-    return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
-  }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
-    req.flash('error_message', 'End date & time should be always greater than current date & time'); 
-    return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
-  }else{
+  // if(req.body.start_date + " " + req.body.start_time >= req.body.end_date + " " + req.body.end_time){
+  //   req.flash('error_message', 'End date & time should be always greater than start date & time.'); 
+  //   return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
+  // }else if(req.body.start_date + " " + req.body.start_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+  //   req.flash('error_message', 'Start date & time should be always greater than current date & time.');  
+  //   return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
+  // }else if(req.body.end_date + " " + req.body.end_time <= moment(new Date()).format('YYYY-MM-DD HH:mm')){
+  //   req.flash('error_message', 'End date & time should be always greater than current date & time'); 
+  //   return res.render('edit-art', { errors: req.flash('error_message'),success: [],art: [{art: art}] });
+  // }else{
     const user = await Art.findOne({ _id: req.body.art_id}).exec();
     var title = req.body.title.trim();
     var description = req.body.description.trim();
@@ -1071,10 +1196,10 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
     user.image = req.file ? 'uploads/'+req.file.filename : user.image;
     user.description = description;
     user.min_bid = min_bid;
-    user.start_time = req.body.start_time;
-    user.end_time = req.body.end_time;
-    user.start_date = moment(new Date(req.body.start_date)).format('YYYY-MM-DD');
-    user.end_date = moment(new Date(req.body.end_date)).format('YYYY-MM-DD');
+    user.start_time = moment(req.body.start_time,'hh:mm A').format('HH:mm');
+    user.end_time = moment(req.body.end_time,'hh:mm A').format('HH:mm');
+    user.start_date = moment(req.body.start_date).format('YYYY-MM-DD');
+    user.end_date = moment(req.body.end_date).format('YYYY-MM-DD');
 
     
 
@@ -1114,7 +1239,7 @@ myApp.post('/update-art',upload.single('profile_image'),async (req, res, next) =
           // return res.render('arts', { commonError: 'Art adding failed',art: [{art: art}],moment: moment }); // Pass commonError here
         });
 
-      }
+      // }
       
   // });
 });
@@ -1304,12 +1429,83 @@ myApp.get('/thankyou-page', (req, res) => {
 
 myApp.get('/logout', async (req, res) => {
   req.session.destroy(function(error){ 
-    console.log("Session Destroyed");
     return res.redirect('/login');
   })  
 });
 
 myApp.get('/past-auction', async (req, res) => {
+
+  var where = [
+    {status:"inprogress"},
+    // {_id: new mongoose.Types.ObjectId('653131a126e2b9cf90709dac')},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts1 = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+
+
+  var art1 = await Art.aggregate(aggregatorOpts1).exec();
+// console.log(art)
+  art1.forEach(async(element) => {
+
+    if((element.end_date + " " + element.end_time) <= moment(new Date()).format('YYYY-MM-DD HH:mm') ){
+
+      console.log('running a task every minute status completed', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
+      var artistMsg = '<p>Hi <b>'+element.userData[0].userName+'</b>, Bidding for your art <b>'+ element.title + '</b> has been completed.</p>'
+      if(element.last_bidder_id){
+        const bidderData = await User.findOne({ _id: element.last_bidder_id }).exec();
+        artistMsg = artistMsg + '<p> <b>'+bidderData.userName+'</b> won bid with highest bidding amount of <b>$' +element.last_bid+ '</b></p>' 
+        let mailDetailsBidder = {
+          // from: 'n23goswami+1@gmail.com',
+          // to: 'n23goswami+2@gmail.com',
+          to: bidderData.email,
+          subject: 'Won Bid',
+          html: '<style type="text/css">@media only screen and (max-device-width: 768px) {.responsive_table { background-color:#e6e6fa; height:100%; width:100%;}}@media only screen and (min-device-width: 769px) {.responsive_table { background-color:#e6e6fa; height:100%; width:50%;}}</style><!--[if (gte mso 9)|(IE)]><table width="400" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><tr><td><tr><td><p><p><![endif]-->	<table align="center" border="0" cellpadding="5" cellspacing="0" class="responsive_table"><tbody><tr><td width="350" style="background-color:#ffffff; text-align:center; vertical-align:middle;"><hr /></td></tr><tr><td style="background-color:#ffffff; text-align:center"><h1 style="text-align:left"><strong><strong>Hi ' + bidderData.userName + ',</strong></strong></h1><p style="text-align:left"><strong></strong>  You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p><p style="text-align:left">&nbsp;</p><p style="text-align:left">Thank you.</p><p style="text-align:left">Cheers,<br />Art Bid&nbsp;Team</p><hr /></td></tr></tbody></table></p> </p></tr></table>'
+
+          // html: '<p>Hi <b>'+bidderData.userName+'</b>, You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p>'
+        };
+          mailTransporter.sendMail(mailDetailsBidder, function(err, data) {
+            if(err) {
+                console.log('Error Occurs',err);
+            } else {
+                console.log('Email sent successfully',bidderData.email);
+            }
+          });
+      }
+      let mailDetails = {
+        
+        to: element.userData[0].email,
+        subject: 'Bid Completed',
+        html: artistMsg
+      };
+        mailTransporter.sendMail(mailDetails, function(err, data) {
+          if(err) {
+              console.log('Error Occurs',err);
+          } else {
+              console.log('Email sent successfully',element.userData[0].email);
+          }
+        });
+      
+      const art2 =  await Art.findOne({ _id: element._id}).exec();
+      art2.status = 'completed';
+      await art2.save();
+    }
+  
+  });
   // req.session.user_id = req.session.user_id;
   // req.session.userName = 'ss';
   var where = [
@@ -1337,6 +1533,7 @@ myApp.get('/past-auction', async (req, res) => {
   // console.log('art',art,req.session.user_id);
   
   if(req.session.user_id){
+    
     return res.render('pastAuction', { errors:[],success: [],art: [{art: art}],moment: moment });
 
   }else{
@@ -1425,6 +1622,82 @@ cron.schedule('* * * * *', async () => {
 
   var where = [
     {status:"inprogress"},
+    // {_id: new mongoose.Types.ObjectId('653131a126e2b9cf90709dac')},
+    // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
+    // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},
+]
+  const aggregatorOpts = [
+    {
+      $match : { $and : where }
+    },
+    {
+      $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'userData'
+        }
+    }
+]
+
+
+
+  var art = await Art.aggregate(aggregatorOpts).exec();
+// console.log(art)
+  art.forEach(async(element) => {
+
+    if((element.end_date + " " + element.end_time) <= moment(new Date()).format('YYYY-MM-DD HH:mm') ){
+
+      console.log('running a task every minute status completed', moment(new Date()).format('YYYY-MM-DD HH:mm:ss'), element._id);
+      var artistMsg = '<p>Hi <b>'+element.userData[0].userName+'</b>, Bidding for your art <b>'+ element.title + '</b> has been completed.</p>'
+      if(element.last_bidder_id){
+        const bidderData = await User.findOne({ _id: element.last_bidder_id }).exec();
+        artistMsg = artistMsg + '<p> <b>'+bidderData.userName+'</b> won bid with highest bidding amount of <b>$' +element.last_bid+ '</b></p>' 
+        let mailDetailsBidder = {
+          // from: 'n23goswami+1@gmail.com',
+          // to: 'n23goswami+2@gmail.com',
+          to: bidderData.email,
+          subject: 'Won Bid',
+          html: '<style type="text/css">@media only screen and (max-device-width: 768px) {.responsive_table { background-color:#e6e6fa; height:100%; width:100%;}}@media only screen and (min-device-width: 769px) {.responsive_table { background-color:#e6e6fa; height:100%; width:50%;}}</style><!--[if (gte mso 9)|(IE)]><table width="400" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><tr><td><tr><td><p><p><![endif]-->	<table align="center" border="0" cellpadding="5" cellspacing="0" class="responsive_table"><tbody><tr><td width="350" style="background-color:#ffffff; text-align:center; vertical-align:middle;"><hr /></td></tr><tr><td style="background-color:#ffffff; text-align:center"><h1 style="text-align:left"><strong><strong>Hi ' + bidderData.userName + ',</strong></strong></h1><p style="text-align:left"><strong></strong>  You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p><p style="text-align:left">&nbsp;</p><p style="text-align:left">Thank you.</p><p style="text-align:left">Cheers,<br />Art Bid&nbsp;Team</p><hr /></td></tr></tbody></table></p> </p></tr></table>'
+
+          // html: '<p>Hi <b>'+bidderData.userName+'</b>, You have won bid for art <b>'+ element.title + '</b> with highest bidding amount of <b>$'+ element.last_bid+ '</b></p>'
+        };
+          mailTransporter.sendMail(mailDetailsBidder, function(err, data) {
+            if(err) {
+                console.log('Error Occurs',err);
+            } else {
+                console.log('Email sent successfully',bidderData.email);
+            }
+          });
+      }
+      let mailDetails = {
+        // from: 'n23goswami+1@gmail.com',
+        // to: 'n23goswami+2@gmail.com',
+        to: element.userData[0].email,
+        subject: 'Bid Completed',
+        html: artistMsg
+      };
+        mailTransporter.sendMail(mailDetails, function(err, data) {
+          if(err) {
+              console.log('Error Occurs',err);
+          } else {
+              console.log('Email sent successfully',element.userData[0].email);
+          }
+        });
+      
+      const art =  await Art.findOne({ _id: element._id}).exec();
+      art.status = 'completed';
+      await art.save();
+    }
+  
+  });
+});
+
+cron.schedule('* * * * *', async () => {
+
+  var where = [
+    {status:"active"},
     // {_id: new mongoose.Types.ObjectId('653131a126e2b9cf90709dac')},
     // {start_time:{$lte: moment(new Date()).format('HH:mm:00')}},
     // {end_time:{$gte: moment(new Date()).format('HH:mm:59')}},

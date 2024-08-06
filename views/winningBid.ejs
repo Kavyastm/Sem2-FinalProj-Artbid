@@ -1,108 +1,127 @@
 <%- include('layouts/innerheader'); -%>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-
-<body>
-    <div style="height: 50px;">
-       
-    </div>
+<style>
+.bid_show_btn_d {
+    border: 1px solid #1D1D1D;
+    padding: 15px;
+    text-align: center;
+    color: #fff;
+	    margin-bottom: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #295570;
+    box-shadow: 0.2em 0.2em 0 0 #8fbbd6;
+}
+.bid_show_btn_d a {
+    color: #fff;
+}
+.bid_show_btn_d a { 
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: 600;
+}
+.bid_img {
+    width: 30px;
+    padding: 2px;
+    height: 30px;
+    position: relative;
+    bottom: 3px;
+    left: 5px;
+}
+</style>
+    <body>
+        <div class="flex_div_bread">
+            <div class="pdhs">
+               <svg class="svgt" _ngcontent-ng-c3832377555="" width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path _ngcontent-ng-c3832377555="" d="M1.42393 16H15.5759C15.6884 16 15.7962 15.9584 15.8758 15.8844C15.9553 15.8104 16 15.71 16 15.6054V6.29143C16 6.22989 15.9846 6.1692 15.9549 6.11422C15.9252 6.05923 15.8821 6.01147 15.829 5.97475L8.75305 1.07803C8.67992 1.02736 8.59118 1 8.5 1C8.40882 1 8.32008 1.02736 8.24695 1.07803L1.17098 5.97587C1.11791 6.01259 1.0748 6.06035 1.04511 6.11534C1.01543 6.17033 0.999976 6.23101 1 6.29255V15.6063C1.00027 15.7108 1.04504 15.8109 1.12451 15.8847C1.20398 15.9585 1.31165 16 1.42393 16ZM10.1464 15.2107H6.85241V10.6202H10.1464V15.2107ZM1.84866 6.48977L8.4999 1.88561L15.1517 6.48977V15.2107H10.9946V10.2256C10.9946 10.1209 10.95 10.0206 10.8704 9.94654C10.7909 9.87254 10.683 9.83096 10.5705 9.83096H6.42848C6.316 9.83096 6.20812 9.87254 6.12858 9.94654C6.04904 10.0206 6.00435 10.1209 6.00435 10.2256V15.2107H1.84806L1.84866 6.48977Z" fill="#55585B" stroke="#55585B" stroke-width="0.5"></path></svg> <span class="hme"><a href="/welcome">Home</a></span><span class="bread_div">/</span><span class="hme">Winning Bid</span>
+            </div>
+        </div>
     
-    <% if(art[0].art.length > 0) { %>
-
-
-        <div class="col-9"> 
-           
-        <!-- Code for viewing the Post -->
-        <% art[0].art.forEach(product => { %>
-
-            <div class="card" style="
-            margin-left: 28%;
-        "> 
-                <div class="top"> 
-                    <div class="userDetails"> 
-                        <div class="profilepic"> 
-                            <div class="profile_img"> 
-                                <div class="image"> 
-                                    <img src= "<%= product.userData[0].profile_image %>"
-                                        alt="img8"> 
-                                </div> 
-                            </div> 
-                        </div> 
-                        <h3><%= product.userData[0].userName %> 
-                            <br> 
-                            <span><%= product.userData[0].about %></span> 
-                    </h3> 
-                    </div> 
-                    <div> 
-                        <span class="dot"> 
-                            <i class="fas fa-ellipsis-h"></i> 
-                        </span> 
-                    </div> 
-                </div> 
-                <div class="imgBx"> 
-                    <a href="/art-detail/<%= product._id %>">
-                    <img src="<%= product.image %>"
-                    class="cover" />
-                </a>
-                </div> 
-                <div class="bottom"> 
-                    <div class="actionBtns"> 
-                        <div class="left"> 
+        <div class="container-fluid pdag"> 
+            <% if(art[0].art.length > 0) { %>
+       
+               <div class="row"> 
+                   
+                   
+               <!-- Code for viewing the Post -->
+               <% art[0].art.forEach(product => { %>
+       
+                   <div class="col-md-3 card widse"> 
+                       <div class="tops">                   
+                           <!-- <div class="btn-group">
+                               <button type="button" class="btn btn-primary dropdown-toggle" data-mdb-toggle="dropdown-menu" aria-expanded="false">
+                                 Action
+                               </button>
+                               <ul class="dropdown-menu">
+                                 <li><a class="dropdown-item" href="#">Action</a></li>
+                                 <li><a class="dropdown-item" href="#">Another action</a></li>
+                                 <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                 <li><hr class="dropdown-divider" /></li>
+                                 <li><a class="dropdown-item" href="#">Separated link</a></li>
+                               </ul>
+                             </div> -->
+                       </div> 
+       
+                       <div class="imgBx"> 
+                         
+                           <img src="<%= product.image %>"
+                           class="cover" />
+                      
+                       </div> 
+                       <div class="bottom">                      
+                          
                              
-                        </div> 
-                    </div> 
-                    <a href="#"> 
-                        <p class="message"> 
-                        <b><%= product.title %></b> 
-                        </p> 
-
-                    </a> 
-
-                    <span href="#"> 
-                        <p class="message"> 
-                        <b><%= product.description %></b> 
-                        </p> 
-
-                    </span> 
-                    <span href="#"> 
-                        <p class="message"> 
-                        <b>$<%= product.min_bid %></b> 
-                        </p> 
-
-                    </span> 
-                    <span> 
-                        <p class="message"> 
-                        <b>Start Date & Time:</b> <%= moment(product.start_date).format('DD-MM-YYYY') %>  <%= product.start_time %>
-                        </p> 
-                    </span> 
-                    <span> 
-                        <p class="message"> 
-                        <b>End Date & Time:</b> <%= moment(product.end_date).format('DD-MM-YYYY') %>  <%= product.end_time %>
-                        </p> 
-                    </span> 
-                    <% if(product.is_payment_done == 'yes') { %>
-                    <div style="float: right;margin-top: -173px;"><h6>Payment Status</h6> <span style="color: green;"> Success</span> </div>
-                    <% } else { %>
-                        <div style="float: right;margin-top: -173px;"><h6>Payment Status</h6> <span style="color: red;"> Pending</span> </div>
-
-                    <% } %>
-                    
-                </div>  
-
-
-            </div> <br><br>
-
-            <% }) %>
-
+                               <p class="message art_title"> 
+                               <b><%= product.title %></b> 
+                               </p> 
         
-            
-        </div> 
+       
+                           <span> 
+                               <p class="message art_desc"> 
+                               <b><%= product.description %></b> 
+                               </p> 
+       
+                           </span> 
+                           <span> 
+                               <p class="message"> 
+                               <b>Min Bid Amount: <span class="min_bid_amount">$<%= product.min_bid %></span></b> 
+                               </p> 
+                               
+                           </span> 
+                           <div class="start_d">
+                           <div class="fdh">Starts at</div>
+                           <div class="fdhs"><%= moment(product.start_date).format('DD-MM-YYYY') %>  <%= moment(product.start_time, ["h:mm A"]).format('hh:mm A') %></div>
+                       </div>
+                       
+                       <div class="start_d sfpd">
+                           <div class="fdh">Ends at</div>
+                           <div class="fdhs"><%= moment(product.end_date).format('DD-MM-YYYY') %>  <%= moment(product.end_time, ["h:mm A"]).format('hh:mm A') %></div>
+                       </div> 
 
-        <% } else { %>
-
-            <div class="col-9 table-data"> </div>
-     <% } %>
-
-</body>
+                       <% if(product.is_payment_done == 'yes') { %>
+                        <div style="float: right;margin-top: -173px;"><h6>Payment Status</h6> <span style="color: green;"> Success</span> </div>
+                        <% } else { %>
+                            <div style="float: right;margin-top: -173px;"><h6>Payment Status</h6> <span style="color: red;"> Pending</span> </div>
+    
+                        <% } %>
+                       <div class="bid_show_btn_d" onclick="location.href='/art-detail/<%= product._id %>'">
+           <a href="/art-detail/<%= product._id %>" class="bid_show_btn">BUY NOW&nbsp; </a>
+		   </div>
+                       </div> 
+                   </div> <br><br>
+       
+                   <% }) %>
+                   
+               </div> 
+           <% } else { %>
+       
+               <div class="col-9 table-data"> </div>
+           <% } %>
+           </div>
+        
+        
+    </body>
+    
+    
 <script>
     function postComment(e,id) {
         // $("#idForm").submit(function(e) {
